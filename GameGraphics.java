@@ -75,6 +75,8 @@ public class GameGraphics extends GameObject {
     }
 
     public static void updateGraphics() {
+        System.out.println("Updating window...");
+
         try {
             graphics = (Graphics2D) strategy.getDrawGraphics();
         } catch (IllegalStateException e) {
@@ -119,8 +121,8 @@ public class GameGraphics extends GameObject {
         return window_scale;
     }
 
-    public static void drawRectangle(int x, int y, int width, int height) {
-        bufferGraphics.setColor(Color.BLUE);
+    public static void drawRectangle(int x, int y, int width, int height, Color color) {
+        bufferGraphics.setColor(color);
         bufferGraphics.fillRect(x, y, width, height);
     }
 
@@ -135,6 +137,7 @@ public class GameGraphics extends GameObject {
         super(0, Integer.MAX_VALUE); // Put this object at the very bottom of the draw queue
     }
 
+    @Override
     public void draw() {
         GameGraphics.updateGraphics();
     }

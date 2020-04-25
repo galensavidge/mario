@@ -1,3 +1,4 @@
+import java.awt.*;
 
 /**
  * Base game object class which is the parent of all other game object types.
@@ -45,10 +46,10 @@ public class GameObject
     }
     
     public void update() {
-        //System.out.println("Update with priority " + p);
+        x++;
     }
     
     public void draw() {
-        //System.out.println("Draw at layer " + l);
+        GameGraphics.drawRectangle(x, y, 50, 50, Color.BLUE);
     }
 }

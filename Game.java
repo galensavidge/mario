@@ -43,7 +43,7 @@ public class Game
         
         i = 0;
         while(i < draw_queue.size()) {
-            if(draw_queue.get(i).getLayer() >= object.getPriority()) {
+            if(draw_queue.get(i).getLayer() >= object.getLayer()) {
                 break;
             }
             i++;
@@ -68,14 +68,14 @@ public class Game
             }
             
             // Iterate over draw queue
-            GameGraphics.drawRectangle(100,100,10,10);
+            System.out.println("----------");
             i = draw_queue.listIterator();
             while(i.hasNext()) {
                 GameObject o = i.next();
                 o.draw();
             }
 
-
+            // Sleep to save CPU cycles
             long update_time = System.nanoTime() - start_time;
             long target_ns = (long) (1e9/target_fps);
             if(update_time < target_ns) {
