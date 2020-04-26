@@ -14,6 +14,12 @@ public class GameController extends GameObject {
 
     @Override
     public void update() {
+        if(InputManager.getPressed(InputManager.K_LEFT)) {
+            b2.x -= 10;
+        }
+        if(InputManager.getReleased(InputManager.K_RIGHT)) {
+            b2.x += 10;
+        }
         if(b1.collider.checkCollision(b1_xspeed, 0,false)) {
             b1_xspeed *= -1;
         }
