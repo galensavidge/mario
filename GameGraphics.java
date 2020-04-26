@@ -18,7 +18,7 @@ public class GameGraphics extends GameObject {
             .getDefaultScreenDevice()
             .getDefaultConfiguration();
 
-    private static JFrame frame;
+    private static JFrame frame = new JFrame();
     private static BufferedImage buffer;
     private static BufferStrategy strategy;
     private static Graphics2D bufferGraphics; // Render shapes and sprites to this
@@ -47,7 +47,7 @@ public class GameGraphics extends GameObject {
         window_scale = scale;
 
         // Set up JFrame
-        frame = new JFrame(title);
+        frame.setTitle(title);
         frame.addWindowListener(new GameGraphics.FrameClose());
         frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         frame.setSize(width * scale, height * scale);
@@ -110,6 +110,7 @@ public class GameGraphics extends GameObject {
         }
     }
 
+    /* Accessor functions */
     public static int getWindowWidth() {
         return window_width;
     }
@@ -122,8 +123,12 @@ public class GameGraphics extends GameObject {
         return window_scale;
     }
 
+    public static JFrame getFrame() {
+        return frame;
+    }
+
+    /* Functions to draw different things */
     /**
-     *
      * @param x X position of top left corner.
      * @param y Y position of top left corner.
      * @param absolute_position True to draw in the window coordinate space rather than the game coordinate space.
