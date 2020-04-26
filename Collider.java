@@ -12,6 +12,8 @@ public abstract class Collider {
     protected GameObject object; // The object that this collider is attached to
     protected String type;
 
+    protected double x_offset, y_offset; // The coordinates of this collider relative to its attached object
+
     /**
      * @param object The game object that this collider will attach to.
      */

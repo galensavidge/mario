@@ -8,20 +8,22 @@ public class CircleCollider extends Collider {
     public static final String colliderType = "Circle";
     private double radius;
 
-    public CircleCollider(GameObject object, double radius) {
+    public CircleCollider(GameObject object, double radius, double x_offset, double y_offset) {
         super(object);
-        this.radius = radius;
         this.type = CircleCollider.colliderType;
+        this.radius = radius;
+        this.x_offset = x_offset;
+        this.y_offset = y_offset;
     }
 
     public boolean collidesWithCircle(double x, double y, CircleCollider other) {
         // This collider's center
-        double cx = x + radius;
-        double cy = y + radius;
+        double cx = x + x_offset + radius;
+        double cy = y + y_offset + radius;
 
         // Other collider's center
-        double o_cx = other.object.x + other.radius;
-        double o_cy = other.object.y + other.radius;
+        double o_cx = other.object.x + other.x_offset + other.radius;
+        double o_cy = other.object.y + other.y_offset + other.radius;
 
         // Distance between their centers
         double xdist = cx - o_cx;

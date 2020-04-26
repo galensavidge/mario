@@ -1,15 +1,13 @@
 import java.awt.*;
 
 public class Block extends GameObject{
-    public CircleCollider collider;
+    public CircleCollider collider = new CircleCollider(this, 25, 0, 0);
 
     public Block(double x, double y) {
         super(0, 1);
 
         this.x = x;
         this.y = y;
-
-        this.collider = new CircleCollider(this, 25);
     }
     public void update() {
         if(collider.checkCollision(0, 0, false)) {
