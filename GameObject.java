@@ -6,17 +6,15 @@
  */
 public abstract class GameObject
 {
-    protected int priority = 0;
-    protected int layer = 0;
+    protected int priority;
+    protected int layer;
 
     // Object position
-    public int x = 0;
-    public int y = 0;
+    public int x;
+    public int y;
 
-    public GameObject()
-    {
-        Game.addObject(this);
-    }
+    // Whether this object persists between scenes or is deleted when the scene changes
+    protected boolean persistent = false;
 
     /**
      * @param priority The execution priority for this object's {@link #update()}. Higher priority means this object
@@ -53,13 +51,21 @@ public abstract class GameObject
 
         Game.addObject(this);
     }
-    
+
     public int getPriority() {
         return priority;
     }
     
     public int getLayer() {
         return layer;
+    }
+
+    public boolean isPersistent() {
+        return persistent;
+    }
+
+    public void delete() {
+        Game.removeObject(this);
     }
 
     /**
@@ -72,4 +78,12 @@ public abstract class GameObject
      * This method is called by Game every step and should be overwritten in child classes.
      */
     public abstract void draw();
+
+    /* @SuppressWarnings("deprecation")
+    @Override
+    protected void finalize() throws Throwable
+    {
+        // will print name of object
+        System.out.println(this + " successfully garbage collected");
+    }*/
 }

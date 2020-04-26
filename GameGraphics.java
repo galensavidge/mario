@@ -13,26 +13,24 @@ import java.awt.image.BufferStrategy;
  * @version 4/24/2020
  */
 public class GameGraphics extends GameObject {
-    /** Static GameGraphics class variables */
-    private static GraphicsConfiguration config = GraphicsEnvironment.getLocalGraphicsEnvironment()
+    /* Static GameGraphics class variables */
+    private static final GraphicsConfiguration config = GraphicsEnvironment.getLocalGraphicsEnvironment()
             .getDefaultScreenDevice()
             .getDefaultConfiguration();
 
     private static JFrame frame;
-
-    private static Canvas canvas;
-
     private static BufferedImage buffer;
     private static BufferStrategy strategy;
     private static Graphics2D bufferGraphics; // Render shapes and sprites to this
-
-    private static Graphics2D graphics;
 
     // Width and height in pixels and the scaling factor used when drawing to the screen
     private static int window_width;
     private static int window_height;
     private static int window_scale;
 
+    // Position of the window in the game world
+    public static int camera_x;
+    public static int camera_y;
 
     /* Static GameGraphics methods */
 
@@ -56,7 +54,7 @@ public class GameGraphics extends GameObject {
         frame.setVisible(true);
 
         // Set up Canvas
-        canvas = new Canvas(config);
+        Canvas canvas = new Canvas(config);
         canvas.setSize(width * scale, height * scale);
         frame.add(canvas, 0);
 
@@ -87,6 +85,7 @@ public class GameGraphics extends GameObject {
      * Writes the contents of the buffer frame to the window. Should be called after all other drawing is complete.
      */
     private static void updateGraphics() {
+        Graphics2D graphics;
         try {
             graphics = (Graphics2D) strategy.getDrawGraphics();
         } catch (IllegalStateException e) {
@@ -95,11 +94,11 @@ public class GameGraphics extends GameObject {
         }
 
         // Draw buffer to screen
+        assert graphics != null;
         graphics.drawImage(buffer, 0, 0, window_width*window_scale, window_height*window_scale,
                 0, 0, window_width, window_height, null);
 
         graphics.dispose();
-        graphics = null;
 
         try {
             strategy.show();
@@ -123,7 +122,17 @@ public class GameGraphics extends GameObject {
         return window_scale;
     }
 
-    public static void drawRectangle(int x, int y, int width, int height, Color color) {
+    /**
+     *
+     * @param x X position of top left corner.
+     * @param y Y position of top left corner.
+     * @param absolute_position True to draw in the window coordinate space rather than the game coordinate space.
+     */
+    public static void drawRectangle(int x, int y, int width, int height, boolean absolute_position, Color color) {
+        if(!absolute_position) {
+            x -= camera_x;
+            y -= camera_y;
+        }
         bufferGraphics.setColor(color);
         bufferGraphics.fillRect(x, y, width, height);
     }
@@ -137,6 +146,7 @@ public class GameGraphics extends GameObject {
      */
     private GameGraphics() {
         super(0, Integer.MAX_VALUE); // Put this object at the very bottom of the draw queue
+        this.persistent = true;
     }
 
     @Override

@@ -29,7 +29,7 @@ public class Game
      */
     public static void addObject(GameObject object)
     {
-        // Insert o at the proper place in the update queue
+        // Insert o into the update queue
         int i = 0;
         while(i < update_queue.size()) {
             if(update_queue.get(i).getPriority() <= object.getPriority()) {
@@ -38,7 +38,8 @@ public class Game
             i++;
         }
         update_queue.add(i, object);
-        
+
+        // Insert o into the draw queue
         i = 0;
         while(i < draw_queue.size()) {
             if(draw_queue.get(i).getLayer() >= object.getLayer()) {
@@ -47,6 +48,30 @@ public class Game
             i++;
         }
         draw_queue.add(i, object);
+    }
+
+    /**
+     * Removes an object from the update and draw queues.
+     * @param object The GameObject or object of a derived class.
+     */
+    public static void removeObject(GameObject object) {
+        update_queue.remove(object);
+        draw_queue.remove(object);
+    }
+
+    /**
+     * Removes all non-persistent objects from the update and draw queues.
+     */
+    public static void clearNonPersistentObjects() {
+        update_queue.removeIf(o -> !o.isPersistent());
+        draw_queue.removeIf(o -> !o.isPersistent());
+    }
+
+    /**
+     * Returns the list iterator for the update queue.
+     */
+    public static ListIterator<GameObject> updateQueueIterator() {
+        return update_queue.listIterator();
     }
 
     /**
