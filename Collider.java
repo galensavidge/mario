@@ -25,5 +25,5 @@ public abstract class Collider {
         this.object = null;
     }
 
-    public abstract boolean checkCollision(int x, int y, boolean absolute);
+    public abstract boolean checkCollision(double x, double y, boolean absolute);
 }

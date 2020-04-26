@@ -6,26 +6,26 @@
  */
 public class CircleCollider extends Collider {
     public static final String colliderType = "Circle";
-    private int radius;
+    private double radius;
 
-    public CircleCollider(GameObject object, int radius) {
+    public CircleCollider(GameObject object, double radius) {
         super(object);
         this.radius = radius;
         this.type = CircleCollider.colliderType;
     }
 
-    public boolean collidesWithCircle(int x, int y, CircleCollider other) {
+    public boolean collidesWithCircle(double x, double y, CircleCollider other) {
         // This collider's center
-        int cx = x + radius;
-        int cy = y + radius;
+        double cx = x + radius;
+        double cy = y + radius;
 
         // Other collider's center
-        int o_cx = other.object.x + other.radius;
-        int o_cy = other.object.y + other.radius;
+        double o_cx = other.object.x + other.radius;
+        double o_cy = other.object.y + other.radius;
 
         // Distance between their centers
-        int xdist = cx - o_cx;
-        int ydist = cy - o_cy;
+        double xdist = cx - o_cx;
+        double ydist = cy - o_cy;
         double dist = Math.sqrt(xdist*xdist + ydist*ydist);
 
         // Check whether the objects are intersecting
@@ -33,9 +33,9 @@ public class CircleCollider extends Collider {
     }
 
     @Override
-    public boolean checkCollision(int x, int y, boolean absolute) {
+    public boolean checkCollision(double x, double y, boolean absolute) {
         boolean found_collision = false;
-        int try_x, try_y;
+        double try_x, try_y;
 
         if(absolute) {
             try_x = x;

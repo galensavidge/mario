@@ -3,7 +3,7 @@ import java.awt.*;
 public class Block extends GameObject{
     public CircleCollider collider;
 
-    public Block(int x, int y) {
+    public Block(double x, double y) {
         super(0, 1);
 
         this.x = x;
@@ -18,6 +18,7 @@ public class Block extends GameObject{
     }
 
     public void draw() {
-        GameGraphics.drawRectangle(x, y, 50, 50, false, Color.BLUE);
+        GameGraphics.drawRectangle((int)Math.round(x), (int)Math.round(y), 50, 50, false,
+                Color.BLUE);
     }
 }

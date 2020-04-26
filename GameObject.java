@@ -10,8 +10,8 @@ public abstract class GameObject
     protected int layer;
 
     // Object position
-    public int x;
-    public int y;
+    public double x;
+    public double y;
 
     // Whether this object persists between scenes or is deleted when the scene changes
     protected boolean persistent = false;
@@ -41,7 +41,7 @@ public abstract class GameObject
      * @param x This object's starting x position in the world.
      * @param y This object's starting y position in the world.
      */
-    public GameObject(int priority, int layer, int x, int y)
+    public GameObject(int priority, int layer, double x, double y)
     {
         // initialise instance variables
         this.priority = priority;
