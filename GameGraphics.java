@@ -33,7 +33,15 @@ public class GameGraphics extends GameObject {
     private static int window_height;
     private static int window_scale;
 
-    /** Static GrameGraphics methods */
+
+    /* Static GameGraphics methods */
+
+    /**
+     * @param title The name of the window.
+     * @param width Width of the interior draw area in pixels.
+     * @param height Height of the interior draw area in pixels.
+     * @param scale Scaling factor between the interior draw area and how it is rendered on the monitor.
+     */
     public static void initWindow(String title, int width, int height, int scale) {
         // Set window class variables
         window_width = width;
@@ -75,9 +83,10 @@ public class GameGraphics extends GameObject {
         frame.dispose();
     }
 
-    public static void updateGraphics() {
-        System.out.println("Updating window...");
-
+    /**
+     * Writes the contents of the buffer frame to the window. Should be called after all other drawing is complete.
+     */
+    private static void updateGraphics() {
         try {
             graphics = (Graphics2D) strategy.getDrawGraphics();
         } catch (IllegalStateException e) {
@@ -102,14 +111,6 @@ public class GameGraphics extends GameObject {
         }
     }
 
-    public static Frame getFrame() {
-        return frame;
-    }
-
-    public static Canvas getCanvas() {
-        return canvas;
-    }
-
     public static int getWindowWidth() {
         return window_width;
     }
@@ -128,15 +129,18 @@ public class GameGraphics extends GameObject {
     }
 
 
-    /** GameGraphics game object */
+    /* GameGraphics game object */
 
     /**
      * Instantiable GameGraphics class: should not be created by the user. Is instantiated by
-     * {@link #initWindow(String, int, int, int)}.
+     * {@link #initWindow(String, int, int, int)} and calls {@link #updateGraphics()} at the end of each draw loop.
      */
-    public GameGraphics() {
+    private GameGraphics() {
         super(0, Integer.MAX_VALUE); // Put this object at the very bottom of the draw queue
     }
+
+    @Override
+    public void update() {}
 
     @Override
     public void draw() {

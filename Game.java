@@ -25,6 +25,7 @@ public class Game
 
     /**
      * Adds an object at the proper places in the update and draw queues.
+     * @param object The GameObject or object of a derived class.
      */
     public static void addObject(GameObject object)
     {
@@ -65,7 +66,6 @@ public class Game
             }
             
             // Iterate over draw queue
-            System.out.println("----------");
             i = draw_queue.listIterator();
             while(i.hasNext()) {
                 GameObject o = i.next();
