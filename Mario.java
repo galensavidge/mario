@@ -13,6 +13,7 @@ public class Mario
         Background b = new Background();
         World.init(8000,600);
         GameController gc = new GameController();
+        InputManager.init();
         Game.run();
         GameGraphics.closeWindow();
     }
