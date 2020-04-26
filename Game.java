@@ -15,9 +15,6 @@ public class Game
     private static long step_time = 1;
     private static int target_fps = 60;
 
-    public static int window_width;
-    public static int window_height;
-
     /**
      * Sets the target frame rate of the game.
      * @param fps Target frame rate in frames per second.
