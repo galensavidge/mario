@@ -12,7 +12,7 @@ public class Game
     private static final ArrayList<GameObject> draw_queue = new ArrayList<>();
     
     private static boolean running;
-    private static long step_time = 1;
+    private static long step_time = 0;
     private static int target_fps = 60;
 
     /**
@@ -119,7 +119,7 @@ public class Game
     }
 
     /**
-     * Returns time of the last step. Returns 1 if a step has not been completed yet.
+     * Returns time of the last step. Returns 0 if a step has not been completed yet.
      * @return Step time in nanoseconds.
      */
     public static long stepTime() {
