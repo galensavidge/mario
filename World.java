@@ -6,7 +6,7 @@ import java.util.Scanner;
  * A class used to construct the game world from templates.
  *
  * @author Galen Savidge
- * @version 4/25/2020
+ * @version 4/26/2020
  */
 public class World {
     // Size of the world in pixels
