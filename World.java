@@ -1,5 +1,3 @@
-import java.util.ListIterator;
-
 /**
  * A class used to construct the game world from templates.
  *
@@ -18,19 +16,7 @@ public class World {
         Game.clearNonPersistentObjects();
     }
 
-    /**
-     * Deletes all non-persistent game objects.
-     */
-    public static void clear() {
-        ListIterator<GameObject> i = Game.updateQueueIterator();
-        while(i.hasNext()) {
-            GameObject o = i.next();
-            if(!o.isPersistent()) {
-                o.delete();
-            }
-        }
-    }
-
+    /* Accessor functions */
     public static int getWidth() {
         return width;
     }
