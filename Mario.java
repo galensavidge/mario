@@ -14,6 +14,9 @@ public class Mario
         World.init(8000,600);
         GameController gc = new GameController();
         InputManager.init();
+
+        World.loadFromFile("./levels/level0");
+
         Game.run();
         GameGraphics.closeWindow();
     }
