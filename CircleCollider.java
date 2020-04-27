@@ -1,19 +1,29 @@
 /**
- * A circular collider object. Defined by a radius. Attaches by the top left corner of its bounding box.
+ * A circular collider object. Defined by a radius.
  *
  * @author Galen Savidge
- * @version 4/25/2020
+ * @version 4/26/2020
  */
 public class CircleCollider extends Collider {
-    public static final String colliderType = "Circle";
     private double radius;
 
-    public CircleCollider(GameObject object, double radius, double x_offset, double y_offset) {
+    /**
+     * A circle shaped collider object. Attaches by the top left corner of its bounding box.
+     *
+     * @param object The PhysicsObject to attach to.
+     * @param radius Radius of the circle.
+     * @param x_offset Relative x position of the collider with respect to object.
+     * @param y_offset Relative y position of the collider with respect to object.
+     */
+    public CircleCollider(PhysicsObject object, double radius, double x_offset, double y_offset) {
         super(object);
-        this.type = CircleCollider.colliderType;
         this.radius = radius;
         this.x_offset = x_offset;
         this.y_offset = y_offset;
+    }
+
+    public void setRadius(double radius) {
+        this.radius = radius;
     }
 
     public boolean collidesWithCircle(double x, double y, CircleCollider other) {
@@ -34,30 +44,15 @@ public class CircleCollider extends Collider {
         return dist < (radius + other.radius);
     }
 
+    public boolean collidesWithBox() {
+        return false;
+    }
+
     @Override
-    public boolean checkCollision(double x, double y, boolean absolute) {
-        boolean found_collision = false;
-        double try_x, try_y;
-
-        if(absolute) {
-            try_x = x;
-            try_y = y;
+    public boolean collidesWith(double x, double y, Collider collider) {
+        if(collider instanceof CircleCollider) {
+            return collidesWithCircle(x, y, (CircleCollider)collider);
         }
-        else {
-            try_x = object.x + x;
-            try_y = object.y + y;
-        }
-
-        for(Collider c : colliders) {
-            if(c != this) {
-                boolean result = false;
-                if (c.type.equals(CircleCollider.colliderType)) {
-                    result = collidesWithCircle(try_x, try_y, (CircleCollider) c);
-                }
-                found_collision = found_collision || result;
-            }
-        }
-
-        return found_collision;
+        return false; // Unhandled case
     }
 }
