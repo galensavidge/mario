@@ -1,25 +1,30 @@
+import java.awt.geom.Point2D;
+
+/**
+ * A simple class to hold a point in 2D space with double precision.
+ *
+ * @author Galen Savidge
+ * @version 4/27/2020
+ */
 public abstract class PhysicsObject extends GameObject {
     protected Collider collider;
 
     // Position
-    public double x;
-    public double y;
+    public Vector2 position;
 
     // Velocity
-    public double vx;
-    public double vy;
+    public Vector2 velocity;
 
     public PhysicsObject(int priority, int layer, double x, double y) {
         super(priority, layer);
-        this.x = x;
-        this.y = y;
+        position = new Vector2(x, y);
+        velocity = new Vector2(0, 0);
     }
 
     @Override
     public void update() {
         double t = Game.stepTimeSeconds();
-        this.x += vx*t;
-        this.y += vy*t;
+        position = position.add(velocity.multiply(t));
     }
 
     @Override
@@ -32,3 +37,4 @@ public abstract class PhysicsObject extends GameObject {
         super.delete();
     }
 }
+

@@ -10,7 +10,7 @@ public abstract class Collider {
     protected static ArrayList<Collider> colliders = new ArrayList<>();
     
     protected PhysicsObject object; // The object that this collider is attached to
-    protected double x_offset, y_offset; // The coordinates of this collider relative to its attached object
+    protected Vector2 offset; // The coordinates of this collider relative to its attached object
 
     /**
      * @param object The game object that this collider will attach to.
@@ -29,27 +29,19 @@ public abstract class Collider {
     }
 
     /**
-     * Checks for collisions with other Colliders at position (x, y).
+     * Checks for collisions with other Colliders at position p.
      * @param absolute True to use absolute coordinates, false for coordinates relative to the attached PhysicsObject.
      * @return If a collision occurs, the PhysicsObject attached to the other collider, otherwise null.
      */
-    public PhysicsObject checkCollision(double x, double y, boolean absolute) {
-        boolean found_collision = false;
-        double try_x, try_y;
-
-        if(absolute) {
-            try_x = x;
-            try_y = y;
-        }
-        else {
-            try_x = object.x + x;
-            try_y = object.y + y;
+    public PhysicsObject checkCollision(Vector2 p, boolean absolute) {
+        if(!absolute) {
+            p = p.add(object.position);
         }
 
         for(Collider c : colliders) {
             if(c != this) {
                 boolean result = false;
-                if(this.collidesWith(try_x, try_y, c)) {
+                if(this.collidesWith(p, c)) {
                     return c.object;
                 }
             }
@@ -62,5 +54,5 @@ public abstract class Collider {
      * Checks if this collider at position (x, y) collides with c. This function should be overridden to handle
      * collisions with different collider types.
      */
-    public abstract boolean collidesWith(double x, double y, Collider collider);
+    public abstract boolean collidesWith(Vector2 p, Collider c);
 }

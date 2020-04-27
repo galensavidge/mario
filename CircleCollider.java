@@ -18,30 +18,25 @@ public class CircleCollider extends Collider {
     public CircleCollider(PhysicsObject object, double radius, double x_offset, double y_offset) {
         super(object);
         this.radius = radius;
-        this.x_offset = x_offset;
-        this.y_offset = y_offset;
+        this.offset = new Vector2(x_offset, y_offset);
     }
 
     public void setRadius(double radius) {
         this.radius = radius;
     }
 
-    public boolean collidesWithCircle(double x, double y, CircleCollider other) {
+    public boolean collidesWithCircle(Vector2 p, CircleCollider other) {
         // This collider's center
-        double cx = x + x_offset + radius;
-        double cy = y + y_offset + radius;
+        Vector2 center = p.add(offset).add(radius); // p + offset + radius
 
         // Other collider's center
-        double o_cx = other.object.x + other.x_offset + other.radius;
-        double o_cy = other.object.y + other.y_offset + other.radius;
+        Vector2 other_center = other.object.position.add(other.offset).add(other.radius);
 
         // Distance between their centers
-        double xdist = cx - o_cx;
-        double ydist = cy - o_cy;
-        double dist = Math.sqrt(xdist*xdist + ydist*ydist);
+        Vector2 dist_v = center.subtract(other_center);
 
         // Check whether the objects are intersecting
-        return dist < (radius + other.radius);
+        return dist_v.abs() < (radius + other.radius);
     }
 
     public boolean collidesWithBox() {
@@ -49,9 +44,9 @@ public class CircleCollider extends Collider {
     }
 
     @Override
-    public boolean collidesWith(double x, double y, Collider collider) {
+    public boolean collidesWith(Vector2 p, Collider collider) {
         if(collider instanceof CircleCollider) {
-            return collidesWithCircle(x, y, (CircleCollider)collider);
+            return collidesWithCircle(p, (CircleCollider)collider);
         }
         return false; // Unhandled case
     }
