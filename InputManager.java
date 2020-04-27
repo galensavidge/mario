@@ -4,6 +4,12 @@ import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
+/**
+ * Checks for input from the keyboard and stores keybinds.
+ *
+ * @author Galen Savidge
+ * @version 4/26/2020
+ */
 public class InputManager extends GameObject {
 
     /* Public InputManager variables and methods */
@@ -14,6 +20,10 @@ public class InputManager extends GameObject {
     public static final int K_UP = KeyEvent.VK_W;
     public static final int K_DOWN = KeyEvent.VK_S;
 
+    /**
+     * Sets up the static InputManager class and adds an object to the update queue. Should be called once when the
+     * program starts.
+     */
     public static void init() {
         // Set up key list
         InputManager.keys.put(InputManager.K_LEFT, new Key());
@@ -28,19 +38,45 @@ public class InputManager extends GameObject {
         new InputManager();
     }
 
+    /* Public functions to check the state of the keys */
+
+    /**
+     * @param key A key value defined in InputManager.
+     * @return True if the key is currently pressed.
+     */
     public static boolean getDown(int key) {
         return keys.get(key).down;
     }
 
+    /**
+     * @param key A key value defined in InputManager.
+     * @return True if the key was pressed this step.
+     */
     public static boolean getPressed(int key) {
         return keys.get(key).pressed;
     }
 
+    /**
+     * @param key A key value defined in InputManager.
+     * @return True if the key was released this step.
+     */
     public static boolean getReleased(int key) {
         return keys.get(key).released;
     }
 
     /* Internal variables and methods */
+
+    /**
+     * Internal class to hold the state of a key.
+     */
+    private static class Key {
+        boolean down_event;
+        boolean up_event;
+
+        boolean down; // True if the key is currently pressed down
+        boolean pressed; // True if the key was pressed this step
+        boolean released; // True if the key was released this step
+    }
 
     protected static final Dictionary<Integer, Key> keys = new Hashtable<>();
 
@@ -53,46 +89,54 @@ public class InputManager extends GameObject {
         @Override
         public void keyPressed(KeyEvent e) {
             Key k = keys.get(e.getKeyCode());
-            k.down = true;
-            k.pressed = true;
+            if(k != null) {
+                k.down_event = true;
+            }
         }
 
         @Override
         public void keyReleased(KeyEvent e) {
             Key k = keys.get(e.getKeyCode());
-            k.down = false;
-            k.released = true;
+            if(k != null) {
+                k.up_event = true;
+            }
         }
     };
 
-    private static class Key {
-        boolean down; // True if the key is currently pressed down
-        boolean pressed; // True if the key was pressed this step
-        boolean released; // True if the key was released this step
-    }
-
-    /* InputManager object */
+    /* Private InputManager object */
 
     /**
-     * This object has low priority; it should go *after* all objects in the update queue that need to read key presses.
+     * This object has high priority; it should go before all objects in the update queue that need to read key presses.
      */
     private InputManager() {
-        super(-100,0);
+        super(1000,0);
+        this.persistent = true;
     }
 
     @Override
     public void update() {
-        // Clear pressed/released flags
         Enumeration<Key> e = keys.elements();
         while(e.hasMoreElements()) {
             Key k = e.nextElement();
+
+            // Record key state
             k.pressed = false;
             k.released = false;
+            if(k.down_event && !k.down) {
+                k.down = true;
+                k.pressed = true;
+            }
+            if(k.up_event && k.down) {
+                k.down = false;
+                k.released = true;
+            }
+
+            // Reset event flags
+            k.down_event = false;
+            k.up_event = false;
         }
     }
 
     @Override
-    public void draw() {
-
-    }
+    public void draw() {}
 }
