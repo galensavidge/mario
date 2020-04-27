@@ -2,12 +2,12 @@ public class GameController extends GameObject {
     Block b1;
     Block b2;
 
-    int b1_xspeed = -1;
-
     public GameController() {
         super(10, 0);
-        b1 = new Block(300, 300);
-        b2 = new Block(100, 300);
+        b1 = new Block(100, 300);
+        b2 = new Block(300, 300);
+
+        b1.vx = 100;
 
         this.persistent = true;
     }
@@ -20,10 +20,9 @@ public class GameController extends GameObject {
         if(InputManager.getReleased(InputManager.K_RIGHT)) {
             b2.x += 10;
         }
-        if(b1.collider.checkCollision(b1_xspeed, 0,false)) {
-            b1_xspeed *= -1;
+        if(b1.collider.checkCollision(0, 0,false) != null) {
+            b1.vx *= -1;
         }
-        b1.x += b1_xspeed;
     }
 
     @Override

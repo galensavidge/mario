@@ -4,7 +4,7 @@ import java.util.*;
  * The object that handles the main update and draw loops in the game.
  *
  * @author Galen Savidge
- * @version 4/24/2020
+ * @version 4/26/2020
  */
 public class Game
 {
@@ -60,11 +60,20 @@ public class Game
     }
 
     /**
-     * Removes all non-persistent objects from the update and draw queues.
+     * Deletes all non-persistent objects. These objects will be removed from the update and draw queues and will also
+     * free any additional resources they are using.
      */
     public static void clearNonPersistentObjects() {
-        update_queue.removeIf(o -> !o.isPersistent());
-        draw_queue.removeIf(o -> !o.isPersistent());
+        int i = 0;
+        while(i < update_queue.size()) {
+            GameObject o = update_queue.get(i);
+            if(!o.isPersistent()) {
+                o.delete();
+            }
+            else {
+                i++;
+            }
+        }
     }
 
     /**
@@ -122,7 +131,15 @@ public class Game
      * Returns time of the last step. Returns 0 if a step has not been completed yet.
      * @return Step time in nanoseconds.
      */
-    public static long stepTime() {
+    public static long stepTimeNanos() {
         return step_time;
+    }
+
+    /**
+     * Returns time of the last step. Returns 0 if a step has not been completed yet.
+     * @return Step time in nanoseconds.
+     */
+    public static double stepTimeSeconds() {
+        return (double)step_time/1e9;
     }
 }
