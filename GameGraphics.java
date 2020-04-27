@@ -7,7 +7,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.BufferStrategy;
 
 /**
- * Class with methods to set up and draw things in the game window.
+ * Class with methods to set up the game window and draw things.
  *
  * @author Galen Savidge
  * @version 4/24/2020
@@ -29,8 +29,10 @@ public class GameGraphics extends GameObject {
     private static int window_scale;
 
     // Position of the window in the game world
-    public static int camera_x;
-    public static int camera_y;
+    private static int camera_x;
+    private static int camera_y;
+
+    private static GameGraphics g;
 
     /* Static GameGraphics methods */
 
@@ -69,7 +71,7 @@ public class GameGraphics extends GameObject {
         bufferGraphics = (Graphics2D) buffer.getGraphics();
 
         // Add GameGraphics object to the draw queue
-        new GameGraphics();
+        g = new GameGraphics();
     }
 
     private static class FrameClose extends WindowAdapter {
@@ -129,6 +131,22 @@ public class GameGraphics extends GameObject {
         return frame;
     }
 
+    public static void moveCamera(int x, int y, boolean absolute) {
+        if(absolute) {
+            camera_x = x;
+            camera_y = y;
+        }
+        else {
+            camera_x += x;
+            camera_y += y;
+        }
+
+        camera_x = Math.max(0, camera_x);
+        camera_y = Math.max(0, camera_y);
+        camera_x = Math.min(World.getWidth() + window_width, camera_x);
+        camera_x = Math.min(World.getHeight() + window_height, camera_y);
+    }
+
     /* Functions to draw different things */
     /**
      * @param x X position of top left corner.
@@ -144,6 +162,27 @@ public class GameGraphics extends GameObject {
         bufferGraphics.fillRect(x, y, width, height);
     }
 
+    /**
+     * @param x X position of top left corner.
+     * @param y Y position of top left corner.
+     * @param absolute_position True to draw in the window coordinate space rather than the game coordinate space.
+     */
+    public static void drawCircle(int x, int y, int radius, boolean absolute_position, Color color) {
+        if(!absolute_position) {
+            x -= camera_x;
+            y -= camera_y;
+        }
+        bufferGraphics.setColor(color);
+        bufferGraphics.fillOval(x, y, radius*2,radius*2);
+    }
+
+    public static void drawSprite(int x, int y, boolean absolute_position, Image sprite) {
+        if(!absolute_position) {
+            x -= camera_x;
+            y -= camera_y;
+        }
+        bufferGraphics.drawImage(sprite, x, y, null);
+    }
 
     /* GameGraphics game object */
 
