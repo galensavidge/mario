@@ -50,13 +50,15 @@ public class GameGraphics extends GameObject {
         frame.setTitle(title);
         frame.addWindowListener(new GameGraphics.FrameClose());
         frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-        frame.setSize(width * scale, height * scale);
+        //frame.setSize(width * scale, height * scale);
         frame.setVisible(true);
+        frame.setResizable(false);
 
         // Set up Canvas
         Canvas canvas = new Canvas(config);
         canvas.setSize(width * scale, height * scale);
         frame.add(canvas, 0);
+        frame.pack();
 
         // Set up buffer frame
         buffer = config.createCompatibleImage(width, height, Transparency.OPAQUE);
