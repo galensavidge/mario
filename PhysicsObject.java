@@ -1,19 +1,14 @@
-import java.awt.geom.Point2D;
-
 /**
- * A simple class to hold a point in 2D space with double precision.
+ * The parent class for all objects that inhabit physical space in the game world.
  *
  * @author Galen Savidge
  * @version 4/27/2020
  */
 public abstract class PhysicsObject extends GameObject {
     protected Collider collider;
-
-    // Position
     public Vector2 position;
-
-    // Velocity
     public Vector2 velocity;
+    public boolean solid = false;
 
     public PhysicsObject(int priority, int layer, double x, double y) {
         super(priority, layer);

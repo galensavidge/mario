@@ -1,4 +1,5 @@
 import java.awt.*;
+import java.util.ArrayList;
 
 public class Block extends PhysicsObject {
 
@@ -8,12 +9,15 @@ public class Block extends PhysicsObject {
     public Block(double x, double y) {
         super(1, 1, x, y);
         this.collider = new BoxCollider(this,16,16,0,0);
+        this.solid = true;
     }
 
     public void update() {
         super.update();
-        if(collider.getCollisions(Vector2.zero(), false, true).size() != 0) {
-            System.out.println("Block collided with something!");
+        ArrayList<PhysicsObject> collisions = collider.getCollisions(Vector2.zero(), false, false);
+        if(collisions.size() > 0) {
+            System.out.println("Block collided with thing at: ("+collisions.get(0).position.x+","
+                    +collisions.get(0).position.y+")");
         }
     }
 

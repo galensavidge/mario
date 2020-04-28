@@ -29,6 +29,10 @@ public class CircleCollider extends Collider {
         this.radius = radius;
     }
 
+    public Vector2 getCenter() {
+        return object.position.add(offset).add(radius);
+    }
+
     public boolean collidesWithCircle(Vector2 p, CircleCollider other, boolean allow_edges) {
         // This collider's center
         Vector2 center = p.add(offset).add(radius); // p + offset + radius
@@ -62,6 +66,11 @@ public class CircleCollider extends Collider {
 
     @Override
     public Vector2 vectorToContact(Collider collider, Vector2 direction) {
+        return null;
+    }
+
+    @Override
+    public Vector2 pointOfContact(Collider collider) {
         return null;
     }
 }

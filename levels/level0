@@ -1,5 +1,6 @@
 Gridscale: 16
-Width: 20
-Height: 12
+Width: 100
+Height: 15
 
-Block 0,11 9,11
+Block 0,14 20,14
+Block 0,0 1,13

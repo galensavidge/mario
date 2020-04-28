@@ -21,6 +21,13 @@ public abstract class Collider {
     }
 
     /**
+     * @return The position of the top left corner of the collider's bounding box.
+     */
+    public Vector2 getPosition() {
+        return object.position.add(offset);
+    }
+
+    /**
      * Removes this collider from the global colliders list and removes its reference to the attached PhysicsObject.
      */
     public void delete() {
@@ -64,4 +71,9 @@ public abstract class Collider {
      * @return The vector needed to touch c. Returns null if no vector was found.
      */
     public abstract Vector2 vectorToContact(Collider collider, Vector2 direction);
+
+    /**
+     * @return A point on the edge of both this and collider, or null if none exists.
+     */
+    public abstract Vector2 pointOfContact(Collider collider);
 }

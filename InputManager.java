@@ -19,6 +19,7 @@ public class InputManager extends GameObject {
     public static final int K_RIGHT = KeyEvent.VK_D;
     public static final int K_UP = KeyEvent.VK_W;
     public static final int K_DOWN = KeyEvent.VK_S;
+    public static final int K_JUMP = KeyEvent.VK_J;
 
     /**
      * Sets up the static InputManager class and adds an object to the update queue. Should be called once when the
@@ -30,6 +31,7 @@ public class InputManager extends GameObject {
         InputManager.keys.put(InputManager.K_RIGHT, new Key());
         InputManager.keys.put(InputManager.K_UP, new Key());
         InputManager.keys.put(InputManager.K_DOWN, new Key());
+        InputManager.keys.put(InputManager.K_JUMP, new Key());
 
         // Set up key listener
         GameGraphics.getFrame().addKeyListener(InputManager.key_listener);

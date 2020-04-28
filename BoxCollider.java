@@ -1,3 +1,5 @@
+import java.beans.beancontext.BeanContext;
+
 /**
  * A rectangular collider object. Defined by width and height.
  *
@@ -5,8 +7,8 @@
  * @version 4/26/2020
  */
 public class BoxCollider extends Collider {
-    private double width;
-    private double height;
+    public double width;
+    public double height;
 
     /**
      * A circle shaped collider object. Attaches by the top left corner of its bounding box.
@@ -23,11 +25,6 @@ public class BoxCollider extends Collider {
         this.offset = new Vector2(x_offset, y_offset);
     }
 
-    public void setSize(double width, double height) {
-        this.width = width;
-        this.height = height;
-    }
-
     /* Collision checking for different collider types */
 
     public boolean collidesWithCircle(Vector2 box_p, Vector2 circle_p, CircleCollider circle, boolean allow_edges) {
@@ -39,7 +36,7 @@ public class BoxCollider extends Collider {
 
         // Get the center of the circle
         double r = circle.getRadius();
-        Vector2 other_center = circle_p.add(r);
+        Vector2 other_center = circle_p.add(circle.offset).add(r);
 
         double distance = Double.MAX_VALUE;
 
@@ -67,7 +64,15 @@ public class BoxCollider extends Collider {
         else return !allow_edges && distance < r;
     }
 
-    public boolean collidesWithBox(Vector2 this_p, BoxCollider other, boolean allow_edges) {
+    /*
+     * 1. Get the corners of each box.
+     * 2. Check if a corner from this box is inside the other box.
+     * 3. Check if a corner from the other box is inside this box.
+     * (2-3: Corners do not count but edges do if allow_edges is true)
+     * 4. If edges were not checked in 2-3, an edge case exists where the boxes share a width/height and are
+     *    intersecting without a corner from either box lying inside the other box. Check for this edge case.
+     */
+    private boolean collidesWithBox(Vector2 this_p, BoxCollider other, boolean allow_edges) {
         // This object's corners, clockwise from top left
         Vector2[] this_corners = this.getCorners(this_p);
 
@@ -125,7 +130,17 @@ public class BoxCollider extends Collider {
 
     /* Move to contact for different collider types */
 
-    public Vector2 toContactBox(BoxCollider other, Vector2 direction) {
+    /*
+     * 1. Get the corners of each box.
+     * 2. Find a normalized direction vector to get the "raycast" direction.
+     * 3. For each corner in this box:
+     *      a. Find vectors (in the proper direction) to the lines running through the top and bottom edges of the other
+     *         box.
+     *      b. Find vectors to the lines running through the left and right edges of the other box.
+     * 4. Return the shortest of the vectors found in step 3 that is in the same direction as the vector found in step
+     *    2.
+     */
+    private Vector2 toContactBox(BoxCollider other, Vector2 direction) {
         Vector2[] this_corners = this.getCorners(this.object.position);
         Vector2[] other_corners = other.getCorners(other.object.position);
         Vector2 other_p1 = other_corners[0]; // Top left corner
@@ -184,6 +199,31 @@ public class BoxCollider extends Collider {
         return solution;
     }
 
+    /* Point of contact for different collider types */
+
+    // In this case a corner from one box must lie on the edge of the other box.
+    private Vector2 pointOfContactBox(BoxCollider other) {
+        Vector2[] this_corners = this.getCorners(this.object.position);
+        Vector2[] other_corners = other.getCorners(other.object.position);
+
+        // Check other box's corners
+        for(Vector2 c : other_corners) {
+            if(pointOnEdge(c, this_corners[0], this_corners[2])) {
+                return c;
+            }
+        }
+
+        // Check this box's corners
+        for(Vector2 c : this_corners) {
+            if(pointOnEdge(c, other_corners[0], other_corners[2])) {
+                return c;
+            }
+        }
+
+        // Return null if no point of contact was found
+        return null;
+    }
+
     /* Utility */
 
     /**
@@ -214,7 +254,7 @@ public class BoxCollider extends Collider {
 
     /**
      * @param p A point.
-     * @param b1 One corner of the box.
+     * @param b1 One corner of a box.
      * @param b2 A corner diagonal from b1.
      * @return True iff the p is strictly inside the box defined by b1 and b2.
      */
@@ -224,6 +264,24 @@ public class BoxCollider extends Collider {
         }
         else {
             return between(p.x, b1.x, b2.x) && between(p.y, b1.y, b2.y);
+        }
+    }
+
+    /**
+     * @param p A point.
+     * @param b1 One corner of a box.
+     * @param b2 A corner diagonal from b1.
+     * @return True iff p is on an edge or corner of the box defined by b1 and b2.
+     */
+    private boolean pointOnEdge(Vector2 p, Vector2 b1, Vector2 b2) {
+        if(p.x == b1.x || p.y == b2.x) {
+            return betweenInclusive(p.y, b1.y, b2.y);
+        }
+        else if(p.y == b1.y || p.y == b2.y) {
+            return betweenInclusive(p.x, b1.x, b2.x);
+        }
+        else {
+            return false;
         }
     }
 
@@ -242,13 +300,26 @@ public class BoxCollider extends Collider {
 
     @Override
     public Vector2 vectorToContact(Collider collider, Vector2 direction) {
+        if(collidesWith(object.position, collider, true)) {
+            return Vector2.zero();
+        }
         if(collider instanceof CircleCollider) {
             return null;
         }
         else if(collider instanceof BoxCollider) {
             return toContactBox((BoxCollider)collider,direction);
         }
+        return null;
+    }
 
+    @Override
+    public Vector2 pointOfContact(Collider collider) {
+        if(collider instanceof CircleCollider) {
+            return null;
+        }
+        else if(collider instanceof BoxCollider) {
+            return pointOfContactBox((BoxCollider)collider);
+        }
         return null;
     }
 }

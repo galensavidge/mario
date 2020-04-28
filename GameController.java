@@ -7,14 +7,12 @@ public class GameController extends GameObject {
         b1 = new RoundBlock(48, 50);
         b2 = new Block(48, 100);
 
-        b1.velocity.y = 10;
-
         this.persistent = true;
     }
 
     @Override
     public void update() {
-        if(InputManager.getPressed(InputManager.K_LEFT)) {
+        /*if(InputManager.getPressed(InputManager.K_LEFT)) {
             b2.position.x -= 4;
         }
         if(InputManager.getPressed(InputManager.K_RIGHT)) {
@@ -28,7 +26,7 @@ public class GameController extends GameObject {
         }
         if(b1.collider.getCollisions(Vector2.zero(),false, false).size() != 0) {
             b1.velocity = b1.velocity.multiply(-1);
-        }
+        }*/
     }
 
     @Override
