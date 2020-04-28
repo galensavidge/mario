@@ -6,9 +6,12 @@
  */
 public class Vector2 {
     /**
-     * The zero vector.
+     * Returns the zero vector.
      */
-    public static final Vector2 zero = new Vector2(0, 0);
+    public static Vector2 zero() {
+        return z.copy();
+    }
+    private static final Vector2 z = new Vector2(0, 0);
 
     public double x;
     public double y;
@@ -28,7 +31,7 @@ public class Vector2 {
 
     /**
      * @param a A scalar to add to both components.
-     * @return The new vector <x + a, y + a>
+     * @return The new vector (x + a, x + b).
      */
     public Vector2 add(double a) {
         return new Vector2(this.x + a, this.y + a);

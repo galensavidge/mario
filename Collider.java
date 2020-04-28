@@ -55,4 +55,11 @@ public abstract class Collider {
      * collisions with different collider types.
      */
     public abstract boolean collidesWith(Vector2 p, Collider c);
+
+    /**
+     * Finds the minimum distance needed to move in a given direction to no longer be colliding with c.
+     * @param direction A vector defining the direction in which to move.
+     * @return The vector needed to move outside of c.
+     */
+    public abstract Vector2 moveOutside(Collider c, Vector2 direction);
 }

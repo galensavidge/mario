@@ -21,6 +21,10 @@ public class CircleCollider extends Collider {
         this.offset = new Vector2(x_offset, y_offset);
     }
 
+    public double getRadius() {
+        return radius;
+    }
+
     public void setRadius(double radius) {
         this.radius = radius;
     }
@@ -39,15 +43,20 @@ public class CircleCollider extends Collider {
         return dist_v.abs() < (radius + other.radius);
     }
 
-    public boolean collidesWithBox() {
-        return false;
-    }
-
     @Override
     public boolean collidesWith(Vector2 p, Collider collider) {
         if(collider instanceof CircleCollider) {
             return collidesWithCircle(p, (CircleCollider)collider);
         }
+        else if(collider instanceof  BoxCollider) {
+            BoxCollider c = (BoxCollider) collider;
+            return c.collidesWithCircle(c.object.position, p, this);
+        }
         return false; // Unhandled case
+    }
+
+    @Override
+    public Vector2 moveOutside(Collider c, Vector2 direction) {
+        return null;
     }
 }
