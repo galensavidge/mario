@@ -12,7 +12,7 @@ public class Block extends PhysicsObject {
 
     public void update() {
         super.update();
-        if(collider.checkCollision(Vector2.zero(), false) != null) {
+        if(collider.getCollisions(Vector2.zero(), false, true).size() != 0) {
             System.out.println("Block collided with something!");
         }
     }

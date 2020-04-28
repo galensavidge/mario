@@ -9,7 +9,7 @@ public class RoundBlock extends PhysicsObject {
 
     public void update() {
         super.update();
-        if(collider.checkCollision(Vector2.zero(), false) != null) {
+        if(collider.getCollisions(Vector2.zero(), false, false).size() != 0) {
             System.out.println("Round block collided with something!");
         }
     }

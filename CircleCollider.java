@@ -29,7 +29,7 @@ public class CircleCollider extends Collider {
         this.radius = radius;
     }
 
-    public boolean collidesWithCircle(Vector2 p, CircleCollider other) {
+    public boolean collidesWithCircle(Vector2 p, CircleCollider other, boolean allow_edges) {
         // This collider's center
         Vector2 center = p.add(offset).add(radius); // p + offset + radius
 
@@ -40,23 +40,28 @@ public class CircleCollider extends Collider {
         Vector2 dist_v = center.subtract(other_center);
 
         // Check whether the objects are intersecting
-        return dist_v.abs() < (radius + other.radius);
+        if(allow_edges) {
+            return dist_v.abs() <= (radius + other.radius);
+        }
+        else {
+            return dist_v.abs() < (radius + other.radius);
+        }
     }
 
     @Override
-    public boolean collidesWith(Vector2 p, Collider collider) {
+    public boolean collidesWith(Vector2 p, Collider collider, boolean allow_edges) {
         if(collider instanceof CircleCollider) {
-            return collidesWithCircle(p, (CircleCollider)collider);
+            return collidesWithCircle(p, (CircleCollider)collider, allow_edges);
         }
         else if(collider instanceof  BoxCollider) {
             BoxCollider c = (BoxCollider) collider;
-            return c.collidesWithCircle(c.object.position, p, this);
+            return c.collidesWithCircle(c.object.position, p, this, allow_edges);
         }
         return false; // Unhandled case
     }
 
     @Override
-    public Vector2 moveOutside(Collider c, Vector2 direction) {
+    public Vector2 vectorToContact(Collider collider, Vector2 direction) {
         return null;
     }
 }

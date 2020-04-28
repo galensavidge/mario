@@ -31,35 +31,37 @@ public abstract class Collider {
     /**
      * Checks for collisions with other Colliders at position p.
      * @param absolute True to use absolute coordinates, false for coordinates relative to the attached PhysicsObject.
-     * @return If a collision occurs, the PhysicsObject attached to the other collider, otherwise null.
+     * @param allow_edges True to include edges and corners in collision calculation, false to use only intersection.
+     * @return An ArrayList of all physics objects collided with.
      */
-    public PhysicsObject checkCollision(Vector2 p, boolean absolute) {
+    public ArrayList<PhysicsObject> getCollisions(Vector2 position, boolean absolute, boolean allow_edges) {
         if(!absolute) {
-            p = p.add(object.position);
+            position = position.add(object.position);
         }
+
+        ArrayList<PhysicsObject> collisions = new ArrayList<>();
 
         for(Collider c : colliders) {
             if(c != this) {
-                boolean result = false;
-                if(this.collidesWith(p, c)) {
-                    return c.object;
+                if(this.collidesWith(position, c, allow_edges)) {
+                    collisions.add(c.object);
                 }
             }
         }
 
-        return null;
+        return collisions;
     }
 
     /**
-     * Checks if this collider at position (x, y) collides with c. This function should be overridden to handle
+     * Checks if this collider collides with c when at position p. This function should be overridden to handle
      * collisions with different collider types.
      */
-    public abstract boolean collidesWith(Vector2 p, Collider c);
+    public abstract boolean collidesWith(Vector2 p, Collider c, boolean allow_edges);
 
     /**
-     * Finds the minimum distance needed to move in a given direction to no longer be colliding with c.
+     * Finds the minimum distance needed to move in a given direction to touch collider c.
      * @param direction A vector defining the direction in which to move.
-     * @return The vector needed to move outside of c.
+     * @return The vector needed to touch c. Returns null if no vector was found.
      */
-    public abstract Vector2 moveOutside(Collider c, Vector2 direction);
+    public abstract Vector2 vectorToContact(Collider collider, Vector2 direction);
 }

@@ -15,7 +15,7 @@ public class Mario
         GameController gc = new GameController();
         InputManager.init();
 
-        World.loadFromFile("./levels/level0");
+        //World.loadFromFile("./levels/level0");
 
         Game.run();
         GameGraphics.closeWindow();
