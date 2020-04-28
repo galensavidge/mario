@@ -30,17 +30,7 @@ public class BoxCollider extends Collider {
         this.height = height;
     }
 
-    /**
-     * Returns an array of this box's corners, starting from top left and going clockwise.
-     * @param p The position of the collider.
-     */
-    public Vector2[] getCorners(Vector2 p) {
-        Vector2 this_p = p.add(this.offset);
-        return new Vector2[]{this_p.copy(),
-                this_p.add(new Vector2(this.width, 0)),
-                this_p.add(new Vector2(this.width, this.height)),
-                this_p.add(new Vector2(0, this.height))};
-    }
+    /* Collision checking for different collider types */
 
     public boolean collidesWithCircle(Vector2 box_p, Vector2 circle_p, CircleCollider circle) {
         // Get top right and bottom left points on the box
@@ -100,23 +90,6 @@ public class BoxCollider extends Collider {
     }
 
     /**
-     * Returns true iff a is between b and c.
-     */
-    private boolean between(double a, double b, double c) {
-        return a > Math.min(b, c) && a < Math.max(b, c);
-    }
-
-    /**
-     * @param p A point.
-     * @param b1 One corner of the box.
-     * @param b2 A corner diagonal from b1.
-     * @return True iff the p is strictly inside the box defined by b1 and b2.
-     */
-    private boolean pointInBox(Vector2 p, Vector2 b1, Vector2 b2) {
-        return between(p.x, b1.x, b2.x) && between(p.y, b1.y, b2.y);
-    }
-
-    /**
      * @param b1_p1 One corner of box 1.
      * @param b1_p2 A corner diagonal from b1_p1.
      * @param b2_p1 One corner of box 2.
@@ -140,9 +113,42 @@ public class BoxCollider extends Collider {
                 return true;
             }
         }
-        
+
         return false;
     }
+
+    /* Utility */
+
+    /**
+     * Returns an array of this box's corners, starting from top left and going clockwise.
+     * @param p The position of the collider.
+     */
+    public Vector2[] getCorners(Vector2 p) {
+        Vector2 this_p = p.add(this.offset);
+        return new Vector2[]{this_p.copy(),
+                this_p.add(new Vector2(this.width, 0)),
+                this_p.add(new Vector2(this.width, this.height)),
+                this_p.add(new Vector2(0, this.height))};
+    }
+
+    /**
+     * Returns true iff a is between b and c.
+     */
+    private boolean between(double a, double b, double c) {
+        return a > Math.min(b, c) && a < Math.max(b, c);
+    }
+
+    /**
+     * @param p A point.
+     * @param b1 One corner of the box.
+     * @param b2 A corner diagonal from b1.
+     * @return True iff the p is strictly inside the box defined by b1 and b2.
+     */
+    private boolean pointInBox(Vector2 p, Vector2 b1, Vector2 b2) {
+        return between(p.x, b1.x, b2.x) && between(p.y, b1.y, b2.y);
+    }
+
+    /* Overridden function from Collider */
 
     @Override
     public boolean collidesWith(Vector2 p, Collider collider) {

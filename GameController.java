@@ -4,7 +4,7 @@ public class GameController extends GameObject {
 
     public GameController() {
         super(0, 0);
-        b1 = new RoundBlock(33, 100);
+        b1 = new RoundBlock(32.1, 100);
         b2 = new Block(16*3, 128);
 
         b1.velocity.y = 5;
