@@ -148,6 +148,35 @@ public class GameGraphics extends GameObject {
     }
 
     /* Functions to draw different things */
+
+    /**
+     * Draws a point at {@code (x, y)}.
+     * @param absolute_position True to draw in the window coordinate space rather than the game coordinate space.
+     */
+    public static void drawPoint(int x, int y, boolean absolute_position, Color color) {
+        if(!absolute_position) {
+            x -= camera_x;
+            y -= camera_y;
+        }
+        bufferGraphics.setColor(color);
+        bufferGraphics.drawLine(x, y, x, y);
+    }
+
+    /**
+     * Draws a line from {@code (x1, y1)} to {@code (x2, y2)}.
+     * @param absolute_position True to draw in the window coordinate space rather than the game coordinate space.
+     */
+    public static void drawLine(int x1, int y1, int x2, int y2, boolean absolute_position, Color color) {
+        if(!absolute_position) {
+            x1 -= camera_x;
+            y1 -= camera_y;
+            x2 -= camera_x;
+            y2 -= camera_y;
+        }
+        bufferGraphics.setColor(color);
+        bufferGraphics.drawLine(x1, y1, x2, y2);
+    }
+
     /**
      * @param x X position of top left corner.
      * @param y Y position of top left corner.

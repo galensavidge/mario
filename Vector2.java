@@ -22,6 +22,27 @@ public class Vector2 {
     }
 
     /**
+     * @return A copy of this vector.
+     */
+    public Vector2 copy() {
+        return new Vector2(this.x, this.y);
+    }
+
+    /**
+     * @return True iff the vectors are mathematically equal.
+     */
+    public boolean equals(Vector2 v) {
+        return this.x == v.x && this.y == v.y;
+    }
+
+    /**
+     * @return This vector, rounded to pixel precision.
+     */
+    public Vector2 round() {
+        return new Vector2((int)this.x, (int)this.y);
+    }
+
+    /**
      * @param v Vector to add to this.
      * @return The sum of the two vectors.
      */
@@ -53,21 +74,17 @@ public class Vector2 {
         return new Vector2(this.x*a, this.y*a);
     }
 
+    /**
+     * @return The scalar absolute value of the vector.
+     */
     public double abs() {
         return Math.sqrt(this.x*this.x + this.y*this.y);
     }
 
     /**
-     * @return A copy of this vector.
+     * @return The dot product of this and v.
      */
-    public Vector2 copy() {
-        return new Vector2(this.x, this.y);
-    }
-
-    /**
-     * @return True iff the vectors are mathematically equal.
-     */
-    public boolean equals(Vector2 v) {
-        return this.x == v.x && this.y == v.y;
+    public double dot(Vector2 v) {
+        return this.x*v.x + this.y*v.y;
     }
 }

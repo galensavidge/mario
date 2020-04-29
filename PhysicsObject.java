@@ -16,10 +16,13 @@ public abstract class PhysicsObject extends GameObject {
         velocity = new Vector2(0, 0);
     }
 
+    public Vector2 pixelPosition() {
+        return position.round();
+    }
+
     @Override
     public void update() {
         double t = Game.stepTimeSeconds();
-        position = position.add(velocity.multiply(t));
     }
 
     @Override

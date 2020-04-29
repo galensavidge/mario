@@ -1,10 +1,10 @@
 public class GameController extends GameObject {
-    RoundBlock b1;
+    Block b1;
     Block b2;
 
     public GameController() {
         super(0, 0);
-        b1 = new RoundBlock(48, 50);
+        b1 = new Block(48, 50);
         b2 = new Block(48, 100);
 
         this.persistent = true;

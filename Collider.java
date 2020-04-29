@@ -7,24 +7,31 @@ import java.util.ArrayList;
  * @version 4/26/2020
  */
 public abstract class Collider {
-    protected static ArrayList<Collider> colliders = new ArrayList<>();
-    
-    protected PhysicsObject object; // The object that this collider is attached to
-    protected Vector2 offset; // The coordinates of this collider relative to its attached object
+    /* Static class methods */
 
-    /**
-     * @param object The game object that this collider will attach to.
-     */
+    protected static ArrayList<Collider> colliders = new ArrayList<>();
+
+
+    /* Instance methods */
+
+    protected Vector2 position; // The coordinates of this collider relative to its attached object
+    protected PhysicsObject object; // The object this collider is attached to
+
     public Collider(PhysicsObject object) {
-        this.object = object;
         colliders.add(this);
+        this.object = object;
+        this.position = Vector2.zero();
     }
 
     /**
      * @return The position of the top left corner of the collider's bounding box.
      */
     public Vector2 getPosition() {
-        return object.position.add(offset);
+        return position;
+    }
+
+    public void setPosition(Vector2 position) {
+        this.position = position.round();
     }
 
     /**
@@ -35,22 +42,18 @@ public abstract class Collider {
         this.object = null;
     }
 
+    public abstract void draw();
+
     /**
-     * Checks for collisions with other Colliders at position p.
-     * @param absolute True to use absolute coordinates, false for coordinates relative to the attached PhysicsObject.
-     * @param allow_edges True to include edges and corners in collision calculation, false to use only intersection.
+     * Checks for collisions with other Colliders.
      * @return An ArrayList of all physics objects collided with.
      */
-    public ArrayList<PhysicsObject> getCollisions(Vector2 position, boolean absolute, boolean allow_edges) {
-        if(!absolute) {
-            position = position.add(object.position);
-        }
-
+    public ArrayList<PhysicsObject> getCollisions() {
         ArrayList<PhysicsObject> collisions = new ArrayList<>();
 
         for(Collider c : colliders) {
             if(c != this) {
-                if(this.collidesWith(position, c, allow_edges)) {
+                if(this.collidesWith(position, c)) {
                     collisions.add(c.object);
                 }
             }
@@ -63,17 +66,5 @@ public abstract class Collider {
      * Checks if this collider collides with c when at position p. This function should be overridden to handle
      * collisions with different collider types.
      */
-    public abstract boolean collidesWith(Vector2 p, Collider c, boolean allow_edges);
-
-    /**
-     * Finds the minimum distance needed to move in a given direction to touch collider c.
-     * @param direction A vector defining the direction in which to move.
-     * @return The vector needed to touch c. Returns null if no vector was found.
-     */
-    public abstract Vector2 vectorToContact(Collider collider, Vector2 direction);
-
-    /**
-     * @return A point on the edge of both this and collider, or null if none exists.
-     */
-    public abstract Vector2 pointOfContact(Collider collider);
+    public abstract boolean collidesWith(Vector2 p, Collider c);
 }
