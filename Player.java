@@ -63,12 +63,12 @@ public class Player extends PhysicsObject {
         }*/
 
         collider.setPosition(position);
-        collider.getCollisions();
+        collider.getCollisions(new Vector2(0, 10));
     }
 
     @Override
     public void draw() {
-        GameGraphics.drawSprite((int)position.x, (int)position.y, false, sprite);
+        //GameGraphics.drawSprite((int)position.x, (int)position.y, false, sprite);
         collider.draw();
     }
 }

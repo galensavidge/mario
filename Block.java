@@ -1,5 +1,4 @@
 import java.awt.*;
-import java.util.ArrayList;
 
 public class Block extends PhysicsObject {
 
@@ -14,11 +13,6 @@ public class Block extends PhysicsObject {
 
     public void update() {
         super.update();
-        Collider.Collision collision = collider.getCollisions();
-        if(collision.collision_found) {
-            System.out.println("Block collided with thing at: ("+collision.collided_with.get(0).position.x+","
-                    +collision.collided_with.get(0).position.y+")");
-        }
     }
 
     public void draw() {

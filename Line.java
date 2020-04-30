@@ -19,7 +19,8 @@ public class Line {
 
     public Vector2 RHNormal() {
         Vector2 v = this.vector();
-        return new Vector2(v.y, -v.x);
+        Vector2 normal = new Vector2(v.y, -v.x);
+        return normal.multiply(1.0/normal.abs());
     }
 
     public Vector2 intersection(Line l) {

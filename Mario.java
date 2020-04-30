@@ -16,7 +16,8 @@ public class Mario
         InputManager.init();
 
         World.loadFromFile("./levels/level0");
-        new Player(128,48);
+        new Player(64,48);
+        new Slope(3*16,6*16);
         Game.run();
         GameGraphics.closeWindow();
     }

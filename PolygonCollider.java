@@ -49,19 +49,7 @@ public class PolygonCollider extends Collider {
                 Vector2 p = this_l.intersection(other_l);
                 if(p != null) {
                     collided_with_other = true;
-
-                    boolean contains_p = false;
-                    for(Vector2 i : collision.intersections) {
-                        if(i.equals(p)) {
-                            contains_p = true;
-                        }
-                    }
-
-                    if(!contains_p) {
-                        collision.intersections.add(p);
-                    }
-
-                    collision.lines.add(other_l);
+                    addNoDuplicates(collision.intersections, p);
                 }
             }
         }
@@ -69,6 +57,7 @@ public class PolygonCollider extends Collider {
         if(collided_with_other) {
             collision.collision_found = true;
             collision.collided_with.add(other);
+            collision.lines.addAll(other_lines);
         }
     }
 
@@ -84,18 +73,17 @@ public class PolygonCollider extends Collider {
         }
 
         if(last_collision != null) {
+            if(last_collision.normals != null && last_collision.mean != null) {
+                for(Vector2 n : last_collision.normals) {
+                    Vector2 normal = n.multiply(10);
+                    GameGraphics.drawLine((int) last_collision.mean.x, (int) last_collision.mean.y,
+                            (int) (last_collision.mean.x + normal.x),
+                            (int) (last_collision.mean.y + normal.y), false, Color.CYAN);
+                }
+            }
+
             for (Vector2 i : last_collision.intersections) {
                 GameGraphics.drawPoint((int) i.x, (int) i.y, false, Color.RED);
-            }
-
-            if(last_collision.least_squares != null) {
-                last_collision.least_squares.draw();
-            }
-
-            if(last_collision.normal != null && last_collision.mean != null) {
-                GameGraphics.drawLine((int)last_collision.mean.x, (int)last_collision.mean.y,
-                        (int)(last_collision.mean.x + last_collision.normal.x),
-                        (int)(last_collision.mean.y + last_collision.normal.y), false, Color.CYAN);
             }
 
             last_collision = null;

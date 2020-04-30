@@ -17,13 +17,29 @@ public abstract class Collider {
         public ArrayList<Collider> collided_with = new ArrayList<>();
         public ArrayList<Vector2> intersections = new ArrayList<>();
         public ArrayList<Line> lines = new ArrayList<>();
-        public Line least_squares = null;
         public Vector2 mean = null;
-        public Vector2 normal = null;
+        public ArrayList<Vector2> normals = new ArrayList<>();
 
         public Collision(Collider collider) {
             this.collider = collider;
             this.collision_found = false;
+        }
+    }
+
+    /**
+     * Adds {@code element} to {@code array} iff {@code array} does not contain an element mathematically equal to
+     * {@code element}.
+     */
+    protected static void addNoDuplicates(ArrayList<Vector2> array, Vector2 element) {
+        boolean contains_element = false;
+        for(Vector2 v : array) {
+            if(v.equals(element)) {
+                contains_element = true;
+                break;
+            }
+        }
+        if(!contains_element) {
+            array.add(element);
         }
     }
 
@@ -46,7 +62,7 @@ public abstract class Collider {
     }
 
     public void setPosition(Vector2 position) {
-        this.position = position.copy();
+        this.position = position.round();
     }
 
     /**
@@ -63,7 +79,7 @@ public abstract class Collider {
      * Checks for collisions with other Colliders.
      * @return A Collision object.
      */
-    public Collision getCollisions() {
+    public Collision getCollisions(Vector2 delta_position) {
         Collision collision = new Collision(this);
 
         // Get intersections
@@ -73,28 +89,34 @@ public abstract class Collider {
             }
         }
 
-        // Get least squares best fit line
-        collision.least_squares = Line.leastSquares(collision.intersections);
-        if(collision.least_squares == null) {
-            return collision;
-        }
-
-        // Get mean point
-        collision.mean = new Vector2(0, 0);
-        for(Vector2 p : collision.intersections) {
-            collision.mean.x += p.x;
-            collision.mean.y += p.y;
-        }
-        collision.mean.x /= collision.intersections.size();
-        collision.mean.y /= collision.intersections.size();
-
-        Line raycast = new Line(collision.mean.subtract(collision.least_squares.RHNormal()),
-                collision.mean.add(collision.least_squares.RHNormal()));
-
-        for(Line l : collision.lines) {
-            if(l.intersection(raycast) != null) {
-                collision.normal = l.RHNormal();
+        // Get normals
+        for(Vector2 i : collision.intersections) {
+            Line raycast = new Line(i, i.subtract(delta_position));
+            double closest_dist = Double.MAX_VALUE;
+            Line closest_line = null;
+            for(Line l : collision.lines) {
+                Vector2 p = l.intersection(raycast);
+                if(p != null) {
+                    double p_dist = (p.subtract(raycast.p2)).abs();
+                    if (p_dist < closest_dist) {
+                        closest_dist = p_dist;
+                        closest_line = l;
+                    }
+                }
             }
+
+            if(closest_line != null) {
+                addNoDuplicates(collision.normals, closest_line.RHNormal());
+            }
+        }
+
+        // Get mean
+        if(collision.collision_found) {
+            collision.mean = Vector2.zero();
+            for (Vector2 i : collision.intersections) {
+                collision.mean = collision.mean.add(i);
+            }
+            collision.mean = collision.mean.multiply(1.0/collision.intersections.size());
         }
 
         return collision;
