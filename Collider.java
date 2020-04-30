@@ -46,7 +46,7 @@ public abstract class Collider {
     }
 
     public void setPosition(Vector2 position) {
-        this.position = position.round();
+        this.position = position.copy();
     }
 
     /**

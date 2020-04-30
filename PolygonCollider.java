@@ -1,5 +1,6 @@
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class PolygonCollider extends Collider {
 
@@ -16,9 +17,7 @@ public class PolygonCollider extends Collider {
 
     public PolygonCollider(PhysicsObject object, Vector2[] local_vertices) {
         super(object);
-        for (Vector2 v : local_vertices) {
-            this.local_vertices.add(v.round());
-        }
+        this.local_vertices.addAll(Arrays.asList(local_vertices));
     }
 
     public ArrayList<Vector2> getVertices() {

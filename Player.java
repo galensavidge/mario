@@ -27,16 +27,16 @@ public class Player extends PhysicsObject {
 
         // Input
         if(InputManager.getDown(InputManager.K_LEFT)) {
-            position.x -= 0.77;
+            position.x -= 0.13;
         }
         if(InputManager.getDown(InputManager.K_RIGHT)) {
-            position.x += 0.77;
+            position.x += 0.13;
         }
         if(InputManager.getDown(InputManager.K_UP)) {
-            position.y -= 0.77;
+            position.y -= 0.13;
         }
         if(InputManager.getDown(InputManager.K_DOWN)) {
-            position.y += 0.77;
+            position.y += 0.13;
         }
         if(InputManager.getPressed(InputManager.K_JUMP)) {
             velocity.y -= 150;
