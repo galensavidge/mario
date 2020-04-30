@@ -11,6 +11,21 @@ public abstract class Collider {
 
     protected static ArrayList<Collider> colliders = new ArrayList<>();
 
+    public static class Collision {
+        public Collider collider;
+        boolean collision_found;
+        public ArrayList<Collider> collided_with = new ArrayList<>();
+        public ArrayList<Vector2> intersections = new ArrayList<>();
+        public ArrayList<Line> lines = new ArrayList<>();
+        public Line least_squares = null;
+        public Vector2 mean = null;
+        public Vector2 normal = null;
+
+        public Collision(Collider collider) {
+            this.collider = collider;
+            this.collision_found = false;
+        }
+    }
 
     /* Instance methods */
 
@@ -46,25 +61,48 @@ public abstract class Collider {
 
     /**
      * Checks for collisions with other Colliders.
-     * @return An ArrayList of all physics objects collided with.
+     * @return A Collision object.
      */
-    public ArrayList<PhysicsObject> getCollisions() {
-        ArrayList<PhysicsObject> collisions = new ArrayList<>();
+    public Collision getCollisions() {
+        Collision collision = new Collision(this);
 
-        for(Collider c : colliders) {
-            if(c != this) {
-                if(this.collidesWith(position, c)) {
-                    collisions.add(c.object);
-                }
+        // Get intersections
+        for(Collider collider : Collider.colliders) {
+            if(collider != this) {
+                this.updateCollision(collision, collider);
             }
         }
 
-        return collisions;
+        // Get least squares best fit line
+        collision.least_squares = Line.leastSquares(collision.intersections);
+        if(collision.least_squares == null) {
+            return collision;
+        }
+
+        // Get mean point
+        collision.mean = new Vector2(0, 0);
+        for(Vector2 p : collision.intersections) {
+            collision.mean.x += p.x;
+            collision.mean.y += p.y;
+        }
+        collision.mean.x /= collision.intersections.size();
+        collision.mean.y /= collision.intersections.size();
+
+        Line raycast = new Line(collision.mean.subtract(collision.least_squares.RHNormal()),
+                collision.mean.add(collision.least_squares.RHNormal()));
+
+        for(Line l : collision.lines) {
+            if(l.intersection(raycast) != null) {
+                collision.normal = l.RHNormal();
+            }
+        }
+
+        return collision;
     }
 
     /**
-     * Checks if this collider collides with c when at position p. This function should be overridden to handle
-     * collisions with different collider types.
+     * Checks if this collider collides with other. This function should be overridden to handle collisions with
+     * different collider types.
      */
-    public abstract boolean collidesWith(Vector2 p, Collider c);
+    public abstract void updateCollision(Collision collision, Collider other);
 }

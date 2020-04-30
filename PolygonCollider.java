@@ -1,3 +1,4 @@
+import java.awt.*;
 import java.util.ArrayList;
 
 public class PolygonCollider extends Collider {
@@ -10,6 +11,7 @@ public class PolygonCollider extends Collider {
         return collider;
     }
 
+    private Collision last_collision;
     private final ArrayList<Vector2> local_vertices = new ArrayList<>();
 
     public PolygonCollider(PhysicsObject object, Vector2[] local_vertices) {
@@ -38,10 +40,37 @@ public class PolygonCollider extends Collider {
         return lines;
     }
 
-    public boolean collidesWithPolygon(PolygonCollider other) {
+    public void collisionWithPolygon(Collision collision, PolygonCollider other) {
         ArrayList<Line> this_lines = this.getLines();
         ArrayList<Line> other_lines = other.getLines();
-        return false;
+        boolean collided_with_other = false;
+
+        for(Line this_l : this_lines) {
+            for(Line other_l : other_lines) {
+                Vector2 p = this_l.intersection(other_l);
+                if(p != null) {
+                    collided_with_other = true;
+
+                    boolean contains_p = false;
+                    for(Vector2 i : collision.intersections) {
+                        if(i.equals(p)) {
+                            contains_p = true;
+                        }
+                    }
+
+                    if(!contains_p) {
+                        collision.intersections.add(p);
+                    }
+
+                    collision.lines.add(other_l);
+                }
+            }
+        }
+
+        if(collided_with_other) {
+            collision.collision_found = true;
+            collision.collided_with.add(other);
+        }
     }
 
     @Override
@@ -50,10 +79,36 @@ public class PolygonCollider extends Collider {
         for(Line l : lines) {
             l.draw();
         }
+
+        if(!(object instanceof Player)) {
+            return;
+        }
+
+        if(last_collision != null) {
+            for (Vector2 i : last_collision.intersections) {
+                GameGraphics.drawPoint((int) i.x, (int) i.y, false, Color.RED);
+            }
+
+            if(last_collision.least_squares != null) {
+                last_collision.least_squares.draw();
+            }
+
+            if(last_collision.normal != null && last_collision.mean != null) {
+                GameGraphics.drawLine((int)last_collision.mean.x, (int)last_collision.mean.y,
+                        (int)(last_collision.mean.x + last_collision.normal.x),
+                        (int)(last_collision.mean.y + last_collision.normal.y), false, Color.CYAN);
+            }
+
+            last_collision = null;
+        }
     }
 
     @Override
-    public boolean collidesWith(Vector2 p, Collider c) {
-        return false;
+    public void updateCollision(Collision collision, Collider collider) {
+        if(collider instanceof PolygonCollider) {
+            collisionWithPolygon(collision, (PolygonCollider)collider);
+        }
+
+        last_collision = collision;
     }
 }

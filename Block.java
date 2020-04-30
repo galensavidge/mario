@@ -14,10 +14,10 @@ public class Block extends PhysicsObject {
 
     public void update() {
         super.update();
-        ArrayList<PhysicsObject> collisions = collider.getCollisions();
-        if(collisions.size() > 0) {
-            System.out.println("Block collided with thing at: ("+collisions.get(0).position.x+","
-                    +collisions.get(0).position.y+")");
+        Collider.Collision collision = collider.getCollisions();
+        if(collision.collision_found) {
+            System.out.println("Block collided with thing at: ("+collision.collided_with.get(0).position.x+","
+                    +collision.collided_with.get(0).position.y+")");
         }
     }
 

@@ -12,7 +12,7 @@ public class Player extends PhysicsObject {
 
     public Player(double x, double y) {
         super(10, 10, x, y);
-        collider = PolygonCollider.newBox(this,2,8,12,16);
+        collider = PolygonCollider.newBox(this,0,8,16,16);
     }
 
     @Override
@@ -63,11 +63,12 @@ public class Player extends PhysicsObject {
         }*/
 
         collider.setPosition(position);
+        collider.getCollisions();
     }
 
     @Override
     public void draw() {
-        GameGraphics.drawSprite((int)Math.round(position.x), (int)Math.round(position.y), false, sprite);
+        GameGraphics.drawSprite((int)position.x, (int)position.y, false, sprite);
         collider.draw();
     }
 }
