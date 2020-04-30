@@ -1,3 +1,6 @@
+package engine.colliders;
+import engine.util.*;
+import engine.objects.PhysicsObject;
 import java.util.ArrayList;
 
 /**
@@ -79,44 +82,14 @@ public abstract class Collider {
      * Checks for collisions with other Colliders.
      * @return A Collision object.
      */
-    public Collision getCollisions(Vector2 delta_position) {
+    public Collision getCollisions() {
         Collision collision = new Collision(this);
 
         // Get intersections
         for(Collider collider : Collider.colliders) {
             if(collider != this) {
-                this.updateCollision(collision, collider);
+                this.checkCollision(collision, collider);
             }
-        }
-
-        // Get normals
-        for(Vector2 i : collision.intersections) {
-            Line raycast = new Line(i, i.subtract(delta_position));
-            double closest_dist = Double.MAX_VALUE;
-            Line closest_line = null;
-            for(Line l : collision.lines) {
-                Vector2 p = l.intersection(raycast);
-                if(p != null) {
-                    double p_dist = (p.subtract(raycast.p2)).abs();
-                    if (p_dist < closest_dist) {
-                        closest_dist = p_dist;
-                        closest_line = l;
-                    }
-                }
-            }
-
-            if(closest_line != null) {
-                addNoDuplicates(collision.normals, closest_line.RHNormal());
-            }
-        }
-
-        // Get mean
-        if(collision.collision_found) {
-            collision.mean = Vector2.zero();
-            for (Vector2 i : collision.intersections) {
-                collision.mean = collision.mean.add(i);
-            }
-            collision.mean = collision.mean.multiply(1.0/collision.intersections.size());
         }
 
         return collision;
@@ -126,5 +99,9 @@ public abstract class Collider {
      * Checks if this collider collides with other. This function should be overridden to handle collisions with
      * different collider types.
      */
-    public abstract void updateCollision(Collision collision, Collider other);
+    public abstract void checkCollision(Collision collision, Collider other);
+
+    public Vector2 getNormal(Vector2 direction) {
+        return null;
+    }
 }

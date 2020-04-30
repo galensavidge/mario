@@ -1,3 +1,6 @@
+package engine;
+
+import engine.objects.*;
 import java.util.*;
 
 /**

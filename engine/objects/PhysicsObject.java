@@ -1,3 +1,9 @@
+package engine.objects;
+
+import engine.Game;
+import engine.colliders.Collider;
+import engine.util.Vector2;
+
 /**
  * The parent class for all objects that inhabit physical space in the game world.
  *
@@ -19,6 +25,7 @@ public abstract class PhysicsObject extends GameObject {
     public Vector2 pixelPosition() {
         return position.round();
     }
+
 
     @Override
     public void update() {

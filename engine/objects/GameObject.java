@@ -1,3 +1,7 @@
+package engine.objects;
+
+import engine.Game;
+
 /**
  * Base game object class which is the parent of all other game object types.
  *

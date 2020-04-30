@@ -1,3 +1,8 @@
+package engine.objects;
+
+import engine.colliders.PolygonCollider;
+import engine.util.Vector2;
+
 public class Slope extends PhysicsObject {
 
     public Slope(double x, double y) {

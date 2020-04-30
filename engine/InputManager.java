@@ -1,3 +1,6 @@
+package engine;
+
+import engine.objects.GameObject;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.Dictionary;
@@ -12,7 +15,7 @@ import java.util.Hashtable;
  */
 public class InputManager extends GameObject {
 
-    /* Public InputManager variables and methods */
+    /* Public engine.InputManager variables and methods */
 
     // Keybinds
     public static final int K_LEFT = KeyEvent.VK_A;
@@ -22,7 +25,7 @@ public class InputManager extends GameObject {
     public static final int K_JUMP = KeyEvent.VK_J;
 
     /**
-     * Sets up the static InputManager class and adds an object to the update queue. Should be called once when the
+     * Sets up the static engine.InputManager class and adds an object to the update queue. Should be called once when the
      * program starts.
      */
     public static void init() {
@@ -36,14 +39,14 @@ public class InputManager extends GameObject {
         // Set up key listener
         GameGraphics.getFrame().addKeyListener(InputManager.key_listener);
 
-        // Add an InputManager to the update queue
+        // Add an engine.InputManager to the update queue
         new InputManager();
     }
 
     /* Public functions to check the state of the keys */
 
     /**
-     * @param key A key value defined in InputManager.
+     * @param key A key value defined in engine.InputManager.
      * @return True if the key is currently pressed.
      */
     public static boolean getDown(int key) {
@@ -51,7 +54,7 @@ public class InputManager extends GameObject {
     }
 
     /**
-     * @param key A key value defined in InputManager.
+     * @param key A key value defined in engine.InputManager.
      * @return True if the key was pressed this step.
      */
     public static boolean getPressed(int key) {
@@ -59,7 +62,7 @@ public class InputManager extends GameObject {
     }
 
     /**
-     * @param key A key value defined in InputManager.
+     * @param key A key value defined in engine.InputManager.
      * @return True if the key was released this step.
      */
     public static boolean getReleased(int key) {
@@ -105,7 +108,7 @@ public class InputManager extends GameObject {
         }
     };
 
-    /* Private InputManager object */
+    /* Private engine.InputManager object */
 
     /**
      * This object has high priority; it should go before all objects in the update queue that need to read key presses.

@@ -1,5 +1,11 @@
+package mario;
+
+import engine.*;
+import engine.colliders.*;
+import engine.objects.*;
+import engine.util.Vector2;
+
 import java.awt.*;
-import java.util.ArrayList;
 
 public class Player extends PhysicsObject {
 
@@ -51,7 +57,7 @@ public class Player extends PhysicsObject {
         }
 
         /* Move based on velocity and handle collisions */
-        //Vector2 delta_p = velocity.multiply(t);
+        //engine.util.Vector2 delta_p = velocity.multiply(t);
 
         // Check for collisions at new point
 
@@ -63,7 +69,7 @@ public class Player extends PhysicsObject {
         }*/
 
         collider.setPosition(position);
-        collider.getCollisions(new Vector2(0, 10));
+        collider.getCollisions();
     }
 
     @Override

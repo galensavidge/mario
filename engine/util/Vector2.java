@@ -1,3 +1,5 @@
+package engine.util;
+
 /**
  * A simple class to hold a 2-vector with double precision.
  *

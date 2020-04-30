@@ -1,3 +1,10 @@
+package engine.colliders;
+
+import engine.GameGraphics;
+import engine.util.*;
+import engine.objects.PhysicsObject;
+import mario.Player;
+
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -91,7 +98,7 @@ public class PolygonCollider extends Collider {
     }
 
     @Override
-    public void updateCollision(Collision collision, Collider collider) {
+    public void checkCollision(Collision collision, Collider collider) {
         if(collider instanceof PolygonCollider) {
             collisionWithPolygon(collision, (PolygonCollider)collider);
         }

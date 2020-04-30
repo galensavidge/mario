@@ -1,3 +1,6 @@
+package engine;
+
+import engine.objects.GameObject;
 import java.awt.*;
 
 /**

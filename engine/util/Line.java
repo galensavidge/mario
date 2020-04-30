@@ -1,3 +1,8 @@
+package engine.util;
+
+import engine.GameGraphics;
+import engine.World;
+
 import java.awt.*;
 import java.util.ArrayList;
 
@@ -62,8 +67,8 @@ public class Line {
 
         Vector2 p1, p2;
 
-        //p1 = new Vector2(0, B0);
-        //p2 = new Vector2(World.getWidth(), World.getWidth()*B1 + B0);
+        //p1 = new engine.util.Vector2(0, B0);
+        //p2 = new engine.util.Vector2(engine.World.getWidth(), engine.World.getWidth()*B1 + B0);
 
         if(A != 0) {
             p1 = new Vector2(C / A, 0);

@@ -1,3 +1,6 @@
+package engine;
+
+import engine.objects.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;

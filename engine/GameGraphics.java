@@ -1,3 +1,6 @@
+package engine;
+
+import engine.objects.GameObject;
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
 import java.awt.*;

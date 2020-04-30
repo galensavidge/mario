@@ -1,3 +1,8 @@
+package engine.objects;
+
+import engine.GameGraphics;
+import engine.colliders.PolygonCollider;
+
 import java.awt.*;
 
 public class Block extends PhysicsObject {

@@ -1,3 +1,8 @@
+package mario;
+
+import engine.*;
+import engine.objects.*;
+
 /**
  * Main game class that runs the program.
  *
