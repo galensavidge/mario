@@ -7,7 +7,7 @@ import java.awt.*;
 import java.util.ArrayList;
 
 /**
- * A class to represent line segments.
+ * A class to represent line segments. The line segment is defined as pointing from {@code p1} to {@code p2}.
  *
  * @author Galen Savidge
  * @version 4/30/2020
@@ -38,6 +38,13 @@ public class Line {
     }
 
     /**
+     * @return A line segment equal to {@code this} but pointing in the opposite direction.
+     */
+    public Line reverse() {
+        return new Line(this.p2, this.p1);
+    }
+
+    /**
      * @return The unit-magnitude right-hand normal vector of the {@code Line}.
      */
     public Vector2 RHNormal() {
@@ -64,48 +71,6 @@ public class Line {
         }
         return null;
     }
-
-    /*public static Line leastSquares(ArrayList<Vector2> points) {
-        double n = points.size();
-        if(n < 2) {
-            return null;
-        }
-
-        double sum_x = 0, sum_y = 0, sum_xy = 0, sum_x2 = 0;
-        for(Vector2 p : points) {
-            sum_x += p.x;
-            sum_y += p.y;
-            sum_xy += p.x*p.y;
-            sum_x2 += p.x*p.x;
-        }
-
-        // Ax + By = C
-        double A = sum_x*sum_y - n*sum_xy;
-        double B = n*sum_x2 - sum_x*sum_x;
-        double C = sum_y*sum_x2 - sum_x*sum_xy;
-
-        // y = B0 + B1*x
-        double B0 = (sum_y*sum_x2 - sum_x*sum_xy)/(n*sum_x2 - sum_x*sum_x);
-        double B1 = (n*sum_xy - sum_x*sum_y)/(n*sum_x2 - sum_x*sum_x);
-
-        Vector2 p1, p2;
-
-        //p1 = new engine.util.Vector2(0, B0);
-        //p2 = new engine.util.Vector2(engine.World.getWidth(), engine.World.getWidth()*B1 + B0);
-
-        if(A != 0) {
-            p1 = new Vector2(C / A, 0);
-            p2 = new Vector2(C / A - B * World.getHeight() / A, World.getHeight());
-        }
-        else if(B != 0) {
-            p1 = new Vector2(0, C / B);
-            p2 = new Vector2(World.getWidth(), C / B - A * World.getWidth() / B);
-        }
-        else {
-            return null;
-        }
-        return new Line(p1, p2);
-    }*/
 
     public void draw() {
         GameGraphics.drawLine((int)p1.x, (int)p1.y, (int)p2.x, (int)p2.y,false, Color.green);

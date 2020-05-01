@@ -208,57 +208,87 @@ public class Collider {
     }
 
     /**
-     * Finds the normal vector of a surface in contact (< 1px) with the collider.
+     * Returns the proper normal vector for the first collision experienced by {@code this} when moving from
+     * {@code this.position} to {@code this.position + delta_position}. Collisions are only checked for the provided
+     * list of colliders.
      *
-     * @param direction Direction to check.
-     * @return The normal vector.
+     * @param delta_position The new position after the desired translation.
+     * @param colliders A set of colliders to check.
+     * @return The normal vector corresponding to the first collision experienced when moving by delta_position.
      */
-    public Vector2 getNormal(Vector2 direction, ArrayList<Collider> colliders) {
-        // Set position
-        Vector2 old_position = position;
-        direction = direction.normalize();
-        position = position.add(direction.multiply(1.5)); // Make a vector so that sqrt(2) < ||v|| < 2
+    public Vector2 getNormal(Vector2 delta_position, ArrayList<Collider> colliders) {
+        double closest_distance = Double.MAX_VALUE;
+        Line closest_edge = null;
 
-        // Get mean point of intersections
-        Collision collision = getCollisions(colliders);
-        Vector2 mean = Vector2.zero();
-        for(Vector2 p : collision.intersections) {
-            mean = mean.add(p);
-        }
-        mean = mean.multiply(1.0/collision.intersections.size());
+        // Sweep the corners of this collider across delta_position
+        for(Vector2 corner : this.getVertices()) {
 
-        // Get edges of colliders
-        ArrayList<Line> edges = new ArrayList<>();
-        for(Collider c : colliders) {
-                edges.addAll(c.getLines());
-        }
+            // Get the line from this corner's starting point to its ending point
+            Line ray = new Line(corner, corner.add(delta_position));
 
-        // Raycast from mean to this Collider's center and find closest intersection to the center
-        Vector2 ray_v = mean.subtract(this.getCenter());
-        Line ray = new Line(this.getCenter(), this.getCenter().add(ray_v.multiply(10))); // This is lazy...
-        Line shortest = null; // Line containing the intersection point closest to the center
-        double shortest_dist = Double.MAX_VALUE;
-        for(Line l : edges) {
-            Vector2 i = ray.intersection(l);
-            if(i != null) {
-                double distance = (i.subtract(this.getCenter())).abs();
-                if(distance < shortest_dist) {
-                    shortest = l;
-                    shortest_dist = distance;
+            // Check for intersections with all edges of other colliders
+            for(Collider other : colliders) {
+                for(Line edge : other.getLines()) {
+                    Vector2 intersection = ray.intersection(edge);
+
+                    // Record the closest intersection
+                    if(intersection != null) {
+                        double length_from_start = intersection.subtract(corner).abs();
+                        if(length_from_start < closest_distance) {
+                            closest_edge = edge;
+                            closest_distance = length_from_start;
+                        }
+                    }
                 }
             }
         }
 
+        // Sweep the corners of the other colliders across -1*delta_position
+        for(Collider other : colliders) {
+            for (Vector2 corner : other.getVertices()) {
 
-        // Reset position
-        position = old_position;
+                // Get the line from the other's corner's starting point to its ending point (relative to this)
+                Line ray = new Line(corner, corner.subtract(delta_position));
 
-        if(shortest != null) {
-            return shortest.RHNormal();
+                // Check for intersections with this collider's edges
+                for (Line edge : this.getLines()) {
+                    Vector2 intersection = ray.intersection(edge);
+
+                    // Record the closest intersection
+                    if (intersection != null) {
+                        double length_from_start = intersection.subtract(corner).abs();
+                        if (length_from_start < closest_distance) {
+                            // Reverse the direction of self edges so the normal points inwards
+                            closest_edge = edge.reverse();
+                            closest_distance = length_from_start;
+                        }
+                    }
+                }
+            }
+        }
+
+        // Return the normal
+        if(closest_edge != null) {
+            // Scale by distance of overlap plus safety margin
+            Vector2 normal = closest_edge.RHNormal();
+            Vector2 delta_pos_proj_edge = delta_position.projection(closest_edge.vector());
+            double normal_mag = (delta_position.subtract(delta_pos_proj_edge)).abs() + 2*Util.delta;
+            return normal.multiply(normal_mag);
         }
         else {
             return null;
         }
+    }
+
+    /**
+     * Returns the proper normal vector for the first collision experienced by {@code this} when moving from
+     * {@code this.position} to {@code this.position + delta_position}.
+     *
+     * @param delta_position The new position after the desired translation.
+     * @return The normal vector corresponding to the first collision experienced when moving by delta_position.
+     */
+    public Vector2 getNormal(Vector2 delta_position) {
+        return getNormal(delta_position, colliders);
     }
 
     /**

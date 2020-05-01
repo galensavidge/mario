@@ -23,5 +23,5 @@ public class Util {
     }
 
     // Error allowed before calling floating point values not equal in inclusive comparisons
-    private static final double delta = 1e-9;
+    public static final double delta = 1e-9;
 }

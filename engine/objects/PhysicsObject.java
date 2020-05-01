@@ -47,16 +47,18 @@ public abstract class PhysicsObject extends GameObject {
         }
 
         Vector2 new_position = position;
-        Vector2 reject_vector = delta_position.normalize().multiply(-0.1);
 
-        while(true) {
+        // Loop until a position is found with no collisions or we hit too many iterations
+        for(int i = 0;i < 100;i++) {
             // Determine the new position to check
-            Vector2 old_position = new_position;
-            new_position = new_position.add(delta_position);
-            collider.setPosition(new_position);
+            new_position = position.add(delta_position);
 
             // Check for collisions at this position
+            collider.setPosition(new_position);
             Collider.Collision collision = collider.getCollisions();
+            collider.setPosition(position);
+
+            // Break if there is no collision at this position
             if(!collision.collision_found) break;
 
             // Make a list of the solid objects collided with
@@ -68,54 +70,10 @@ public abstract class PhysicsObject extends GameObject {
                 }
             }
 
-            // Move along reject_vector until no longer colliding with the solid objects
-            do {
-                new_position = new_position.add(reject_vector);
-                collider.setPosition(new_position);
-            }
-            while (collider.getCollisions(other_colliders).collision_found);
-
             // Get a normal vector from the closest surface of the objects collided with
-            //Vector2 normal = collider.getNormal(delta_position, other_colliders);
-
-            collider.setPosition(old_position);
-            double closest_len = Double.MAX_VALUE;
-            Line closest = null;
-            for(Vector2 corner : collider.getVertices()) {
-                Line ray = new Line(corner, corner.add(delta_position));
-                for(Collider other : other_colliders) {
-                    for(Line edge : other.getLines()) {
-                        Vector2 intersection = ray.intersection(edge);
-                        if(intersection != null) {
-                            double length_from_start = intersection.subtract(corner).abs();
-                            if(length_from_start < closest_len) {
-                                closest = edge;
-                                closest_len = length_from_start;
-                            }
-                        }
-                    }
-                }
-            }
-
-            for(Collider other : other_colliders) {
-                for (Vector2 corner : other.getVertices()) {
-                    Line ray = new Line(corner, corner.subtract(delta_position));
-                    for (Line edge : collider.getLines()) {
-                        Vector2 intersection = ray.intersection(edge);
-                        if (intersection != null) {
-                            double length_from_start = intersection.subtract(corner).abs();
-                            if (length_from_start < closest_len) {
-                                closest = edge;
-                                closest_len = length_from_start;
-                            }
-                        }
-                    }
-                }
-            }
-
-            Vector2 normal = null;
-            if(closest != null) {
-                normal = closest.RHNormal();
+            Vector2 normal = collider.getNormal(delta_position, other_colliders);
+            if(normal != null) {
+                normals.add(normal);
             }
             else {
                 System.out.println("Null normal!");
@@ -125,10 +83,8 @@ public abstract class PhysicsObject extends GameObject {
             if (normal == null) {
                 System.out.println("Null normal!");
             } else {
-                normals.add(normal);
-
                 // Remove the portion of the attempted motion that is parallel to the normal vector
-                delta_position = delta_position.subtract(delta_position.projection(normal));
+                delta_position = delta_position.add(normal);
             }
         }
 
