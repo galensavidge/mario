@@ -22,7 +22,9 @@ public class Player extends PhysicsObject {
     private static final double max_yspeed = 80;
     private static final double max_xspeed = 80;
 
-    private static final double ground_acceleration = 120;
+    private static final double ground_acceleration = 300;
+    private static final double air_acceleration = 150;
+    private static final double friction = 100;
 
     public Player(double x, double y) {
         super(10, 10, x, y);
@@ -33,19 +35,37 @@ public class Player extends PhysicsObject {
     public void update() {
         double t = Game.stepTimeSeconds();
 
-        /* Check if on ground */
         boolean on_ground = false;
+        collider.setPosition(position.add(new Vector2(0, 1)));
+        if(collider.getCollisions().collision_found) {
+            on_ground = true;
+        }
 
         /* Acceleration */
         // Gravity
-        //velocity = velocity.add(gravity.multiply(t));
+        velocity = velocity.add(gravity.multiply(t));
+
+        // Friction
+        if(on_ground) {
+            velocity.x -= Math.signum(velocity.x)*friction*t;
+        }
 
         // Input
         if(InputManager.getDown(InputManager.K_LEFT)) {
-            velocity.x -= ground_acceleration*t;
+            if(on_ground) {
+                velocity.x -= ground_acceleration*t;
+            }
+            else {
+                velocity.x -= air_acceleration*t;
+            }
         }
         if(InputManager.getDown(InputManager.K_RIGHT)) {
-            velocity.x += ground_acceleration*t;
+            if(on_ground) {
+                velocity.x += ground_acceleration*t;
+            }
+            else {
+                velocity.x += air_acceleration*t;
+            }
         }
         if(InputManager.getDown(InputManager.K_UP)) {
             velocity.y -= ground_acceleration*t;
@@ -54,7 +74,9 @@ public class Player extends PhysicsObject {
             velocity.y += ground_acceleration*t;
         }
         if(InputManager.getPressed(InputManager.K_JUMP)) {
-            velocity.y -= 150;
+            if(on_ground) {
+                velocity.y -= 150;
+            }
         }
 
         // Cap speed
