@@ -44,6 +44,7 @@ public abstract class GameObject
         return persistent;
     }
 
+
     /**
      * This method is called by Game every step and should be overwritten in child classes. Order depends on the
      * priority of the created objects.

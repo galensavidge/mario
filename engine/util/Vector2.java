@@ -84,9 +84,28 @@ public class Vector2 {
     }
 
     /**
-     * @return The dot product of this and v.
+     * @return This vector normalized. Returns the zero vector if this is the zero vector.
+     */
+    public Vector2 normalize() {
+        if(this.equals(z)) {
+            return this.copy();
+        }
+        return this.multiply(1.0/this.abs());
+    }
+
+    /**
+     * @return The dot product of {@code this} and {@code v}.
      */
     public double dot(Vector2 v) {
         return this.x*v.x + this.y*v.y;
+    }
+
+    /**
+     * @return The projection of {@code this} onto {@code v}.
+     */
+    public Vector2 projection(Vector2 v) {
+        double mag_v = v.abs();
+        double mag_projection = this.dot(v)/(mag_v*mag_v);
+        return v.multiply(mag_projection);
     }
 }

@@ -1,11 +1,11 @@
 package mario;
 
 import engine.*;
-import engine.colliders.*;
 import engine.objects.*;
 import engine.util.Vector2;
 
 import java.awt.*;
+import java.util.ArrayList;
 
 public class Player extends PhysicsObject {
 
@@ -18,7 +18,7 @@ public class Player extends PhysicsObject {
 
     public Player(double x, double y) {
         super(10, 10, x, y);
-        collider = PolygonCollider.newBox(this,0,8,16,16);
+        collider = Collider.newBox(this,0,8,16,16);
     }
 
     @Override
@@ -30,19 +30,20 @@ public class Player extends PhysicsObject {
 
         /* Acceleration */
         // Gravity
+        //velocity = velocity.add(gravity.multiply(t));
 
         // Input
         if(InputManager.getDown(InputManager.K_LEFT)) {
-            position.x -= 0.13;
+            velocity.x -= 2.13;
         }
         if(InputManager.getDown(InputManager.K_RIGHT)) {
-            position.x += 0.13;
+            velocity.x += 2.13;
         }
         if(InputManager.getDown(InputManager.K_UP)) {
-            position.y -= 0.13;
+            velocity.y -= 2.13;
         }
         if(InputManager.getDown(InputManager.K_DOWN)) {
-            position.y += 0.13;
+            velocity.y += 2.13;
         }
         if(InputManager.getPressed(InputManager.K_JUMP)) {
             velocity.y -= 150;
@@ -56,25 +57,17 @@ public class Player extends PhysicsObject {
             velocity.y = max_yspeed;
         }
 
-        /* Move based on velocity and handle collisions */
-        //engine.util.Vector2 delta_p = velocity.multiply(t);
+        Vector2 delta_position = velocity.multiply(t);
 
-        // Check for collisions at new point
-
-        // Handle collisions
-
-        // Update position
-        /*if(delta_p != null) {
-            position = position.add(delta_p);
-        }*/
-
-        collider.setPosition(position);
-        collider.getCollisions();
+        ArrayList<Vector2> normals = collideWithSolids(delta_position);
+        for(Vector2 n : normals) {
+            velocity = velocity.subtract(velocity.projection(n));
+        }
     }
 
     @Override
     public void draw() {
-        //GameGraphics.drawSprite((int)position.x, (int)position.y, false, sprite);
+        GameGraphics.drawSprite((int)position.x, (int)position.y, false, sprite);
         collider.draw();
     }
 }

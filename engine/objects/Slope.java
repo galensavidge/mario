@@ -1,6 +1,5 @@
 package engine.objects;
 
-import engine.colliders.PolygonCollider;
 import engine.util.Vector2;
 
 public class Slope extends PhysicsObject {
@@ -8,7 +7,7 @@ public class Slope extends PhysicsObject {
     public Slope(double x, double y) {
         super(1, 1, x, y);
         Vector2[] vertices = {new Vector2(0,47), new Vector2(47,0), new Vector2(47,47)};
-        this.collider = new PolygonCollider(this, vertices);
+        this.collider = new Collider(this, vertices);
         this.collider.setPosition(position);
         this.solid = true;
     }

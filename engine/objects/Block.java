@@ -1,7 +1,6 @@
 package engine.objects;
 
 import engine.GameGraphics;
-import engine.colliders.PolygonCollider;
 
 import java.awt.*;
 
@@ -12,7 +11,7 @@ public class Block extends PhysicsObject {
 
     public Block(double x, double y) {
         super(1, 1, x, y);
-        this.collider = PolygonCollider.newBox(this,0,0,16,16);
+        this.collider = Collider.newBox(this,0,0,16,16);
         this.solid = true;
     }
 

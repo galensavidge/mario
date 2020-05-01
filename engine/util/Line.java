@@ -25,7 +25,7 @@ public class Line {
     public Vector2 RHNormal() {
         Vector2 v = this.vector();
         Vector2 normal = new Vector2(v.y, -v.x);
-        return normal.multiply(1.0/normal.abs());
+        return normal.normalize();
     }
 
     public Vector2 intersection(Line l) {
