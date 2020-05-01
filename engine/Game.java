@@ -65,27 +65,14 @@ public class Game
     }
 
     /**
-     * Removes an object from the update and draw queues.
-     * @param object The GameObject or object of a derived class.
-     */
-    public static void removeObject(GameObject object) {
-        update_queue.remove(object);
-        draw_queue.remove(object);
-    }
-
-    /**
      * Deletes all non-persistent {@code GameObject} instances. These objects will be removed from the update and
      * draw queues and will also free any additional resources they are using.
      */
     public static void clearNonPersistentObjects() {
         int i = 0;
-        while(i < update_queue.size()) {
-            GameObject o = update_queue.get(i);
+        for(GameObject o : update_queue) {
             if(!o.isPersistent()) {
                 o.delete();
-            }
-            else {
-                i++;
             }
         }
     }
@@ -110,15 +97,23 @@ public class Game
             ListIterator<GameObject> i = update_queue.listIterator();
             while(i.hasNext()) {
                 GameObject o = i.next();
-                o.update();
+                if(!o.isDeleted()) {
+                    o.update();
+                }
             }
             
             // Iterate over draw queue
             i = draw_queue.listIterator();
             while(i.hasNext()) {
                 GameObject o = i.next();
-                o.draw();
+                if(!o.isDeleted()) {
+                    o.draw();
+                }
             }
+
+            // Remove deleted objects from update and draw queues
+            update_queue.removeIf(GameObject::isDeleted);
+            draw_queue.removeIf(GameObject::isDeleted);
 
             // Sleep to save CPU cycles
             long update_time = System.nanoTime() - start_time;

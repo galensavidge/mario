@@ -12,6 +12,7 @@ public abstract class GameObject
 {
     protected int priority;
     protected int layer;
+    private boolean deleted;
 
     // Whether this object persists between scenes or is deleted when the scene changes
     protected boolean persistent = false;
@@ -27,6 +28,7 @@ public abstract class GameObject
         // initialise instance variables
         this.priority = priority;
         this.layer = layer;
+        this.deleted = false;
         
         Game.addObject(this);
     }
@@ -57,7 +59,11 @@ public abstract class GameObject
     public abstract void draw();
 
     public void delete() {
-        Game.removeObject(this);
+        deleted = true;
+    }
+
+    public boolean isDeleted() {
+        return deleted;
     }
 
     /* @SuppressWarnings("deprecation")

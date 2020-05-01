@@ -14,6 +14,7 @@ import java.util.ArrayList;
  * @version 4/24/2020
  */
 public class Player extends PhysicsObject {
+    public static final String type_name = "Player";
 
     private static final String sprite_file = "./sprites/mario-stand-left.png";
     private static final Image sprite = Toolkit.getDefaultToolkit().createImage(sprite_file);
@@ -29,6 +30,20 @@ public class Player extends PhysicsObject {
     public Player(double x, double y) {
         super(10, 10, x, y);
         collider = Collider.newBox(this,0,8,16,16);
+        collider.actively_check_collisions = true;
+        this.type = type_name;
+    }
+
+    @Override
+    public void collisionEvent(PhysicsObject object) {
+        switch(object.getType()) {
+            case Coin.type_name:
+                System.out.println("Collided with coin!");
+                object.delete();
+                break;
+            default:
+                break;
+        }
     }
 
     @Override

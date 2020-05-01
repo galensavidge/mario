@@ -2,6 +2,7 @@ package engine.objects;
 
 import engine.GameGraphics;
 import engine.util.*;
+import mario.Mario;
 import mario.Player;
 
 import java.awt.*;
@@ -15,7 +16,7 @@ import java.util.Arrays;
  * @author Galen Savidge
  * @version 4/30/2020
  */
-public class Collider {
+public class Collider extends GameObject {
 
     protected static ArrayList<Collider> colliders = new ArrayList<>(); // A list of all colliders that exist
 
@@ -57,6 +58,8 @@ public class Collider {
     protected Vector2 position; // The coordinates of this collider relative to its attached object
     protected Vector2 center; // Center point of the collider; initially set to the mean of the vertices
     private final ArrayList<Vector2> local_vertices = new ArrayList<>(); // Vertices in local space
+    public boolean actively_check_collisions = false;
+    public boolean draw_self = false;
     private Collision last_collision; // Used for drawing
 
 
@@ -67,6 +70,7 @@ public class Collider {
      * @param local_vertices A list of vertices in clockwise order.
      */
     public Collider(PhysicsObject object, Vector2[] local_vertices) {
+        super(object.priority, object.layer);
         colliders.add(this);
         this.object = object;
         this.position = Vector2.zero();
@@ -84,12 +88,30 @@ public class Collider {
      * @param y_offset {@code Y} offset of the top left corner.
      * @param width Width of the rectangle.
      * @param height Height of the rectangle.
-     * @return A new Collider in the shape of a rectangle attached to {@code object}.
+     * @return A new Collider in the shape of a rectangle.
      */
-    public static Collider newBox(PhysicsObject object, int x_offset, int y_offset, int width, int height) {
-        Vector2[] corners = {new Vector2(x_offset,y_offset), new Vector2(x_offset+width-0.1,y_offset),
-                new Vector2(x_offset+width-0.1,y_offset+height-0.1), new Vector2(x_offset,y_offset+height-0.1)};
-        Collider collider = new Collider(object, corners);
+    public static Collider newBox(PhysicsObject object, double x_offset, double y_offset, double width, double height) {
+        Vector2[] vertices = {new Vector2(x_offset,y_offset), new Vector2(x_offset+width-Util.delta,y_offset),
+                new Vector2(x_offset+width-Util.delta,y_offset+height-Util.delta), new Vector2(x_offset,y_offset+height-Util.delta)};
+        Collider collider = new Collider(object, vertices);
+        collider.setPosition(object.position);
+        return collider;
+    }
+
+    public static Collider newPolygon(PhysicsObject object, int num_sides, double x_offset, double y_offset,
+                                      double radius, double rotation) {
+        if(num_sides < 3) {
+            return null;
+        }
+
+        Vector2[] vertices = new Vector2 [num_sides];
+        double rotation_step = 2*Math.PI/num_sides;
+        rotation += rotation_step/2;
+        for(int i = 0;i < num_sides;i++) {
+            rotation += rotation_step;
+            vertices[i] = new Vector2(x_offset + radius*Math.cos(rotation), y_offset + radius*Math.sin(rotation));
+        }
+        Collider collider = new Collider(object, vertices);
         collider.setPosition(object.position);
         return collider;
     }
@@ -125,8 +147,11 @@ public class Collider {
      * Removes this collider from the global colliders list and removes its reference to the attached PhysicsObject.
      */
     public void delete() {
-        colliders.remove(this);
-        this.object = null;
+        if(!this.isDeleted()) {
+            super.delete();
+            colliders.remove(this);
+            this.object = null;
+        }
     }
 
     /**
@@ -291,11 +316,23 @@ public class Collider {
         return getNormal(delta_position, colliders);
     }
 
+    @Override
+    public void update() {
+        if(actively_check_collisions) {
+            setPosition(object.position);
+            Collision collision = getCollisions();
+            for (PhysicsObject o : collision.collided_with) {
+                object.collisionEvent(o);
+            }
+        }
+    }
+
     /**
      * Draws the edges of the collider as well as any recorded intersections from collision checks.
      */
+    @Override
     public void draw() {
-        {
+        if(draw_self) {
             GameGraphics.drawPoint((int)this.getCenter().x,(int)this.getCenter().y, false, Color.black);
 
             ArrayList<Line> lines = getLines();
