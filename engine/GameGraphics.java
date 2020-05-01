@@ -148,11 +148,6 @@ public class GameGraphics extends GameObject {
             camera_x += x;
             camera_y += y;
         }
-
-        camera_x = Math.max(0, camera_x);
-        camera_y = Math.max(0, camera_y);
-        camera_x = Math.min(World.getWidth() + window_width, camera_x);
-        camera_x = Math.min(World.getHeight() + window_height, camera_y);
     }
 
 

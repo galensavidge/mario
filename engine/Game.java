@@ -15,6 +15,7 @@ public class Game
     private static final ArrayList<GameObject> draw_queue = new ArrayList<>();
     
     private static boolean running;
+    private static boolean use_frame_time;
     private static long step_time = 0;
     private static int target_fps = 60;
 
@@ -24,6 +25,16 @@ public class Game
      */
     public static void setTargetFPS(int fps) {
         target_fps = fps;
+    }
+
+    /**
+     * Set the game to use the target frame delta for time deltas in the game rather than real time measurement. If set
+     * to true, calls to {@link #stepTimeNanos} and {@link #stepTimeSeconds} return the target time delta between
+     * frames as defined by {@link #setTargetFPS}. If set to false, time deltas are calculated from real time
+     * measurements of time between updates.
+     */
+    public static void setUseFrameTime(boolean use_frame_time) {
+        Game.use_frame_time = use_frame_time;
     }
 
     /**
@@ -119,7 +130,14 @@ public class Game
                     e.printStackTrace();
                 }
             }
-            step_time = System.nanoTime() - start_time; // Update step time
+
+            // Update step time
+            if(use_frame_time) {
+                step_time = target_ns;
+            }
+            else {
+                step_time = System.nanoTime() - start_time;
+            }
         }
     }
 

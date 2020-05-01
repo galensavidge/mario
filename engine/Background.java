@@ -23,7 +23,6 @@ public class Background extends GameObject {
 
     @Override
     public void draw() {
-        GameGraphics.drawRectangle(0,0,GameGraphics.getWindowWidth(),GameGraphics.getWindowHeight(),
-                false, color);
+        GameGraphics.drawRectangle(0,0,World.getWidth(),World.getHeight(),false,color);
     }
 }
