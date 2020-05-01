@@ -7,14 +7,22 @@ import engine.util.Vector2;
 import java.awt.*;
 import java.util.ArrayList;
 
+/**
+ * The physical object that the player controls.
+ *
+ * @author Galen Savidge
+ * @version 4/24/2020
+ */
 public class Player extends PhysicsObject {
 
     private static final String sprite_file = "./sprites/mario-stand-left.png";
     private static final Image sprite = Toolkit.getDefaultToolkit().createImage(sprite_file);
 
     private static final Vector2 gravity = new Vector2(0,150); // Pixels/s^2
-    private static final double max_yspeed = 100;
-    private static final double max_xspeed = 100;
+    private static final double max_yspeed = 80;
+    private static final double max_xspeed = 80;
+
+    private static final double ground_acceleration = 120;
 
     public Player(double x, double y) {
         super(10, 10, x, y);
@@ -34,16 +42,16 @@ public class Player extends PhysicsObject {
 
         // Input
         if(InputManager.getDown(InputManager.K_LEFT)) {
-            velocity.x -= 2.13;
+            velocity.x -= ground_acceleration*t;
         }
         if(InputManager.getDown(InputManager.K_RIGHT)) {
-            velocity.x += 2.13;
+            velocity.x += ground_acceleration*t;
         }
         if(InputManager.getDown(InputManager.K_UP)) {
-            velocity.y -= 2.13;
+            velocity.y -= ground_acceleration*t;
         }
         if(InputManager.getDown(InputManager.K_DOWN)) {
-            velocity.y += 2.13;
+            velocity.y += ground_acceleration*t;
         }
         if(InputManager.getPressed(InputManager.K_JUMP)) {
             velocity.y -= 150;

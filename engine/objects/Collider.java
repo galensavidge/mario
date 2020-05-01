@@ -9,16 +9,20 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
- * The base class for collider objects, which are used to create and check hitboxes for game objects.
+ * A class used to check for collisions between physics objects. All colliders are represented as a polygon made from n
+ * points connected by n lines.
  *
  * @author Galen Savidge
- * @version 4/26/2020
+ * @version 4/30/2020
  */
 public class Collider {
     /* Static class methods */
 
-    protected static ArrayList<Collider> colliders = new ArrayList<>();
+    protected static ArrayList<Collider> colliders = new ArrayList<>(); // A list of all colliders that exist
 
+    /**
+     * This class holds information about collision events. It is instantiated by certain {@code Collider} methods.
+     */
     public static class Collision {
         public Collider collider;
         public boolean collision_found;
@@ -52,15 +56,15 @@ public class Collider {
 
     protected PhysicsObject object; // The object this collider is attached to
     protected Vector2 position; // The coordinates of this collider relative to its attached object
-    private final ArrayList<Vector2> local_vertices = new ArrayList<>();
+    private final ArrayList<Vector2> local_vertices = new ArrayList<>(); // Vertices in local space
     private Collision last_collision; // Used for drawing
+
 
     /* Constructors */
 
     /**
-     *
-     * @param object
-     * @param local_vertices
+     * @param object The {@code PhysicsObject} to which to attach.
+     * @param local_vertices A list of vertices in clockwise order.
      */
     public Collider(PhysicsObject object, Vector2[] local_vertices) {
         colliders.add(this);
@@ -70,17 +74,16 @@ public class Collider {
     }
 
     /**
-     *
-     * @param object
-     * @param x_offset
-     * @param y_offset
-     * @param width
-     * @param height
-     * @return
+     * @param object The {@code PhysicsObject} to which to attach.
+     * @param x_offset {@code X} offset of the top left corner.
+     * @param y_offset {@code Y} offset of the top left corner.
+     * @param width Width of the rectangle.
+     * @param height Height of the rectangle.
+     * @return A new Collider in the shape of a rectangle attached to {@code object}.
      */
     public static Collider newBox(PhysicsObject object, int x_offset, int y_offset, int width, int height) {
-        Vector2[] corners = {new Vector2(x_offset,y_offset), new Vector2(x_offset+width-1,y_offset),
-                new Vector2(x_offset+width-1,y_offset+height-1), new Vector2(x_offset,y_offset+height-1)};
+        Vector2[] corners = {new Vector2(x_offset,y_offset), new Vector2(x_offset+width-0.1,y_offset),
+                new Vector2(x_offset+width-0.1,y_offset+height-0.1), new Vector2(x_offset,y_offset+height-0.1)};
         Collider collider = new Collider(object, corners);
         collider.setPosition(object.position);
         return collider;
@@ -108,8 +111,7 @@ public class Collider {
     }
 
     /**
-     *
-     * @return
+     * @return A list of the positions of the collider's vertices in global space.
      */
     public ArrayList<Vector2> getVertices() {
         ArrayList<Vector2> vertices = new ArrayList<>();
@@ -120,8 +122,7 @@ public class Collider {
     }
 
     /**
-     *
-     * @return
+     * @return A list of the line segments connecting the collider's vertices running clockwise.
      */
     public ArrayList<Line> getLines() {
         ArrayList<Vector2> vertices = this.getVertices();
@@ -188,6 +189,7 @@ public class Collider {
     }
 
     /**
+     * Finds the normal vector of a surface in contact (< 1px) with the collider.
      *
      * @param direction Direction to check.
      * @return The normal vector.
@@ -196,7 +198,7 @@ public class Collider {
         // Set position
         Vector2 old_position = position;
         direction = direction.normalize();
-        position = position.add(direction.multiply(1.5)); // Make a vector so sqrt(2) < ||v|| < 2
+        position = position.add(direction.multiply(1.5)); // Make a vector so that sqrt(2) < ||v|| < 2
 
         // Get mean point of intersections
         Collision collision = getCollisions(colliders);
@@ -240,7 +242,7 @@ public class Collider {
     }
 
     /**
-     *
+     * Draws the edges of the collider as well as any recorded intersections from collision checks.
      */
     public void draw() {
         {

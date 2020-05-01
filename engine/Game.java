@@ -63,8 +63,8 @@ public class Game
     }
 
     /**
-     * Deletes all non-persistent objects. These objects will be removed from the update and draw queues and will also
-     * free any additional resources they are using.
+     * Deletes all non-persistent {@code GameObject} instances. These objects will be removed from the update and
+     * draw queues and will also free any additional resources they are using.
      */
     public static void clearNonPersistentObjects() {
         int i = 0;
@@ -131,7 +131,7 @@ public class Game
     }
 
     /**
-     * Returns time of the last step. Returns 0 if a step has not been completed yet.
+     * Returns the total time spent in the last step. Returns 0 if a step has not been completed yet.
      * @return Step time in nanoseconds.
      */
     public static long stepTimeNanos() {
@@ -139,8 +139,8 @@ public class Game
     }
 
     /**
-     * Returns time of the last step. Returns 0 if a step has not been completed yet.
-     * @return Step time in nanoseconds.
+     * Returns the total time spent in the last step. Returns 0 if a step has not been completed yet.
+     * @return Step time in seconds.
      */
     public static double stepTimeSeconds() {
         return (double)step_time/1e9;

@@ -6,10 +6,21 @@ import engine.World;
 import java.awt.*;
 import java.util.ArrayList;
 
+/**
+ * A class to represent line segments.
+ *
+ * @author Galen Savidge
+ * @version 4/30/2020
+ */
 public class Line {
     public final Vector2 p1, p2;
     public final double A, B, C;
 
+    /**
+     * Creates a {@code Line} between points {@code p1} and {@code p2}.
+     * @param p1 The beginning of the line segment.
+     * @param p2 The end of the line segment.
+     */
     public Line(Vector2 p1, Vector2 p2) {
         this.p1 = p1.copy();
         this.p2 = p2.copy();
@@ -18,16 +29,28 @@ public class Line {
         C = A*p1.x + B*p1.y;
     }
 
+    /**
+     * @return The vector pointing from the beginning of the line segment to the end, i.e. from {@code p1} to
+     * {@code p2}.
+     */
     public Vector2 vector() {
         return new Vector2(p2.x - p1.x, p2.y - p1.y);
     }
 
+    /**
+     * @return The unit-magnitude right-hand normal vector of the {@code Line}.
+     */
     public Vector2 RHNormal() {
         Vector2 v = this.vector();
         Vector2 normal = new Vector2(v.y, -v.x);
         return normal.normalize();
     }
 
+    /**
+     * Finds the point of intersection between this {@code Line} and {@code l). Returns {@code null} if no intersection
+     * exists -- this could be either because the lines are parallel or because the intersection point is not within
+     * both line segments.
+     */
     public Vector2 intersection(Line l) {
         double det = this.A*l.B - l.A*this.B;
         if(det != 0) {
@@ -42,7 +65,7 @@ public class Line {
         return null;
     }
 
-    public static Line leastSquares(ArrayList<Vector2> points) {
+    /*public static Line leastSquares(ArrayList<Vector2> points) {
         double n = points.size();
         if(n < 2) {
             return null;
@@ -82,7 +105,7 @@ public class Line {
             return null;
         }
         return new Line(p1, p2);
-    }
+    }*/
 
     public void draw() {
         GameGraphics.drawLine((int)p1.x, (int)p1.y, (int)p2.x, (int)p2.y,false, Color.green);

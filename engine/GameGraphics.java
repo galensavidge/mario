@@ -16,12 +16,14 @@ import java.awt.image.BufferStrategy;
  * @version 4/24/2020
  */
 public class GameGraphics extends GameObject {
+
     /* Static GameGraphics class variables */
+
     private static final GraphicsConfiguration config = GraphicsEnvironment.getLocalGraphicsEnvironment()
             .getDefaultScreenDevice()
             .getDefaultConfiguration();
 
-    private static JFrame frame = new JFrame();
+    private static final JFrame frame = new JFrame();
     private static BufferedImage buffer;
     private static BufferStrategy strategy;
     private static Graphics2D bufferGraphics; // Render shapes and sprites to this
@@ -36,6 +38,7 @@ public class GameGraphics extends GameObject {
     private static int camera_y;
 
     private static GameGraphics g;
+
 
     /* Static GameGraphics methods */
 
@@ -117,7 +120,9 @@ public class GameGraphics extends GameObject {
         }
     }
 
+
     /* Accessor functions */
+
     public static int getWindowWidth() {
         return window_width;
     }
@@ -149,6 +154,7 @@ public class GameGraphics extends GameObject {
         camera_x = Math.min(World.getWidth() + window_width, camera_x);
         camera_x = Math.min(World.getHeight() + window_height, camera_y);
     }
+
 
     /* Functions to draw different things */
 
@@ -216,7 +222,8 @@ public class GameGraphics extends GameObject {
         bufferGraphics.drawImage(sprite, x, y, null);
     }
 
-    /* GameGraphics game object */
+
+    /* Private GameGraphics game object */
 
     /**
      * Instantiable GameGraphics class: should not be created by the user. Is instantiated by

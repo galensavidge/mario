@@ -23,7 +23,9 @@ public class World {
         Game.clearNonPersistentObjects();
     }
 
+
     /* Accessor functions */
+
     public static int getWidth() {
         return width;
     }
@@ -32,6 +34,13 @@ public class World {
         return height;
     }
 
+
+    /**
+     * Need information about file formatting here...
+     *
+     * @param file_name The file to load.
+     * @return True if successful.
+     */
     public static boolean loadFromFile(String file_name) {
         File file = new File(file_name);
         Scanner scanner;

@@ -4,7 +4,7 @@ package engine.util;
  * A simple class to hold a 2-vector with double precision.
  *
  * @author Galen Savidge
- * @version 4/27/2020
+ * @version 4/30/2020
  */
 public class Vector2 {
     /**
@@ -38,53 +38,49 @@ public class Vector2 {
     }
 
     /**
-     * @return This vector, rounded to pixel precision.
+     * @return This vector, rounded down to pixel precision.
      */
     public Vector2 round() {
         return new Vector2((int)this.x, (int)this.y);
     }
 
     /**
-     * @param v Vector to add to this.
-     * @return The sum of the two vectors.
+     * @return The vector sum of {@code this} and {@code v}.
      */
     public Vector2 add(Vector2 v) {
         return new Vector2(this.x + v.x, this.y + v.y);
     }
 
     /**
-     * @param a A scalar to add to both components.
-     * @return The new vector (x + a, x + b).
+     * @return The vector {@code <x + a, x + b>}.
      */
     public Vector2 add(double a) {
         return new Vector2(this.x + a, this.y + a);
     }
 
     /**
-     * @param v Vector to subtract from this.
-     * @return The difference of the two vectors.
+     * @return The result of the vector subtraction {@code this - v}.
      */
     public Vector2 subtract(Vector2 v) {
         return new Vector2(this.x - v.x, this.y - v.y);
     }
 
     /**
-     * @param a A scalar.
-     * @return This vector multiplied by a.
+     * @return The result of the multiplication {@code this*a}.
      */
     public Vector2 multiply(double a) {
         return new Vector2(this.x*a, this.y*a);
     }
 
     /**
-     * @return The scalar absolute value of the vector.
+     * @return The scalar absolute value {@code ||this||}.
      */
     public double abs() {
         return Math.sqrt(this.x*this.x + this.y*this.y);
     }
 
     /**
-     * @return This vector normalized. Returns the zero vector if this is the zero vector.
+     * @return {@code this} normalized. Returns the zero vector if {@code this} equals the zero vector.
      */
     public Vector2 normalize() {
         if(this.equals(z)) {
@@ -94,7 +90,7 @@ public class Vector2 {
     }
 
     /**
-     * @return The dot product of {@code this} and {@code v}.
+     * @return The vector dot product of {@code this} and {@code v}.
      */
     public double dot(Vector2 v) {
         return this.x*v.x + this.y*v.y;
