@@ -16,7 +16,6 @@ import java.util.Arrays;
  * @version 4/30/2020
  */
 public class Collider {
-    /* Static class methods */
 
     protected static ArrayList<Collider> colliders = new ArrayList<>(); // A list of all colliders that exist
 
@@ -56,6 +55,7 @@ public class Collider {
 
     protected PhysicsObject object; // The object this collider is attached to
     protected Vector2 position; // The coordinates of this collider relative to its attached object
+    protected Vector2 center; // Center point of the collider; initially set to the mean of the vertices
     private final ArrayList<Vector2> local_vertices = new ArrayList<>(); // Vertices in local space
     private Collision last_collision; // Used for drawing
 
@@ -71,6 +71,11 @@ public class Collider {
         this.object = object;
         this.position = Vector2.zero();
         this.local_vertices.addAll(Arrays.asList(local_vertices));
+        this.center = Vector2.zero();
+        for(Vector2 v : this.local_vertices) {
+            this.center = this.center.add(v);
+        }
+        this.center = this.center.multiply(1.0/this.local_vertices.size());
     }
 
     /**
@@ -100,6 +105,20 @@ public class Collider {
 
     public void setPosition(Vector2 position) {
         this.position = position.copy();
+    }
+
+    /**
+     * @return The center of this {@code Collider} in global space.
+     */
+    public Vector2 getCenter() {
+        return center.add(position);
+    }
+
+    /**
+     * @param center The new center for this {@code Collider} in local space.
+     */
+    public void setCenter(Vector2 center) {
+        this.center = center.copy();
     }
 
     /**
@@ -214,14 +233,15 @@ public class Collider {
                 edges.addAll(c.getLines());
         }
 
-        // Raycast from mean in both directions
-        Line ray = new Line(mean.add(direction.multiply(16)), mean.add(direction.multiply(-16))); // Needs updating
-        Line shortest = null;
+        // Raycast from mean to this Collider's center and find closest intersection to the center
+        Vector2 ray_v = mean.subtract(this.getCenter());
+        Line ray = new Line(this.getCenter(), this.getCenter().add(ray_v.multiply(10))); // This is lazy...
+        Line shortest = null; // Line containing the intersection point closest to the center
         double shortest_dist = Double.MAX_VALUE;
         for(Line l : edges) {
             Vector2 i = ray.intersection(l);
             if(i != null) {
-                double distance = (i.subtract(mean)).abs(); // Needs updating
+                double distance = (i.subtract(this.getCenter())).abs();
                 if(distance < shortest_dist) {
                     shortest = l;
                     shortest_dist = distance;
@@ -246,6 +266,8 @@ public class Collider {
      */
     public void draw() {
         {
+            GameGraphics.drawPoint((int)this.getCenter().x,(int)this.getCenter().y, false, Color.black);
+
             ArrayList<Line> lines = getLines();
             for(Line l : lines) {
                 l.draw();

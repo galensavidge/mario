@@ -1,6 +1,7 @@
 package engine.objects;
 
 import engine.Game;
+import engine.util.Line;
 import engine.util.Vector2;
 
 import java.util.ArrayList;
@@ -50,6 +51,7 @@ public abstract class PhysicsObject extends GameObject {
 
         while(true) {
             // Determine the new position to check
+            Vector2 old_position = new_position;
             new_position = new_position.add(delta_position);
             collider.setPosition(new_position);
 
@@ -59,10 +61,10 @@ public abstract class PhysicsObject extends GameObject {
 
             // Make a list of the solid objects collided with
             ArrayList<PhysicsObject> objects = collision.collided_with;
-            ArrayList<Collider> colliders = new ArrayList<>();
+            ArrayList<Collider> other_colliders = new ArrayList<>();
             for (PhysicsObject o : objects) {
                 if (o.solid) {
-                    colliders.add(o.collider);
+                    other_colliders.add(o.collider);
                 }
             }
 
@@ -71,10 +73,55 @@ public abstract class PhysicsObject extends GameObject {
                 new_position = new_position.add(reject_vector);
                 collider.setPosition(new_position);
             }
-            while (collider.getCollisions(colliders).collision_found);
+            while (collider.getCollisions(other_colliders).collision_found);
 
             // Get a normal vector from the closest surface of the objects collided with
-            Vector2 normal = collider.getNormal(delta_position, colliders);
+            //Vector2 normal = collider.getNormal(delta_position, other_colliders);
+
+            collider.setPosition(old_position);
+            double closest_len = Double.MAX_VALUE;
+            Line closest = null;
+            for(Vector2 corner : collider.getVertices()) {
+                Line ray = new Line(corner, corner.add(delta_position));
+                for(Collider other : other_colliders) {
+                    for(Line edge : other.getLines()) {
+                        Vector2 intersection = ray.intersection(edge);
+                        if(intersection != null) {
+                            double length_from_start = intersection.subtract(corner).abs();
+                            if(length_from_start < closest_len) {
+                                closest = edge;
+                                closest_len = length_from_start;
+                            }
+                        }
+                    }
+                }
+            }
+
+            for(Collider other : other_colliders) {
+                for (Vector2 corner : other.getVertices()) {
+                    Line ray = new Line(corner, corner.subtract(delta_position));
+                    for (Line edge : collider.getLines()) {
+                        Vector2 intersection = ray.intersection(edge);
+                        if (intersection != null) {
+                            double length_from_start = intersection.subtract(corner).abs();
+                            if (length_from_start < closest_len) {
+                                closest = edge;
+                                closest_len = length_from_start;
+                            }
+                        }
+                    }
+                }
+            }
+
+            Vector2 normal = null;
+            if(closest != null) {
+                normal = closest.RHNormal();
+            }
+            else {
+                System.out.println("Null normal!");
+            }
+
+
             if (normal == null) {
                 System.out.println("Null normal!");
             } else {
