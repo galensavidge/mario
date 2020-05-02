@@ -8,7 +8,7 @@ public class Block extends PhysicsObject {
     public static final String type_name = "Block";
 
     private static final String sprite_file = "./sprites/hardblock.png";
-    private static final Image sprite = Toolkit.getDefaultToolkit().createImage(sprite_file);
+    private static final Image sprite = GameGraphics.getImage(sprite_file);
 
     public Block(double x, double y) {
         super(1, 1, x, y);

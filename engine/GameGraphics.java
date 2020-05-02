@@ -35,8 +35,8 @@ public class GameGraphics extends GameObject {
     private static int window_scale;
 
     // Position of the window in the game world
-    private static int camera_x;
-    private static int camera_y;
+    public static int camera_x;
+    public static int camera_y;
     private static GameGraphics g;
 
 
@@ -151,6 +151,9 @@ public class GameGraphics extends GameObject {
         }
     }
 
+    public static Image getImage(String filename) {
+        return Toolkit.getDefaultToolkit().getImage(filename);
+    }
 
     /* Functions to draw different things */
 

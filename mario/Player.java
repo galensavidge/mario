@@ -17,11 +17,11 @@ public class Player extends PhysicsObject {
     public static final String type_name = "Player";
 
     private static final String sprite_file = "./sprites/mario-walk-1.png";
-    private static final Image sprite = Toolkit.getDefaultToolkit().createImage(sprite_file);
+    private static final Image sprite = GameGraphics.getImage(sprite_file);
 
-    private static final Vector2 gravity = new Vector2(0,150); // Pixels/s^2
-    private static final double max_yspeed = 80;
-    private static final double max_xspeed = 80;
+    private static final Vector2 gravity = new Vector2(0,300); // Pixels/s^2
+    private static final double max_yspeed = 120;
+    private static final double max_xspeed = 120;
 
     private static final double ground_acceleration = 300;
     private static final double air_acceleration = 150;
@@ -120,5 +120,9 @@ public class Player extends PhysicsObject {
     public void draw() {
         GameGraphics.drawSprite((int)position.x, (int)position.y, false, sprite);
         collider.draw();
+    }
+
+    private enum StateMachine {
+        STOPPED,
     }
 }

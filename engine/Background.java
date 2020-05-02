@@ -14,7 +14,7 @@ public class Background extends GameObject {
     private Color color = Color.DARK_GRAY;
 
     public Background() {
-        super(0, -1);
+        super(0, -1000);
         this.persistent = true;
     }
 
