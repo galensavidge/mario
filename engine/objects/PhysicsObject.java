@@ -1,7 +1,7 @@
 package engine.objects;
 
 import engine.Game;
-import engine.util.Line;
+import engine.objects.Collider.Collision;
 import engine.util.Vector2;
 
 import java.util.ArrayList;
@@ -25,6 +25,12 @@ public abstract class PhysicsObject extends GameObject {
         velocity = new Vector2(0, 0);
     }
 
+
+    /* Accessor functions */
+
+    /**
+     * @return The PhysicsObject's {@code type}, if one was set, otherwise returns null.
+     */
     public String getType() {
         return type;
     }
@@ -36,18 +42,44 @@ public abstract class PhysicsObject extends GameObject {
         return position.round();
     }
 
+
+    /* Physics functions */
+
     /**
-     * Handles collision with solid objects. Moves the {@code PhysicsObject} as far as possible in the desired direction
-     * without intersecting a solid object and returns the normal vector(s) that applied "force" to it during the
-     * collision.
+     * @return True iff this object is touching a solid object in the direction defined by {@code direction}.
+     */
+    protected boolean touchingSolid(Vector2 direction) {
+        direction = direction.normalize().multiply(2*Collider.reject_separation);
+        collider.setPosition(position.add(direction));
+        ArrayList<Collision> collisions = collider.getCollisions();
+
+        for(Collision c : collisions) {
+            if(c.collision_found) {
+                if (c.collided_with.solid) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Handles collision with other objects. Moves the {@code PhysicsObject} as far as possible in the desired direction
+     * without intersecting an object and returns the collisions that it encountered. Note: calling this function with a
+     * {@code delta_position} of {@code <0, 0>} will always return an empty list. Pushing should be handled in the
+     * pushing object's movement code.
+     *
+     * Override {@link #collideWith} to change which objects are passed through and which are not. Defaults to colliding
+     * with only objects marked solid.
      *
      * @param delta_position The change in position this step.
      * @return A list of the normal vectors from the surfaces collided with.
      */
-    public ArrayList<Vector2> collideWithSolids(Vector2 delta_position) {
-        ArrayList<Vector2> normals = new ArrayList<>();
+    protected ArrayList<Collision> collideWithObjects(Vector2 delta_position) {
+        ArrayList<Collision> collisions = new ArrayList<>();
         if(delta_position.equals(Vector2.zero())) {
-            return normals;
+            return new ArrayList<>();
         }
 
         Vector2 new_position = position;
@@ -59,15 +91,16 @@ public abstract class PhysicsObject extends GameObject {
 
             // Check for collisions at this position
             collider.setPosition(new_position);
-            Collider.Collision collision = collider.getCollisions();
+            ArrayList<Collision> collisions_here = collider.getCollisions();
             collider.setPosition(position);
 
-            // Make a list of the solid objects collided with
-            ArrayList<PhysicsObject> objects = collision.collided_with;
+            // Make a list of the objects that should be collided with rather than passed through
             ArrayList<Collider> other_colliders = new ArrayList<>();
-            for (PhysicsObject o : objects) {
-                if (o.solid) {
-                    other_colliders.add(o.collider);
+            for (Collision c : collisions_here) {
+                if(c.collision_found) {
+                    if (collideWith(c.collided_with)) {
+                        other_colliders.add(c.collided_with.collider);
+                    }
                 }
             }
 
@@ -75,19 +108,14 @@ public abstract class PhysicsObject extends GameObject {
             if(other_colliders.size() == 0) break;
 
             // Get a normal vector from the closest surface of the objects collided with
-            Vector2 normal = collider.getNormal(delta_position, other_colliders);
-            if(normal != null) {
-                normals.add(normal);
-            }
-            else {
-                System.out.println("Null normal!");
-            }
+            Collision collision = collider.getNormal(delta_position, other_colliders);
 
-            if (normal == null) {
-                System.out.println("Null normal!");
+            if (collision == null) {
+                System.out.println("No normal found!");
             } else {
                 // Remove the portion of the attempted motion that is parallel to the normal vector
-                delta_position = delta_position.add(normal);
+                delta_position = delta_position.add(collision.normal);
+                collisions.add(collision);
             }
         }
 
@@ -95,10 +123,22 @@ public abstract class PhysicsObject extends GameObject {
         position = new_position;
         collider.setPosition(position);
 
-        return normals;
+        return collisions;
     }
 
-    public abstract void collisionEvent(PhysicsObject object);
+    /**
+     * Used by {@link #collideWithObjects} to determine which objects to collide with and which to pass through.
+     * @return True to collide with this object, false to pass through.
+     */
+    protected boolean collideWith(PhysicsObject o) {
+        return o.solid;
+    }
+
+    /**
+     * Override this method to respond to collisions with other objects. Events will be generated if
+     * {@code collider.active_check == true}.
+     */
+    public void collisionEvent(PhysicsObject object) {}
 
     @Override
     public void update() {

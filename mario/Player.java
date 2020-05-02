@@ -30,8 +30,13 @@ public class Player extends PhysicsObject {
     public Player(double x, double y) {
         super(10, 10, x, y);
         collider = Collider.newBox(this,0,8,16,16);
-        collider.actively_check_collisions = true;
+        collider.active_check = true;
         this.type = type_name;
+    }
+
+    @Override
+    protected boolean collideWith(PhysicsObject o) {
+        return o.solid && position.y + 24 - Collider.edge_separation < o.position.y;
     }
 
     @Override
@@ -51,8 +56,7 @@ public class Player extends PhysicsObject {
         double t = Game.stepTimeSeconds();
 
         boolean on_ground = false;
-        collider.setPosition(position.add(new Vector2(0, 1)));
-        if(collider.getCollisions().collision_found) {
+        if(touchingSolid(new Vector2(0, 1))){
             on_ground = true;
         }
 
@@ -110,9 +114,9 @@ public class Player extends PhysicsObject {
 
         Vector2 delta_position = velocity.multiply(t);
 
-        ArrayList<Vector2> normals = collideWithSolids(delta_position);
-        for(Vector2 n : normals) {
-            velocity = velocity.subtract(velocity.projection(n));
+        ArrayList<Collider.Collision> collisions = collideWithObjects(delta_position);
+        for(Collider.Collision c : collisions) {
+            velocity = velocity.subtract(velocity.projection(c.normal));
         }
     }
 

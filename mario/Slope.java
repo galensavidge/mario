@@ -1,5 +1,7 @@
-package engine.objects;
+package mario;
 
+import engine.objects.Collider;
+import engine.objects.PhysicsObject;
 import engine.util.Vector2;
 
 public class Slope extends PhysicsObject {

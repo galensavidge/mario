@@ -1,6 +1,8 @@
-package engine.objects;
+package mario;
 
 import engine.GameGraphics;
+import engine.objects.Collider;
+import engine.objects.PhysicsObject;
 
 import java.awt.*;
 
@@ -14,11 +16,7 @@ public class Block extends PhysicsObject {
         super(1, 1, x, y);
         this.collider = Collider.newBox(this,0,0,16,16);
         this.solid = true;
-    }
-
-    @Override
-    public void collisionEvent(PhysicsObject object) {
-
+        this.type = Block.type_name;
     }
 
     public void update() {

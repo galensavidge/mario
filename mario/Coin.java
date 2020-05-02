@@ -1,4 +1,7 @@
-package engine.objects;
+package mario;
+
+import engine.objects.Collider;
+import engine.objects.PhysicsObject;
 
 public class Coin extends PhysicsObject {
     public static final String type_name = "Coin";
@@ -10,11 +13,6 @@ public class Coin extends PhysicsObject {
         assert collider != null;
         collider.draw_self = true;
         type = Coin.type_name;
-    }
-
-    @Override
-    public void collisionEvent(PhysicsObject object) {
-
     }
 
     @Override

@@ -1,6 +1,7 @@
 package engine;
 
-import engine.objects.*;
+import mario.Block;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;

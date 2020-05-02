@@ -1,10 +1,8 @@
 package engine.util;
 
 import engine.GameGraphics;
-import engine.World;
 
 import java.awt.*;
-import java.util.ArrayList;
 
 /**
  * A class to represent line segments. The line segment is defined as pointing from {@code p1} to {@code p2}.
@@ -64,8 +62,8 @@ public class Line {
             // Point of intersection
             Vector2 p = new Vector2((l.B*this.C - this.B*l.C)/det,(this.A*l.C - l.A*this.C)/det);
 
-            if(Util.betweenIncl(p.x, p1.x, p2.x) && Util.betweenIncl(p.y, p1.y, p2.y)
-                    && Util.betweenIncl(p.x, l.p1.x, l.p2.x) && Util.betweenIncl(p.y, l.p1.y, l.p2.y)) {
+            if(Misc.betweenIncl(p.x, p1.x, p2.x) && Misc.betweenIncl(p.y, p1.y, p2.y)
+                    && Misc.betweenIncl(p.x, l.p1.x, l.p2.x) && Misc.betweenIncl(p.y, l.p1.y, l.p2.y)) {
                 return p;
             }
         }
