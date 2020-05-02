@@ -19,24 +19,38 @@ public class Player extends PhysicsObject {
     private static final String sprite_file = "./sprites/mario-walk-1.png";
     private static final Image sprite = GameGraphics.getImage(sprite_file);
 
-    private static final Vector2 gravity = new Vector2(0,300); // Pixels/s^2
-    private static final double max_yspeed = 120;
-    private static final double max_xspeed = 120;
+    private static final Vector2 gravity = new Vector2(0,1200); // Pixels/s^2
+    private static final double max_yspeed = 480;
+    private static final double max_xspeed = 480;
 
-    private static final double ground_acceleration = 300;
-    private static final double air_acceleration = 150;
-    private static final double friction = 100;
+    private static final double ground_acceleration = 1200;
+    private static final double air_acceleration = 600;
+    private static final double friction = 400;
 
     public Player(double x, double y) {
         super(10, 10, x, y);
-        collider = Collider.newBox(this,0,8,16,16);
+        collider = Collider.newBox(this,0,
+                Mario.getGridSize()/2.0, Mario.getGridSize(), Mario.getGridSize());
         collider.active_check = true;
         this.type = type_name;
     }
 
+    private enum StateMachine {
+        WALK,
+        RUN,
+        JUMP,
+        FALL,
+        SPRINT,
+        SPRINT_JUMP,
+        SPRINT_FALL,
+        DUCK,
+        SLIDE
+    }
+
     @Override
     protected boolean collideWith(PhysicsObject o) {
-        return o.solid && position.y + 24 - Collider.edge_separation < o.position.y;
+        return o.solid;
+        //return o.solid && position.y + 24 - Collider.edge_separation < o.position.y;
     }
 
     @Override
@@ -100,7 +114,7 @@ public class Player extends PhysicsObject {
         }
         if(InputManager.getPressed(InputManager.K_JUMP)) {
             if(on_ground) {
-                velocity.y -= 150;
+                velocity.y -= 600;
             }
         }
 
@@ -122,11 +136,8 @@ public class Player extends PhysicsObject {
 
     @Override
     public void draw() {
-        GameGraphics.drawSprite((int)position.x, (int)position.y, false, sprite);
+        GameGraphics.drawImage((int)position.x, (int)position.y, false, true, false,
+                0, sprite);
         collider.draw();
-    }
-
-    private enum StateMachine {
-        STOPPED,
     }
 }

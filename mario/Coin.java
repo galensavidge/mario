@@ -9,7 +9,8 @@ public class Coin extends PhysicsObject {
     public Coin(double x, double y) {
         super(0, 10, x, y);
 
-        collider = Collider.newPolygon(this, 8, 0, 0, 8,0);
+        collider = Collider.newPolygon(this, 8, 0, 0,
+                Mario.getGridSize()/2.0,0);
         assert collider != null;
         collider.draw_self = true;
         type = Coin.type_name;

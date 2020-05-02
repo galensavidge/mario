@@ -37,10 +37,16 @@ public class GameGraphics extends GameObject {
     // Position of the window in the game world
     public static int camera_x;
     public static int camera_y;
+
+    // Graphics constants
+    private static int draw_scale = 1;
+
+    // GameGraphics instance in the draw queue
     private static GameGraphics g;
 
 
-    /* Static GameGraphics methods */
+    /* GameGraphics configuration methods */
+
     /**
      * @param title The name of the window.
      * @param width Width of the interior draw area in pixels.
@@ -55,7 +61,7 @@ public class GameGraphics extends GameObject {
 
         // Set up JFrame
         frame.setTitle(title);
-        frame.addWindowListener(new GameGraphics.FrameClose());
+        frame.addWindowListener(new CustomWindow());
         frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         //frame.setSize(width * scale, height * scale);
         frame.setVisible(true);
@@ -79,46 +85,15 @@ public class GameGraphics extends GameObject {
         g = new GameGraphics();
     }
 
-    private static class FrameClose extends WindowAdapter {
-        @Override
-        public void windowClosing(final WindowEvent e) {
-            Game.stop();
-        }
-    }
+    /**
+     * Closes the window. Should probably only be called when the game exits.
+     */
     public static void closeWindow() {
         frame.dispose();
     }
 
-    /**
-     * Writes the contents of the buffer frame to the window. Should be called after all other drawing is complete.
-     */
-    private static void updateGraphics() {
-        Graphics2D graphics;
-        try {
-            graphics = (Graphics2D) strategy.getDrawGraphics();
-        } catch (IllegalStateException e) {
-            graphics = null;
-            System.out.println("Exception in GameGraphics, updateGraphics(), graphics section!");
-        }
 
-        // Draw buffer to screen
-        assert graphics != null;
-        graphics.drawImage(buffer, 0, 0, window_width*window_scale, window_height*window_scale,
-                0, 0, window_width, window_height, null);
-
-        graphics.dispose();
-
-        try {
-            strategy.show();
-            Toolkit.getDefaultToolkit().sync();
-            // if(strategy.contentsLost())
-
-        } catch (NullPointerException | IllegalStateException e) {
-            System.out.println("Exception in GameGraphics, updateGraphics(), strategy section!");
-        }
-    }
-
-    /* Accessor functions */
+    /* Accessors */
 
     public static int getWindowWidth() {
         return window_width;
@@ -140,6 +115,19 @@ public class GameGraphics extends GameObject {
         return canvas;
     }
 
+    public static void setDrawScale(int draw_scale) {
+        if(draw_scale > 0) {
+            GameGraphics.draw_scale = draw_scale;
+        }
+    }
+
+    /* Camera */
+
+    /**
+     * Moves the camera to {@code (x, y)} in the game world.
+     *
+     * @param absolute If true sets absolute position; if false, sets position relative to current position.
+     */
     public static void moveCamera(int x, int y, boolean absolute) {
         if(absolute) {
             camera_x = x;
@@ -151,9 +139,6 @@ public class GameGraphics extends GameObject {
         }
     }
 
-    public static Image getImage(String filename) {
-        return Toolkit.getDefaultToolkit().getImage(filename);
-    }
 
     /* Functions to draw different things */
 
@@ -213,12 +198,97 @@ public class GameGraphics extends GameObject {
         bufferGraphics.fillOval(x, y, radius*2,radius*2);
     }
 
-    public static void drawSprite(int x, int y, boolean absolute_position, Image sprite) {
+    /**
+     * Loads the image corresponding to the passed file name.
+     */
+    public static Image getImage(String filename) {
+        return Toolkit.getDefaultToolkit().getImage(filename);
+    }
+
+    /**
+     * @param x X position of top left corner.
+     * @param y Y position of top left corner.
+     * @param absolute_position True to draw in the window coordinate space rather than the game coordinate space.
+     * @param image An {@code Image} object, e.g. returned by a call to {@code GameGraphics.getImage}.
+     */
+    public static void drawImage(int x, int y, boolean absolute_position, Image image) {
+        drawImage(x, y, absolute_position, false, false, draw_scale, image);
+    }
+
+    /**
+     * @param x X position of top left corner.
+     * @param y Y position of top left corner.
+     * @param absolute_position True to draw in the window coordinate space rather than the game coordinate space.
+     * @param image An {@code Image} object, e.g. returned by a call to {@code GameGraphics.getImage}.
+     * @param flip_horizontal True to flip the image horizontally around its center axis.
+     * @param flip_vertical True to flip the image horizontally around its center axis.
+     * @param scale Scaling factor for drawing. 1: no scaling. 0: use default scaling as set by {@code setDrawScale}.
+     */
+    public static void drawImage(int x, int y, boolean absolute_position, boolean flip_horizontal,
+                                 boolean flip_vertical, double scale, Image image) {
         if(!absolute_position) {
             x -= camera_x;
             y -= camera_y;
         }
-        bufferGraphics.drawImage(sprite, x, y, null);
+
+        if(scale == 0) {
+            scale = draw_scale;
+        }
+
+        int w = (int)(image.getWidth(null)*scale);
+        int h = (int)(image.getHeight(null)*scale);
+
+        int _x = x;
+        int _y = y;
+
+        if(flip_horizontal) {
+            _x = _x + w;
+            w = -w;
+        }
+        if(flip_vertical) {
+            _y = _y + h;
+            h = -h;
+        }
+
+        bufferGraphics.drawImage(image, _x, _y, w, h, null);
+    }
+
+
+    /* Private GameGraphics methods */
+
+    /**
+     * Writes the contents of the buffer frame to the window. Should be called after all other drawing is complete.
+     */
+    private static void updateGraphics() {
+        Graphics2D graphics;
+        try {
+            graphics = (Graphics2D) strategy.getDrawGraphics();
+        } catch (IllegalStateException e) {
+            graphics = null;
+            System.out.println("Exception in GameGraphics, updateGraphics(), graphics section!");
+        }
+
+        // Draw buffer to screen
+        assert graphics != null;
+        graphics.drawImage(buffer, 0, 0, window_width*window_scale, window_height*window_scale,
+                0, 0, window_width, window_height, null);
+
+        graphics.dispose();
+
+        try {
+            strategy.show();
+            Toolkit.getDefaultToolkit().sync();
+
+        } catch (NullPointerException | IllegalStateException e) {
+            System.out.println("Exception in GameGraphics, updateGraphics(), strategy section!");
+        }
+    }
+
+    private static class CustomWindow extends WindowAdapter {
+        @Override
+        public void windowClosing(final WindowEvent e) {
+            Game.stop();
+        }
     }
 
 

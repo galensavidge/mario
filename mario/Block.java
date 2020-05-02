@@ -14,7 +14,7 @@ public class Block extends PhysicsObject {
 
     public Block(double x, double y) {
         super(1, 1, x, y);
-        this.collider = Collider.newBox(this,0,0,16,16);
+        this.collider = Collider.newBox(this,0,0,Mario.getGridSize(),Mario.getGridSize());
         this.solid = true;
         this.type = Block.type_name;
     }
@@ -24,7 +24,7 @@ public class Block extends PhysicsObject {
     }
 
     public void draw() {
-        GameGraphics.drawSprite((int)Math.round(position.x), (int)Math.round(position.y), false, sprite);
+        GameGraphics.drawImage((int)Math.round(position.x), (int)Math.round(position.y), false, sprite);
         collider.draw();
     }
 }

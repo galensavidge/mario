@@ -20,6 +20,6 @@ public class Background extends GameObject {
 
     @Override
     public void draw() {
-        GameGraphics.drawSprite(GameGraphics.camera_x/2, GameGraphics.camera_y/2, false, sprite);
+        GameGraphics.drawImage(GameGraphics.camera_x/2, GameGraphics.camera_y/2, false, sprite);
     }
 }
