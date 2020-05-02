@@ -16,7 +16,7 @@ import java.util.ArrayList;
 public class Player extends PhysicsObject {
     public static final String type_name = "Player";
 
-    private static final String sprite_file = "./sprites/mario-stand-left.png";
+    private static final String sprite_file = "./sprites/mario-walk-1.png";
     private static final Image sprite = Toolkit.getDefaultToolkit().createImage(sprite_file);
 
     private static final Vector2 gravity = new Vector2(0,150); // Pixels/s^2
