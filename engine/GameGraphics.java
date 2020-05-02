@@ -24,6 +24,7 @@ public class GameGraphics extends GameObject {
             .getDefaultConfiguration();
 
     private static final JFrame frame = new JFrame();
+    private static Canvas canvas;
     private static BufferedImage buffer;
     private static BufferStrategy strategy;
     private static Graphics2D bufferGraphics; // Render shapes and sprites to this
@@ -36,12 +37,10 @@ public class GameGraphics extends GameObject {
     // Position of the window in the game world
     private static int camera_x;
     private static int camera_y;
-
     private static GameGraphics g;
 
 
     /* Static GameGraphics methods */
-
     /**
      * @param title The name of the window.
      * @param width Width of the interior draw area in pixels.
@@ -63,7 +62,7 @@ public class GameGraphics extends GameObject {
         frame.setResizable(false);
 
         // Set up Canvas
-        Canvas canvas = new Canvas(config);
+        canvas = new Canvas(config);
         canvas.setSize(width * scale, height * scale);
         frame.add(canvas, 0);
         frame.pack();
@@ -86,7 +85,6 @@ public class GameGraphics extends GameObject {
             Game.stop();
         }
     }
-
     public static void closeWindow() {
         frame.dispose();
     }
@@ -120,7 +118,6 @@ public class GameGraphics extends GameObject {
         }
     }
 
-
     /* Accessor functions */
 
     public static int getWindowWidth() {
@@ -137,6 +134,10 @@ public class GameGraphics extends GameObject {
 
     public static JFrame getFrame() {
         return frame;
+    }
+
+    public static Canvas getCanvas() {
+        return canvas;
     }
 
     public static void moveCamera(int x, int y, boolean absolute) {

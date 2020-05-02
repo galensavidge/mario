@@ -40,6 +40,7 @@ public class InputManager extends GameObject {
 
         // Set up key listener
         GameGraphics.getFrame().addKeyListener(InputManager.key_listener);
+        GameGraphics.getCanvas().addKeyListener(InputManager.key_listener);
 
         // Add an engine.InputManager to the update queue
         new InputManager();
