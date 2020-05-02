@@ -91,8 +91,10 @@ public class Collider extends GameObject {
      * @return A new Collider in the shape of a rectangle.
      */
     public static Collider newBox(PhysicsObject object, double x_offset, double y_offset, double width, double height) {
-        Vector2[] vertices = {new Vector2(x_offset,y_offset), new Vector2(x_offset+width-Util.delta,y_offset),
-                new Vector2(x_offset+width-Util.delta,y_offset+height-Util.delta), new Vector2(x_offset,y_offset+height-Util.delta)};
+        Vector2[] vertices = {new Vector2(x_offset+10*Util.delta, y_offset+10*Util.delta),
+                new Vector2(x_offset+width-10*Util.delta, y_offset+10*Util.delta),
+                new Vector2(x_offset+width-10*Util.delta, y_offset+height-10*Util.delta),
+                new Vector2(x_offset+10*Util.delta, y_offset+height-10*Util.delta)};
         Collider collider = new Collider(object, vertices);
         collider.setPosition(object.position);
         return collider;
@@ -243,6 +245,8 @@ public class Collider extends GameObject {
      */
     public Vector2 getNormal(Vector2 delta_position, ArrayList<Collider> colliders) {
         double closest_distance = Double.MAX_VALUE;
+        Vector2 closest_corner = null;
+        Vector2 closest_intersection = null;
         Line closest_edge = null;
 
         // Sweep the corners of this collider across delta_position
@@ -260,6 +264,8 @@ public class Collider extends GameObject {
                     if(intersection != null) {
                         double length_from_start = intersection.subtract(corner).abs();
                         if(length_from_start < closest_distance) {
+                            closest_corner = ray.p2;
+                            closest_intersection = intersection;
                             closest_edge = edge;
                             closest_distance = length_from_start;
                         }
@@ -283,6 +289,8 @@ public class Collider extends GameObject {
                     if (intersection != null) {
                         double length_from_start = intersection.subtract(corner).abs();
                         if (length_from_start < closest_distance) {
+                            closest_corner = ray.p2;
+                            closest_intersection = intersection;
                             // Reverse the direction of self edges so the normal points inwards
                             closest_edge = edge.reverse();
                             closest_distance = length_from_start;
@@ -296,8 +304,9 @@ public class Collider extends GameObject {
         if(closest_edge != null) {
             // Scale by distance of overlap plus safety margin
             Vector2 normal = closest_edge.RHNormal();
-            Vector2 delta_pos_proj_edge = delta_position.projection(closest_edge.vector());
-            double normal_mag = (delta_position.subtract(delta_pos_proj_edge)).abs() + 2*Util.delta;
+            Vector2 corner_to_intersection = closest_intersection.subtract(closest_corner);
+            Vector2 proj_edge = corner_to_intersection.projection(closest_edge.vector());
+            double normal_mag = (corner_to_intersection.subtract(proj_edge)).abs() + 2*Util.delta;
             return normal.multiply(normal_mag);
         }
         else {
