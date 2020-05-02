@@ -62,7 +62,13 @@ public class Player extends PhysicsObject {
 
         // Friction
         if(on_ground) {
-            velocity.x -= Math.signum(velocity.x)*friction*t;
+            double friction_delta = friction*t;
+            if(Math.abs(velocity.x) > friction_delta) {
+                velocity.x -= Math.signum(velocity.x) * friction_delta;
+            }
+            else {
+                velocity.x = 0;
+            }
         }
 
         // Input

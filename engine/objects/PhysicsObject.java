@@ -51,7 +51,7 @@ public abstract class PhysicsObject extends GameObject {
         }
 
         Vector2 new_position = position;
-
+        
         // Loop until a position is found with no collisions or we hit too many iterations
         for(int i = 0;i < 100;i++) {
             // Determine the new position to check
@@ -82,7 +82,6 @@ public abstract class PhysicsObject extends GameObject {
             else {
                 System.out.println("Null normal!");
             }
-
 
             if (normal == null) {
                 System.out.println("Null normal!");
