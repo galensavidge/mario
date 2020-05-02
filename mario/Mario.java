@@ -1,7 +1,6 @@
 package mario;
 
 import engine.*;
-import engine.objects.*;
 
 /**
  * Main game class that runs the program.
@@ -26,7 +25,6 @@ public class Mario
         Background b = new mario.Background();
         Player player = new Player(64,48);
         new Camera(player);
-        new Slope(3*16,6*16);
         new Coin(8*16,12*16);
         Game.run();
         GameGraphics.closeWindow();
