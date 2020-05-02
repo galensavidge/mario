@@ -91,10 +91,10 @@ public class Collider extends GameObject {
      * @return A new Collider in the shape of a rectangle.
      */
     public static Collider newBox(PhysicsObject object, double x_offset, double y_offset, double width, double height) {
-        Vector2[] vertices = {new Vector2(x_offset+10*Util.delta, y_offset+10*Util.delta),
-                new Vector2(x_offset+width-10*Util.delta, y_offset+10*Util.delta),
+        Vector2[] vertices = {new Vector2(x_offset, y_offset),
+                new Vector2(x_offset+width-10*Util.delta, y_offset),
                 new Vector2(x_offset+width-10*Util.delta, y_offset+height-10*Util.delta),
-                new Vector2(x_offset+10*Util.delta, y_offset+height-10*Util.delta)};
+                new Vector2(x_offset, y_offset+height-10*Util.delta)};
         Collider collider = new Collider(object, vertices);
         collider.setPosition(object.position);
         return collider;
