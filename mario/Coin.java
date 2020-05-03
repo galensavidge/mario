@@ -4,7 +4,6 @@ import engine.GameGraphics;
 import engine.Sprite;
 import engine.objects.Collider;
 import engine.objects.PhysicsObject;
-import sun.java2d.pipe.DrawImage;
 
 public class Coin extends PhysicsObject {
     public static final String type_name = "Coin";
@@ -14,7 +13,7 @@ public class Coin extends PhysicsObject {
         super(0, 0, x, y);
 
         collider = Collider.newPolygon(this, 8, 0, 0,
-                Mario.getGridSize()/2.0,0);
+                Mario.getGridScale()/2.0,0);
         assert collider != null;
         type = Coin.type_name;
 

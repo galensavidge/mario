@@ -52,7 +52,7 @@ public class Player extends PhysicsObject {
     public Player(double x, double y) {
         super(10, 10, x, y);
         collider = Collider.newBox(this,0,
-                Mario.getGridSize()/2.0, Mario.getGridSize(), Mario.getGridSize());
+                Mario.getGridScale()/2.0, Mario.getGridScale(), Mario.getGridScale());
         collider.active_check = true;
         this.type = type_name;
         state_machine = new PlayerStateMachine(States.WALK);

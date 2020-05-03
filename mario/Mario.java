@@ -12,13 +12,13 @@ public class Mario
 {
     /* Game constants */
 
-    private static final int grid_size = 16; // Size of a block and the grid on which most objects are placed
+    private static final int grid_scale = 16; // Size of a block and the grid on which most objects are placed
     private static final int scaling_ratio = 4;
     public static final int window_scale = 1;
     public static final int fps = 60;
 
-    public static int getGridSize() {
-        return grid_size*scaling_ratio;
+    public static int getGridScale() {
+        return grid_scale *scaling_ratio;
     }
 
     public static void main(String[] args)
@@ -26,7 +26,7 @@ public class Mario
         // Engine init
         Game.setTargetFPS(fps);
         Game.setUseFrameTime(true);
-        GameGraphics.initWindow("Mario",24*getGridSize(),14*getGridSize(), window_scale);
+        GameGraphics.initWindow("Mario",24* getGridScale(),14* getGridScale(), window_scale);
         GameGraphics.setDrawScale(scaling_ratio);
         InputManager.init();
 
@@ -35,11 +35,11 @@ public class Mario
 
         // Load level
         Game.clearNonPersistentObjects();
-        World.loadFromFile("./levels/level0");
+        WorldLoader.loadFromFile("./levels/level0");
         Background b = new mario.Background();
-        Player player = new Player(3*getGridSize(),11.5*getGridSize());
+        Player player = new Player(3* getGridScale(),11.5* getGridScale());
         new Camera(player);
-        new Coin(8*getGridSize(),11*getGridSize());
+        new Coin(8* getGridScale(),11* getGridScale());
 
         // Run game
         Game.run();
