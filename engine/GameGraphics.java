@@ -1,6 +1,7 @@
 package engine;
 
 import engine.objects.GameObject;
+
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
 import java.awt.*;
@@ -28,6 +29,7 @@ public class GameGraphics extends GameObject {
     private static BufferedImage buffer;
     private static BufferStrategy strategy;
     private static Graphics2D bufferGraphics; // Render shapes and sprites to this
+    private static MediaTracker mediaTracker;
 
     // Width and height in pixels and the scaling factor used when drawing to the screen
     private static int window_width;
@@ -80,6 +82,9 @@ public class GameGraphics extends GameObject {
             strategy = canvas.getBufferStrategy();
         } while (strategy == null);
         bufferGraphics = (Graphics2D) buffer.getGraphics();
+
+        // Media tracker
+        mediaTracker = new MediaTracker(canvas);
 
         // Add GameGraphics object to the draw queue
         g = new GameGraphics();
@@ -203,7 +208,13 @@ public class GameGraphics extends GameObject {
      */
     public static Image getImage(String filename) {
         Image i = Toolkit.getDefaultToolkit().getImage(filename);
-        i.setAccelerationPriority(1);
+        mediaTracker.addImage(i, 0);
+        try {
+            mediaTracker.waitForID(0);
+        }
+        catch (InterruptedException me) {
+            System.out.println("error");
+        }
         return i;
     }
 
