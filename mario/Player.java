@@ -68,10 +68,11 @@ public class Player extends PhysicsObject {
     public void collisionEvent(PhysicsObject object) {
         switch(object.getType()) {
             case Coin.type_name:
-                System.out.println("Collided with coin!");
+                System.out.println("Coins +1!");
                 object.delete();
                 break;
             default:
+                //System.out.println("Collided with "+object.getType());
                 break;
         }
     }
@@ -128,20 +129,8 @@ public class Player extends PhysicsObject {
         }
 
         protected Vector2 getGroundNormal() {
-            collider.setPosition(position.add(down));
-            ArrayList<Collision> collisions = collider.getCollisions();
-            collider.setPosition(position);
-            ArrayList<Collider> other_colliders = new ArrayList<>();
-            for(Collision c : collisions) {
-                if(c.collided_with != null) {
-                    if (collideWith(c.collided_with)) {
-                        other_colliders.add(c.collided_with.collider);
-                    }
-                }
-            }
-
-            Collision collision = collider.getNormal(down, other_colliders);
-            if(collision != null) {
+            Collision collision = sweepForCollision(down);
+            if(collision.collision_found) {
                 return collision.normal;
             }
             else {

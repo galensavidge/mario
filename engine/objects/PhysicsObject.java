@@ -93,30 +93,10 @@ public abstract class PhysicsObject extends GameObject {
             // Determine the new position to check
             new_position = position.add(delta_position);
 
-            // Check for collisions at this position
-            collider.setPosition(new_position);
-            ArrayList<Collision> collisions_here = collider.getCollisions();
-            collider.setPosition(position);
-
-            // Make a list of the objects that should be collided with rather than passed through
-            ArrayList<Collider> other_colliders = new ArrayList<>();
-            for (Collision c : collisions_here) {
-                if(c.collision_found) {
-                    if (collideWith(c.collided_with)) {
-                        other_colliders.add(c.collided_with.collider);
-                    }
-                }
-            }
-
-            // Break if there is no collision at this position
-            if(other_colliders.size() == 0) break;
-
             // Get a normal vector from the closest surface of the objects collided with
-            Collision collision = collider.getNormal(delta_position, other_colliders);
+            Collision collision = sweepForCollision(delta_position);
 
-            if (collision == null) {
-                System.out.println("No normal found!");
-            } else {
+            if(collision.collision_found) {
                 // Remove the portion of the attempted motion that is parallel to the normal vector
                 delta_position = delta_position.add(collision.normal);
                 collisions.add(collision);
@@ -127,7 +107,56 @@ public abstract class PhysicsObject extends GameObject {
         position = new_position;
         collider.setPosition(position);
 
+        // Send collision events
+        for(Collision c : collisions) {
+            if(c.collision_found) {
+                collisionEvent(c.collided_with);
+            }
+        }
+
         return collisions;
+    }
+
+    /**
+     * Returns the {@code Collision} first encountered when moving from {@code position} to
+     * {@code position + delta_position}.
+     *
+     * @param check_all If true, will check all colliders in the game world. If false, will check only colliders
+     *                  encountered at the destination point. False also ignores collisions based on
+     *                  {@code collideWith}. Defaults to false.
+     * @return A {code Collision} if a collision was found, otherwise null.
+     */
+    protected Collision sweepForCollision(Vector2 delta_position, boolean check_all) {
+        if(!check_all) {
+            // Check for collisions at final position
+            collider.setPosition(position.add(delta_position));
+            ArrayList<Collision> collisions_here = collider.getCollisions();
+            collider.setPosition(position);
+
+            // Make a list of the objects that should be collided with rather than passed through
+            ArrayList<Collider> other_colliders = new ArrayList<>();
+            for (Collision c : collisions_here) {
+                if (c.collision_found) {
+                    if (collideWith(c.collided_with)) {
+                        other_colliders.add(c.collided_with.collider);
+                    }
+                }
+            }
+
+
+            // Break if there is no collision at this position
+            if (other_colliders.size() == 0) return new Collision(this.collider);
+
+            // Get a normal vector from the closest surface of the objects collided with
+            return collider.getNormal(delta_position, other_colliders);
+        }
+        else {
+            return collider.getNormal(delta_position);
+        }
+    }
+
+    protected Collision sweepForCollision(Vector2 delta_position) {
+        return sweepForCollision(delta_position, false);
     }
 
     /**

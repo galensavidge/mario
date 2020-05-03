@@ -192,7 +192,10 @@ public class Collider extends GameObject {
 
         for(Collider c : colliders) {
             if(c != this) {
-                collisions.add(this.getIntersections(c));
+                Collision collision = this.getIntersections(c);
+                if(collision.collision_found) {
+                    collisions.add(collision);
+                }
             }
         }
 
@@ -298,9 +301,10 @@ public class Collider extends GameObject {
             }
         }
 
-        // Return the normal
+        // Return a Collision
+        Collision collision = new Collision(this);
+
         if(closest_edge != null) {
-            Collision collision = new Collision(this);
             collision.collision_found = true;
             collision.intersections.add(closest_intersection);
             collision.collided_with = closest_collider.object;
@@ -313,12 +317,12 @@ public class Collider extends GameObject {
             Vector2 proj_edge = corner_to_intersection.projection(closest_edge.vector());
             double normal_mag = (corner_to_intersection.subtract(proj_edge)).abs() + reject_separation;
             collision.normal = normal.multiply(normal_mag);
-
-            return collision;
         }
         else {
-            return null;
+            collision.collision_found = false;
         }
+
+        return collision;
     }
 
     /**
