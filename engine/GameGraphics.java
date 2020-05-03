@@ -202,7 +202,9 @@ public class GameGraphics extends GameObject {
      * Loads the image corresponding to the passed file name.
      */
     public static Image getImage(String filename) {
-        return Toolkit.getDefaultToolkit().getImage(filename);
+        Image i = Toolkit.getDefaultToolkit().getImage(filename);
+        i.setAccelerationPriority(1);
+        return i;
     }
 
     /**
