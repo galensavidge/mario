@@ -103,7 +103,8 @@ public class Collider extends GameObject {
         radius -= edge_separation;
         for(int i = 0;i < num_sides;i++) {
             rotation += rotation_step;
-            vertices[i] = new Vector2(x_offset + radius*Math.cos(rotation), y_offset + radius*Math.sin(rotation));
+            vertices[i] = new Vector2(x_offset + radius + radius*Math.cos(rotation),
+                                      y_offset + radius + radius*Math.sin(rotation));
         }
         Collider collider = new Collider(object, vertices);
         collider.setPosition(object.position);

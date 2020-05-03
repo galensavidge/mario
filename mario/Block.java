@@ -25,6 +25,5 @@ public class Block extends PhysicsObject {
 
     public void draw() {
         GameGraphics.drawImage((int)Math.round(position.x), (int)Math.round(position.y), false, sprite);
-        collider.draw();
     }
 }

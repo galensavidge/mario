@@ -36,9 +36,9 @@ public class Mario
         Game.clearNonPersistentObjects();
         World.loadFromFile("./levels/level0");
         Background b = new mario.Background();
-        Player player = new Player(64,48);
+        Player player = new Player(3*getGridSize(),11.5*getGridSize());
         new Camera(player);
-        new Coin(8*16,12*16);
+        new Coin(8*getGridSize(),11*getGridSize());
 
         // Run game
         Game.run();
