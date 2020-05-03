@@ -46,16 +46,20 @@ public abstract class PhysicsObject extends GameObject {
     /* Physics functions */
 
     /**
-     * @return True iff this object is touching a solid object in the direction defined by {@code direction}.
+     * Override {@link #collideWith} to change which objects are passed through and which are not. Defaults to colliding
+     * with only objects marked solid.
+     *
+     * @return True iff this object is touching an object that it collides with in the direction defined by
+     * {@code direction}.
      */
-    protected boolean touchingSolid(Vector2 direction) {
+    protected boolean touchingCollidable(Vector2 direction) {
         direction = direction.normalize().multiply(2*Collider.reject_separation);
         collider.setPosition(position.add(direction));
         ArrayList<Collision> collisions = collider.getCollisions();
 
         for(Collision c : collisions) {
             if(c.collision_found) {
-                if (c.collided_with.solid) {
+                if (collideWith(c.collided_with)) {
                     return true;
                 }
             }
