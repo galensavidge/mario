@@ -15,6 +15,7 @@ public class Mario
     private static final int grid_size = 16; // Size of a block and the grid on which most objects are placed
     private static final int scaling_ratio = 4;
     public static final int window_scale = 1;
+    public static final int fps = 60;
 
     public static int getGridSize() {
         return grid_size*scaling_ratio;
@@ -23,7 +24,7 @@ public class Mario
     public static void main(String[] args)
     {
         // Engine init
-        Game.setTargetFPS(60);
+        Game.setTargetFPS(fps);
         Game.setUseFrameTime(true);
         GameGraphics.initWindow("Mario",24*getGridSize(),14*getGridSize(), window_scale);
         GameGraphics.setDrawScale(scaling_ratio);
