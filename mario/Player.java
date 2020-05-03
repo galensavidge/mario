@@ -22,15 +22,12 @@ public class Player extends PhysicsObject {
 
     public static final String type_name = "Player";
 
-    private static final String sprite_file = "./sprites/mario-walk-1.png";
-    private static final Image sprite = GameGraphics.getImage(sprite_file);
-
     private static final Vector2 gravity = new Vector2(0,1200); // Pixels/s^2
     private static final double max_fall_speed = 480;
     private static final double friction = 400;
 
     private static final double walk_xspeed = 350;
-    private static final double run_xspeed = 500;
+    private static final double p_speed = 500;
     private static final double walk_accel = 800;
     private static final double run_accel = 1200;
 
@@ -40,12 +37,17 @@ public class Player extends PhysicsObject {
 
     private static final Vector2 down = new Vector2(0, Collider.edge_separation);
 
+    private static final String jump_sprite_file = "./sprites/mario-jump.png";
+    private static final Image jump_sprite = GameGraphics.getImage(jump_sprite_file);
+    private static final String fall_sprite_file = "./sprites/mario-fall.png";
+    private static final Image fall_sprite = GameGraphics.getImage(fall_sprite_file);
+
     /* Instance variables */
 
     private final PlayerStateMachine state_machine;
 
     private Vector2 ground_normal = null;
-
+    private Direction direction_facing = Direction.RIGHT;
 
     public Player(double x, double y) {
         super(10, 10, x, y);
@@ -81,9 +83,15 @@ public class Player extends PhysicsObject {
 
     @Override
     public void draw() {
-        GameGraphics.drawImage((int)position.x, (int)position.y, false, true, false,
-                0, sprite);
-        collider.draw();
+        state_machine.state.draw();
+    }
+
+
+    /* Private data types */
+
+    private enum Direction {
+        RIGHT,
+        LEFT
     }
 
     private enum States {
@@ -177,9 +185,11 @@ public class Player extends PhysicsObject {
         protected void walk() {
             if(InputManager.getDown(InputManager.K_LEFT)) {
                 velocity.x -= walk_accel * Game.stepTimeSeconds();
+                direction_facing = Direction.LEFT;
             }
             if(InputManager.getDown(InputManager.K_RIGHT)) {
                 velocity.x += walk_accel * Game.stepTimeSeconds();
+                direction_facing = Direction.RIGHT;
             }
         }
 
@@ -195,10 +205,17 @@ public class Player extends PhysicsObject {
         protected void airWalk() {
             if(InputManager.getDown(InputManager.K_LEFT)) {
                 velocity.x -= air_accel * Game.stepTimeSeconds();
+                direction_facing = Direction.LEFT;
             }
             if(InputManager.getDown(InputManager.K_RIGHT)) {
                 velocity.x += air_accel * Game.stepTimeSeconds();
+                direction_facing = Direction.RIGHT;
             }
+        }
+
+        protected void drawSprite(Image image) {
+            GameGraphics.drawImage((int)position.x, (int)position.y, false,
+                    direction_facing == Direction.RIGHT, false, 0, image);
         }
 
 
@@ -213,19 +230,62 @@ public class Player extends PhysicsObject {
 
     private class WalkState extends PlayerState {
 
+        private Sprite sprite;
+
+        WalkState() {
+            String[] sprite_files = {"./sprites/mario-walk-1.png", "./sprites/mario-walk-2.png"};
+            sprite = new Sprite(sprite_files);
+        }
+
         @Override
         void update() {
             Vector2 normal = getGroundNormal();
             gravity();
             friction();
             walk();
+            updatePosition();
 
             if(InputManager.getPressed(InputManager.K_JUMP)) {
                 state_machine.changeState(States.JUMP);
             }
+            if(normal == null) {
+                state_machine.changeState(States.FALL);
+            }
+        }
 
+        @Override
+        void draw() {
+            sprite.setFrameTime((int)(walk_xspeed - Math.abs(velocity.x)/2)/40);
+            if(Math.abs(velocity.x) < walk_xspeed/10) {
+                sprite.reset();
+            }
+           drawSprite(sprite.getCurrentFrame());
+        }
+
+        @Override
+        void enter() {
+
+        }
+
+        @Override
+        void exit() {
+
+        }
+    }
+
+    private class RunState extends PlayerState {
+
+        @Override
+        void update() {
+            Vector2 normal = getGroundNormal();
+            gravity();
+            friction();
+            walk();
             updatePosition();
 
+            if(InputManager.getPressed(InputManager.K_JUMP)) {
+                state_machine.changeState(States.JUMP);
+            }
             if(normal == null) {
                 state_machine.changeState(States.FALL);
             }
@@ -264,7 +324,7 @@ public class Player extends PhysicsObject {
 
         @Override
         void draw() {
-
+            drawSprite(jump_sprite);
         }
 
         @Override
@@ -287,14 +347,19 @@ public class Player extends PhysicsObject {
             airWalk();
 
             updatePosition();
-            if(touchingSolid(down)) {
+            if(touchingCollidable(down)) {
                 state_machine.changeState(States.WALK);
             }
         }
 
         @Override
         void draw() {
-
+            if(velocity.y > 0) {
+                drawSprite(fall_sprite);
+            }
+            else {
+                drawSprite(jump_sprite);
+            }
         }
 
         @Override

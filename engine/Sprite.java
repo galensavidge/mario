@@ -13,14 +13,18 @@ public class Sprite {
         for(String filename : filenames) {
             frames.add(GameGraphics.getImage(filename));
         }
-        current_frame = 0;
-        frame_counter = 1;
+        reset();
     }
 
     public void setFrameTime(int frames) {
         if(frames >= 1) {
             frame_time = frames;
         }
+    }
+
+    public void reset() {
+        current_frame = 0;
+        frame_counter = 1;
     }
 
     public Image getCurrentFrame() {
