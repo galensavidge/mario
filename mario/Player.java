@@ -22,8 +22,10 @@ public class Player extends PhysicsObject {
 
     public static final String type_name = "Player";
 
-    private static final Vector2 gravity = new Vector2(0,1200); // Pixels/s^2
-    private static final double max_fall_speed = 480;
+    public static final int height = (int)(Mario.getGridScale()*1.5);
+
+    private static final Vector2 gravity = new Vector2(0,3000); // Pixels/s^2
+    private static final double max_fall_speed = 700;
     private static final double friction = 400;
 
     private static final double walk_xspeed = 350;
@@ -32,7 +34,7 @@ public class Player extends PhysicsObject {
     private static final double run_accel = 1200;
 
     private static final double air_accel = 600;
-    private static final double jump_speed = -480;
+    private static final double jump_speed = -700;
     private static final int max_jump_time = Mario.fps/2;
 
     private static final Vector2 down = new Vector2(0, Collider.edge_separation);
@@ -60,8 +62,16 @@ public class Player extends PhysicsObject {
 
     @Override
     protected boolean collideWith(PhysicsObject o) {
-        return o.solid;
-        //return o.solid && position.y + 24 - Collider.edge_separation < o.position.y;
+        if(o.solid) {
+            return true;
+        }
+        else if(o.getType().equals(CloudBlock.type_name) &&
+                position.y + height - Collider.edge_separation < o.position.y) {
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 
     @Override
