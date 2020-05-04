@@ -1,6 +1,7 @@
 package mario;
 
 import engine.*;
+import engine.objects.Collider;
 
 /**
  * Main game class that runs the program.
@@ -33,9 +34,11 @@ public class Mario
         // Game init
         GameController gc = new GameController();
 
-        // Load level
+        // Create game world
         Game.clearNonPersistentObjects();
         WorldLoader.loadFromFile("./levels/level0");
+
+        // Instantiate objects
         Background b = new mario.Background();
         Player player = new Player(3* getGridScale(),11.5* getGridScale());
         new Camera(player);

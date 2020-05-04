@@ -1,5 +1,6 @@
 package engine;
 
+import engine.objects.Collider;
 import engine.objects.PhysicsObject;
 
 import java.io.File;
@@ -123,6 +124,7 @@ public class World {
         World.width = grid_width*grid_size;
         World.height = grid_height*grid_size;
         gridInit(grid_width, grid_height);
+        Collider.initColliders(3*grid_size);
 
         // Reset scanner
         try {

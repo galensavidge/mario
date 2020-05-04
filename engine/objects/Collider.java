@@ -1,6 +1,7 @@
 package engine.objects;
 
 import engine.GameGraphics;
+import engine.World;
 import engine.util.*;
 import mario.Player;
 
@@ -17,10 +18,77 @@ import java.util.Arrays;
  */
 public class Collider extends GameObject {
 
-    protected static ArrayList<Collider> colliders = new ArrayList<>(); // A list of all colliders that exist
+    /* Static Collider class */
+
+    private static int zone_size;
+    protected static ArrayList<Collider>[][] colliders; // A list of all colliders that exist
 
     public static final double edge_separation = 10*Misc.delta;
     public static final double reject_separation = 2*Misc.delta;
+
+
+    public static void initColliders(int zone_size) throws ExceptionInInitializerError {
+        if(World.getGridScale() == 0) {
+            throw new ExceptionInInitializerError("World not initialized!");
+        }
+
+        Collider.zone_size = zone_size;
+
+        int grid_width = World.getWidth()/zone_size + 1;
+        int grid_height = World.getHeight()/zone_size + 1;
+        colliders = new ArrayList[grid_width][grid_height];
+        for(int i = 0;i < grid_width;i++) {
+            for(int j = 0;j < grid_height;j++) {
+                colliders[i][j] = new ArrayList<>();
+            }
+        }
+    }
+
+    private static void addToCollidersArray(Collider c) {
+        int zone_x = Math.min(Math.max(0, (int)(c.position.x+c.center.x)/zone_size), colliders.length-1);
+        int zone_y = Math.min(Math.max(0, (int)(c.position.y+c.center.x)/zone_size), colliders[0].length-1);
+        colliders[zone_x][zone_y].add(c);
+    }
+
+    private static void removeFromCollidersArray(Collider c) {
+        int zone_x = Math.min(Math.max(0, (int)(c.position.x+c.center.x)/zone_size), colliders.length-1);
+        int zone_y = Math.min(Math.max(0, (int)(c.position.y+c.center.x)/zone_size), colliders[0].length-1);
+        colliders[zone_x][zone_y].remove(c);
+    }
+
+    private static ArrayList<Collider> getCollidersInZone(int x, int y) {
+        if(x >= 0 && x < colliders.length && y >= 0 && y < colliders[0].length) {
+            return colliders[x][y];
+        }
+        else {
+            return new ArrayList<>();
+        }
+    }
+
+    private static ArrayList<Collider> getCollidersInNeighboringZones(double x, double y) {
+        ArrayList<Collider> colliders = new ArrayList<>();
+
+        int zone_x = (int)(x/zone_size);
+        int zone_y = (int)(y/zone_size);
+
+        colliders.addAll(getCollidersInZone(zone_x, zone_y));
+
+        // Cardinal directions
+        colliders.addAll(getCollidersInZone(zone_x-1, zone_y));
+        colliders.addAll(getCollidersInZone(zone_x, zone_y-1));
+        colliders.addAll(getCollidersInZone(zone_x+1, zone_y));
+        colliders.addAll(getCollidersInZone(zone_x, zone_y+1));
+
+        // Diagonals
+        colliders.addAll(getCollidersInZone(zone_x-1, zone_y-1));
+        colliders.addAll(getCollidersInZone(zone_x-1, zone_y+1));
+        colliders.addAll(getCollidersInZone(zone_x+1, zone_y-1));
+        colliders.addAll(getCollidersInZone(zone_x+1, zone_y+1));
+
+        return colliders;
+    }
+
+    /* Collision type */
 
     /**
      * This class holds information about collision events. It is instantiated by certain {@code Collider} methods.
@@ -39,11 +107,11 @@ public class Collider extends GameObject {
         }
     }
 
-    /* Instance variables */
+    /* Instantiable Collider class */
 
     protected PhysicsObject object; // The object this collider is attached to
-    protected Vector2 position; // The coordinates of this collider relative to its attached object
-    protected Vector2 center; // Center point of the collider; initially set to the mean of the vertices
+    protected Vector2 position; // The coordinates of the top left corner of this collider in the game world
+    protected Vector2 center; // Center point of the collider in local space; initially set to the mean of the vertices
     private final ArrayList<Vector2> local_vertices = new ArrayList<>(); // Vertices in local space
     public boolean draw_self = false;
     private Collision last_collision; // Used for drawing
@@ -63,7 +131,6 @@ public class Collider extends GameObject {
      */
     public Collider(PhysicsObject object, Vector2[] local_vertices) {
         super(object.priority, object.layer);
-        colliders.add(this);
         this.object = object;
         this.position = Vector2.zero();
         this.local_vertices.addAll(Arrays.asList(local_vertices));
@@ -72,6 +139,7 @@ public class Collider extends GameObject {
             this.center = this.center.sum(v);
         }
         this.center = this.center.multiply(1.0/this.local_vertices.size());
+        addToCollidersArray(this);
     }
 
     /**
@@ -122,7 +190,9 @@ public class Collider extends GameObject {
     }
 
     public void setPosition(Vector2 position) {
+        removeFromCollidersArray(this);
         this.position = position.copy();
+        addToCollidersArray(this);
     }
 
     /**
@@ -145,7 +215,7 @@ public class Collider extends GameObject {
     public void delete() {
         if(!this.isDeleted()) {
             super.delete();
-            colliders.remove(this);
+            removeFromCollidersArray(this);
             this.object = null;
         }
     }
@@ -181,7 +251,7 @@ public class Collider extends GameObject {
      * @return A Collision object. Populates {@code collision_found}, {@code collided_with}, and {@code intersections}.
      */
     public ArrayList<Collision> getCollisions() {
-        return getCollisions(colliders);
+        return getCollisions(getCollidersInNeighboringZones(position.x, position.y));
     }
 
     /**
@@ -221,11 +291,6 @@ public class Collider extends GameObject {
                     Misc.addNoDuplicates(collision.intersections, p);
                 }
             }
-        }
-
-        if(collided_with_other) {
-            collision.collision_found = true;
-            collision.collided_with = other.object;
         }
 
         last_collision = collision;
@@ -337,7 +402,7 @@ public class Collider extends GameObject {
      * @return The normal vector corresponding to the first collision experienced when moving by delta_position.
      */
     public Collision getCollisionDetails(Vector2 delta_position) {
-        return getCollisionDetails(delta_position, colliders);
+        return getCollisionDetails(delta_position, getCollidersInNeighboringZones(position.x, position.y));
     }
 
     @Override

@@ -67,7 +67,7 @@ public class Player extends PhysicsObject {
             return true;
         }
         else if(o.getType().equals(CloudBlock.type_name) &&
-                position.y + height - Collider.edge_separation < o.position.y) {
+                position.y + height - Collider.edge_separation < o.position.y && velocity.y >= 0) {
             return true;
         }
         else {
@@ -348,7 +348,7 @@ public class Player extends PhysicsObject {
 
             timer++;
             if(timer == max_jump_time || InputManager.getReleased(InputManager.K_JUMP) || velocity.y >= 0) {
-                state_machine.changeState(States.FALL);
+                state_machine.changeState(States.WALK);
             }
         }
 

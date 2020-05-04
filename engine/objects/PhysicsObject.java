@@ -143,7 +143,6 @@ public abstract class PhysicsObject extends GameObject {
                 }
             }
 
-
             // Break if there is no collision at this position
             if (other_colliders.size() == 0) return new Collision(this.collider);
 
