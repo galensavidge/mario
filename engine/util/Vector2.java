@@ -104,4 +104,11 @@ public class Vector2 {
         double mag_projection = this.dot(v)/(mag_v*mag_v);
         return v.multiply(mag_projection);
     }
+
+    /**
+     * @return The right-hand normal of {@code this}.
+     */
+    public Vector2 RHNormal() {
+        return new Vector2(y, -x);
+    }
 }
