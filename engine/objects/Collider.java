@@ -30,7 +30,8 @@ public class Collider extends GameObject {
         public boolean collision_found;
         public PhysicsObject collided_with;
         public ArrayList<Vector2> intersections = new ArrayList<>();
-        public Vector2 normal;
+        public Vector2 normal_reject;
+        public Vector2 to_contact;
 
         public Collision(Collider collider) {
             this.collider = collider;
@@ -175,17 +176,18 @@ public class Collider extends GameObject {
     }
 
     /**
-     * Checks for collisions with all other Colliders in the game world.
-     * @return A Collision object.
+     * Checks which {@code Colliders} {@code this} collides with at its current position. Checks all other
+     * {@code Colliders} in the game world.
+     * @return A Collision object. Populates {@code collision_found}, {@code collided_with}, and {@code intersections}.
      */
     public ArrayList<Collision> getCollisions() {
         return getCollisions(colliders);
     }
 
     /**
-     * Checks for collisions with other Colliders.
-     * @param colliders A list of colliders to check.
-     * @return A Collision object.
+     * Checks which {@code Colliders} {@code this} collides with at its current position.
+     * @param colliders A list of {@code Colliders} to check.
+     * @return A Collision object. Populates {@code collision_found}, {@code collided_with}, and {@code intersections}.
      */
     public ArrayList<Collision> getCollisions(ArrayList<Collider> colliders) {
         ArrayList<Collision> collisions = new ArrayList<>();
@@ -203,20 +205,19 @@ public class Collider extends GameObject {
     }
 
     /**
-     * Checks if this collider collides with other. This function should be overridden to handle collisions with
+     * Checks if {@code this} collides with other. This function should be overridden to handle collisions with
      * different collider types.
+     * @return A Collision object. Populates {@code collision_found}, {@code collided_with}, and {@code intersections}.
      */
     public Collision getIntersections(Collider other) {
-        ArrayList<Line> this_lines = this.getLines();
-        ArrayList<Line> other_lines = other.getLines();
         Collision collision = new Collision(this);
-        boolean collided_with_other = false;
 
-        for(Line this_l : this_lines) {
-            for(Line other_l : other_lines) {
+        for(Line this_l : this.getLines()) {
+            for(Line other_l : other.getLines()) {
                 Vector2 p = this_l.intersection(other_l);
                 if(p != null) {
-                    collided_with_other = true;
+                    collision.collision_found = true;
+                    collision.collided_with = other.object;
                     Misc.addNoDuplicates(collision.intersections, p);
                 }
             }
@@ -240,10 +241,11 @@ public class Collider extends GameObject {
      * @param delta_position The new position after the desired translation.
      * @param colliders A set of colliders to check.
      * @return A {@code Collision} encapsulating the first collision experienced when moving by delta_position.
+     * Populates {@code collision_found}, {@code collided_with}, {@code intersections}, {@code normal},
      */
-    public Collision getNormal(Vector2 delta_position, ArrayList<Collider> colliders) {
+    public Collision getCollisionDetails(Vector2 delta_position, ArrayList<Collider> colliders) {
         double closest_distance = Double.MAX_VALUE;
-        Vector2 closest_corner = null;
+        Line closest_ray = null;
         Vector2 closest_intersection = null;
         Line closest_edge = null;
         Collider closest_collider = null;
@@ -263,7 +265,7 @@ public class Collider extends GameObject {
                     if(intersection != null) {
                         double length_from_start = intersection.difference(corner).abs();
                         if(length_from_start < closest_distance) {
-                            closest_corner = ray.p2;
+                            closest_ray = ray;
                             closest_intersection = intersection;
                             closest_edge = edge;
                             closest_distance = length_from_start;
@@ -289,7 +291,7 @@ public class Collider extends GameObject {
                     if (intersection != null) {
                         double length_from_start = intersection.difference(corner).abs();
                         if (length_from_start < closest_distance) {
-                            closest_corner = ray.p2;
+                            closest_ray = ray;
                             closest_intersection = intersection;
                             // Reverse the direction of self edges so the normal points inwards
                             closest_edge = edge.reverse();
@@ -312,14 +314,16 @@ public class Collider extends GameObject {
             // Find normal
             Vector2 normal = closest_edge.RHNormal();
 
-            // Scale normal by distance of overlap plus safety margin
-            Vector2 corner_to_intersection = closest_intersection.difference(closest_corner);
+            // Scale normal by distance of overlap plus safety margin to find rejection vector
+            Vector2 corner_to_intersection = closest_intersection.difference(closest_ray.p2);
             Vector2 proj_edge = corner_to_intersection.projection(closest_edge.vector());
             double normal_mag = (corner_to_intersection.difference(proj_edge)).abs() + reject_separation;
-            collision.normal = normal.multiply(normal_mag);
-        }
-        else {
-            collision.collision_found = false;
+            collision.normal_reject = normal.multiply(normal_mag);
+
+            // Find contact vector
+            collision.to_contact = closest_intersection.difference(closest_ray.p1);
+            collision.to_contact = collision.to_contact.normalize().
+                    multiply(collision.to_contact.abs() - reject_separation);
         }
 
         return collision;
@@ -332,8 +336,8 @@ public class Collider extends GameObject {
      * @param delta_position The new position after the desired translation.
      * @return The normal vector corresponding to the first collision experienced when moving by delta_position.
      */
-    public Collision getNormal(Vector2 delta_position) {
-        return getNormal(delta_position, colliders);
+    public Collision getCollisionDetails(Vector2 delta_position) {
+        return getCollisionDetails(delta_position, colliders);
     }
 
     @Override

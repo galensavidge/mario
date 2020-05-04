@@ -14,8 +14,8 @@ public class Slope extends PhysicsObject {
         double height = 193;
         Vector2[] vertices = {new Vector2(Collider.edge_separation, height),
                 new Vector2(width, Collider.edge_separation),
-                new Vector2(width + World.getGridScale(), Collider.edge_separation),
-                new Vector2(width + World.getGridScale(), height)};
+                /*new Vector2(width + World.getGridScale(), Collider.edge_separation),*/
+                new Vector2(width, height)};
         this.collider = new Collider(this, vertices);
         this.collider.setPosition(position);
         this.collider.draw_self = true;

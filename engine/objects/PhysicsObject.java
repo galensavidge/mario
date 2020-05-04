@@ -98,7 +98,7 @@ public abstract class PhysicsObject extends GameObject {
 
             if(collision.collision_found) {
                 // Remove the portion of the attempted motion that is parallel to the normal vector
-                delta_position = delta_position.sum(collision.normal);
+                delta_position = delta_position.sum(collision.normal_reject);
                 collisions.add(collision);
             }
         }
@@ -148,10 +148,10 @@ public abstract class PhysicsObject extends GameObject {
             if (other_colliders.size() == 0) return new Collision(this.collider);
 
             // Get a normal vector from the closest surface of the objects collided with
-            return collider.getNormal(delta_position, other_colliders);
+            return collider.getCollisionDetails(delta_position, other_colliders);
         }
         else {
-            return collider.getNormal(delta_position);
+            return collider.getCollisionDetails(delta_position);
         }
     }
 
