@@ -47,7 +47,7 @@ public class Line {
      */
     public Vector2 RHNormal() {
         Vector2 v = this.vector();
-        Vector2 normal = v.RHNormal();
+        Vector2 normal = v.LHNormal();
         return normal.normalize();
     }
 

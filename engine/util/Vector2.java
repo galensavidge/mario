@@ -47,21 +47,21 @@ public class Vector2 {
     /**
      * @return The vector sum of {@code this} and {@code v}.
      */
-    public Vector2 add(Vector2 v) {
+    public Vector2 sum(Vector2 v) {
         return new Vector2(this.x + v.x, this.y + v.y);
     }
 
     /**
      * @return The vector {@code <x + a, x + b>}.
      */
-    public Vector2 add(double a) {
+    public Vector2 sum(double a) {
         return new Vector2(this.x + a, this.y + a);
     }
 
     /**
      * @return The result of the vector subtraction {@code this - v}.
      */
-    public Vector2 subtract(Vector2 v) {
+    public Vector2 difference(Vector2 v) {
         return new Vector2(this.x - v.x, this.y - v.y);
     }
 
@@ -106,9 +106,29 @@ public class Vector2 {
     }
 
     /**
-     * @return The right-hand normal of {@code this}.
+     * @return The right-hand normal of {@code this}. Note that the (0, 0) point is in the upper left-hand corner
+     * meaning the handedness is inverted in practicality.
      */
     public Vector2 RHNormal() {
+        return new Vector2(-y, x);
+    }
+
+    /**
+     * @return The left-hand normal of {@code this}. Note that the (0, 0) point is in the upper left-hand corner meaning
+     * the handedness is inverted in practicality.
+     */
+    public Vector2 LHNormal() {
         return new Vector2(y, -x);
+    }
+
+    /**
+     * @return The component of {@code this} normal to {@code v}.
+     */
+    public Vector2 normalComponent(Vector2 v) {
+        return this.difference(this.projection(v));
+    }
+
+    public String toString() {
+        return "<"+this.x+","+this.y+">";
     }
 }

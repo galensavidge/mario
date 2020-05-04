@@ -68,7 +68,7 @@ public class Collider extends GameObject {
         this.local_vertices.addAll(Arrays.asList(local_vertices));
         this.center = Vector2.zero();
         for(Vector2 v : this.local_vertices) {
-            this.center = this.center.add(v);
+            this.center = this.center.sum(v);
         }
         this.center = this.center.multiply(1.0/this.local_vertices.size());
     }
@@ -128,7 +128,7 @@ public class Collider extends GameObject {
      * @return The center of this {@code Collider} in global space.
      */
     public Vector2 getCenter() {
-        return center.add(position);
+        return center.sum(position);
     }
 
     /**
@@ -155,7 +155,7 @@ public class Collider extends GameObject {
     public ArrayList<Vector2> getVertices() {
         ArrayList<Vector2> vertices = new ArrayList<>();
         for(Vector2 v : local_vertices) {
-            vertices.add(v.add(position));
+            vertices.add(v.sum(position));
         }
         return vertices;
     }
@@ -252,7 +252,7 @@ public class Collider extends GameObject {
         for(Vector2 corner : this.getVertices()) {
 
             // Get the line from this corner's starting point to its ending point
-            Line ray = new Line(corner, corner.add(delta_position));
+            Line ray = new Line(corner, corner.sum(delta_position));
 
             // Check for intersections with all edges of other colliders
             for(Collider other : colliders) {
@@ -261,7 +261,7 @@ public class Collider extends GameObject {
 
                     // Record the closest intersection
                     if(intersection != null) {
-                        double length_from_start = intersection.subtract(corner).abs();
+                        double length_from_start = intersection.difference(corner).abs();
                         if(length_from_start < closest_distance) {
                             closest_corner = ray.p2;
                             closest_intersection = intersection;
@@ -279,7 +279,7 @@ public class Collider extends GameObject {
             for (Vector2 corner : other.getVertices()) {
 
                 // Get the line from the other's corner's starting point to its ending point (relative to this)
-                Line ray = new Line(corner, corner.subtract(delta_position));
+                Line ray = new Line(corner, corner.difference(delta_position));
 
                 // Check for intersections with this collider's edges
                 for (Line edge : this.getLines()) {
@@ -287,7 +287,7 @@ public class Collider extends GameObject {
 
                     // Record the closest intersection
                     if (intersection != null) {
-                        double length_from_start = intersection.subtract(corner).abs();
+                        double length_from_start = intersection.difference(corner).abs();
                         if (length_from_start < closest_distance) {
                             closest_corner = ray.p2;
                             closest_intersection = intersection;
@@ -313,9 +313,9 @@ public class Collider extends GameObject {
             Vector2 normal = closest_edge.RHNormal();
 
             // Scale normal by distance of overlap plus safety margin
-            Vector2 corner_to_intersection = closest_intersection.subtract(closest_corner);
+            Vector2 corner_to_intersection = closest_intersection.difference(closest_corner);
             Vector2 proj_edge = corner_to_intersection.projection(closest_edge.vector());
-            double normal_mag = (corner_to_intersection.subtract(proj_edge)).abs() + reject_separation;
+            double normal_mag = (corner_to_intersection.difference(proj_edge)).abs() + reject_separation;
             collision.normal = normal.multiply(normal_mag);
         }
         else {

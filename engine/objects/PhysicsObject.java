@@ -54,7 +54,7 @@ public abstract class PhysicsObject extends GameObject {
      */
     protected boolean touchingCollidable(Vector2 direction) {
         direction = direction.normalize().multiply(2*Collider.reject_separation);
-        collider.setPosition(position.add(direction));
+        collider.setPosition(position.sum(direction));
         ArrayList<Collision> collisions = collider.getCollisions();
 
         for(Collision c : collisions) {
@@ -91,14 +91,14 @@ public abstract class PhysicsObject extends GameObject {
         // Loop until a position is found with no collisions or we hit too many iterations
         for(int i = 0;i < 100;i++) {
             // Determine the new position to check
-            new_position = position.add(delta_position);
+            new_position = position.sum(delta_position);
 
             // Get a normal vector from the closest surface of the objects collided with
             Collision collision = sweepForCollision(delta_position);
 
             if(collision.collision_found) {
                 // Remove the portion of the attempted motion that is parallel to the normal vector
-                delta_position = delta_position.add(collision.normal);
+                delta_position = delta_position.sum(collision.normal);
                 collisions.add(collision);
             }
         }
@@ -129,7 +129,7 @@ public abstract class PhysicsObject extends GameObject {
     protected Collision sweepForCollision(Vector2 delta_position, boolean check_all) {
         if(!check_all) {
             // Check for collisions at final position
-            collider.setPosition(position.add(delta_position));
+            collider.setPosition(position.sum(delta_position));
             ArrayList<Collision> collisions_here = collider.getCollisions();
             collider.setPosition(position);
 

@@ -40,6 +40,7 @@ public class Mario
         Player player = new Player(3* getGridScale(),11.5* getGridScale());
         new Camera(player);
         new Coin(8* getGridScale(),11* getGridScale());
+        new Slope(30*getGridScale(),10*getGridScale());
 
         // Run game
         Game.run();
