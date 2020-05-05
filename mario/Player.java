@@ -24,18 +24,18 @@ public class Player extends PhysicsObject {
 
     public static final int height = (int)(Mario.getGridScale()*1.5);
 
-    private static final Vector2 gravity = new Vector2(0,3000); // Pixels/s^2
+    private static final Vector2 gravity = new Vector2(0,2500); // Pixels/s^2
     private static final double max_fall_speed = 700;
     private static final double friction = 400;
+    private static final double slope_gravity = 400;
 
-    private static final double walk_xspeed = 350;
-    private static final double p_speed = 500;
+    private static final double walk_speed = 250;
+    private static final double run_speed = 500;
     private static final double walk_accel = 800;
     private static final double run_accel = 1200;
 
-    private static final double air_accel = 600;
     private static final double jump_speed = -700;
-    private static final int max_jump_time = Mario.fps/2;
+    private static final int max_jump_time = Mario.fps/3;
 
     private static final Vector2 up = new Vector2(0, -1);
     private static final Vector2 down = new Vector2(0, Mario.getGridScale()/2.0);
@@ -160,13 +160,21 @@ public class Player extends PhysicsObject {
             return collision;
         }
 
-        protected void friction() {
+        protected void groundPhysics() {
             if(!ground.collision_found) {
                 return;
             }
 
-            double friction_delta = friction*Game.stepTimeSeconds();
             Vector2 vx = getVelocityParallelToGround();
+
+            // Slope gravity
+            double gravity_delta = slope_gravity*Game.stepTimeSeconds()*
+                    ground.normal_reject.x/ground.normal_reject.abs(); // Mag*sin(theta)
+            velocity = velocity.sum(ground.normal_reject.RHNormal().normalize().multiply(gravity_delta));
+
+
+            // Friction
+            double friction_delta = friction*Game.stepTimeSeconds();
             if(vx.abs() > friction_delta) {
                 velocity = velocity.difference(velocity.normalComponent(ground.normal_reject).normalize()
                         .multiply(friction_delta));
@@ -213,23 +221,17 @@ public class Player extends PhysicsObject {
             Vector2 vx = velocity.normalComponent(normal);
             Vector2 axis = normal.RHNormal().normalize();
 
-            if(vx.abs() >= -max_speed) {
+            if(vx.abs() <= max_speed || vx.x >= 0) {
                 if (InputManager.getDown(InputManager.K_LEFT)) {
-                    velocity = velocity.difference(axis.multiply(accel*Game.stepTimeSeconds()));
+                    velocity = velocity.difference(axis.multiply(accel * Game.stepTimeSeconds()));
                     direction_facing = Direction.LEFT;
                 }
-                limitSpeed(max_speed);
             }
-            else {
-                System.out.println(vx);
-            }
-            if(vx.abs() <= max_speed) {
+            if(vx.abs() <= max_speed || vx.x <= 0) {
                 if (InputManager.getDown(InputManager.K_RIGHT)) {
-                    velocity = velocity.sum(axis.multiply(accel*Game.stepTimeSeconds()));
+                    velocity = velocity.sum(axis.multiply(accel * Game.stepTimeSeconds()));
                     direction_facing = Direction.RIGHT;
                 }
-
-                limitSpeed(max_speed);
             }
         }
 
@@ -261,8 +263,13 @@ public class Player extends PhysicsObject {
         @Override
         void update() {
             ground = getGroundNormal();
-            friction();
-            movement(walk_accel, walk_xspeed, ground.normal_reject);
+            groundPhysics();
+            if(InputManager.getDown(InputManager.K_SPRINT)) {
+                movement(run_accel, run_speed, ground.normal_reject);
+            }
+            else {
+                movement(walk_accel, walk_speed, ground.normal_reject);
+            }
             if(ground.collision_found) {
                 velocity = velocity.difference(velocity.projection(ground.normal_reject));
             }
@@ -278,8 +285,8 @@ public class Player extends PhysicsObject {
 
         @Override
         void draw() {
-            sprite.setFrameTime((int)(walk_xspeed - Math.abs(velocity.x)/2)/40);
-            if(Math.abs(velocity.x) < walk_xspeed/10) {
+            sprite.setFrameTime((int)(run_speed - Math.abs(velocity.x)/2)/60);
+            if(Math.abs(velocity.x) < walk_speed /20) {
                 sprite.reset();
             }
            drawSprite(sprite.getCurrentFrame());
@@ -309,8 +316,8 @@ public class Player extends PhysicsObject {
         void update() {
             ground = getGroundNormal();
             //gravity();
-            friction();
-            movement(run_accel, p_speed, null);
+            groundPhysics();
+            movement(run_accel, run_speed, null);
             updatePositionWithCollisions();
 
             if(InputManager.getPressed(InputManager.K_JUMP)) {
@@ -343,7 +350,12 @@ public class Player extends PhysicsObject {
 
         @Override
         void update() {
-            movement(walk_accel, walk_xspeed, null);
+            if(InputManager.getDown(InputManager.K_SPRINT)) {
+                movement(walk_accel, run_speed, null);
+            }
+            else {
+                movement(walk_accel, walk_speed, null);
+            }
             updatePositionWithCollisions();
 
             timer++;
@@ -374,7 +386,12 @@ public class Player extends PhysicsObject {
         @Override
         void update() {
             gravity();
-            movement(walk_accel, walk_xspeed, null);
+            if(InputManager.getDown(InputManager.K_SPRINT)) {
+                movement(walk_accel, run_speed, null);
+            }
+            else {
+                movement(walk_accel, walk_speed, null);
+            }
 
             updatePositionWithCollisions();
             if(touchingCollidable(down)) {
