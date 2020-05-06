@@ -19,7 +19,8 @@ public class Coin extends PhysicsObject {
     public Coin(double x, double y) {
         super(0, 0, x, y);
 
-        collider = Collider.newPolygon(this, 8, 0, 0,
+        collider = Collider.newPolygon(this, 8,
+                Mario.getGridScale()/6.0, Mario.getGridScale()/6.0,
                 Mario.getGridScale()/3.0,0);
         assert collider != null;
         type = Coin.type_name;
