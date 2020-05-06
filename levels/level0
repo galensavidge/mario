@@ -2,7 +2,7 @@ Gridscale: 64
 Width: 100
 Height: 14
 
-Block 0,13 38,13
+Block 0,13 100,13
 Block 0,0 0,12
 
 CloudBlock 12,7 17,7
