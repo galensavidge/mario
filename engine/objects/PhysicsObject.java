@@ -45,29 +45,6 @@ public abstract class PhysicsObject extends GameObject {
     /* Physics functions */
 
     /**
-     * Override {@link #collideWith} to change which objects are passed through and which are not. Defaults to colliding
-     * with only objects marked solid.
-     *
-     * @return True iff this object is touching an object that it collides with in the direction defined by
-     * {@code direction}.
-     */
-    protected boolean touchingCollidable(Vector2 direction) {
-        direction = direction.normalize().multiply(2*Collider.reject_separation);
-        collider.setPosition(position.sum(direction));
-        ArrayList<Collision> collisions = collider.getCollisions();
-
-        for(Collision c : collisions) {
-            if(c.collision_found) {
-                if (collideWith(c.collided_with)) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    /**
      * Handles collision with other objects. Moves the {@code PhysicsObject} as far as possible in the desired direction
      * without intersecting an object and returns the collisions that it encountered. Note: calling this function with a
      * {@code delta_position} of {@code <0, 0>} will always return an empty list. Pushing should be handled in the
@@ -127,31 +104,33 @@ public abstract class PhysicsObject extends GameObject {
      * @return A {code Collision} if a collision was found, otherwise null.
      */
     protected Collision sweepForCollision(Vector2 delta_position, boolean check_all) {
-        if(!check_all) {
-            // Check for collisions at final position
-            collider.setPosition(position.sum(delta_position));
-            ArrayList<Collision> collisions_here = collider.getCollisions();
-            collider.setPosition(position);
+        // Do a fast collision check at the final position to narrow down the list of collider to check
+        collider.setPosition(position.sum(delta_position));
+        ArrayList<Collision> collisions_here = collider.getCollisions();
+        collider.setPosition(position);
 
-            // Make a list of the objects that should be collided with rather than passed through
-            ArrayList<Collider> other_colliders = new ArrayList<>();
-            for (Collision c : collisions_here) {
-                if (c.collision_found) {
-                    if (collideWith(c.collided_with)) {
-                        other_colliders.add(c.collided_with.collider);
-                    }
-                }
+        // Make a list of the objects that should be collided with rather than passed through
+        ArrayList<Collider> other_colliders = new ArrayList<>();
+        for (Collision c : collisions_here) {
+            if (c.collision_found) {
+                other_colliders.add(c.collided_with.collider);
+            }
+        }
+
+        while(other_colliders.size() > 0) {
+            // Find details for the closest collision encountered when travelling along delta_position
+            Collision c = collider.getCollisionDetails(delta_position, other_colliders);
+
+            // Done if: no collision was found, check all is true, or this object collides with the object at c
+            if(!c.collision_found || check_all || collideWith(c)) {
+                return c;
             }
 
-            // Break if there is no collision at this position
-            if (other_colliders.size() == 0) return new Collision(this.collider);
+            // If not done this object does not collide with the object at c; remove it and try again
+            other_colliders.remove(c.collided_with.collider);
+        }
 
-            // Get a normal vector from the closest surface of the objects collided with
-            return collider.getCollisionDetails(delta_position, other_colliders);
-        }
-        else {
-            return collider.getCollisionDetails(delta_position);
-        }
+        return new Collision(this.collider);
     }
 
     protected Collision sweepForCollision(Vector2 delta_position) {
@@ -162,8 +141,8 @@ public abstract class PhysicsObject extends GameObject {
      * Used by {@link #collideWithObjects} to determine which objects to collide with and which to pass through.
      * @return True to collide with this object, false to pass through.
      */
-    protected boolean collideWith(PhysicsObject o) {
-        return o.solid;
+    protected boolean collideWith(Collision c) {
+        return c.collided_with.solid;
     }
 
     /**

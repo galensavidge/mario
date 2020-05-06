@@ -44,6 +44,9 @@ public class Collider extends GameObject {
         }
     }
 
+
+    /* Collider zone helper functions */
+
     private static void addToCollidersArray(Collider c) {
         int zone_x = Math.min(Math.max(0, (int)(c.position.x+c.center.x)/zone_size), colliders.length-1);
         int zone_y = Math.min(Math.max(0, (int)(c.position.y+c.center.x)/zone_size), colliders[0].length-1);
@@ -63,29 +66,6 @@ public class Collider extends GameObject {
         else {
             return new ArrayList<>();
         }
-    }
-
-    public static ArrayList<Collider> getCollidersInNeighboringZones(double x, double y) {
-        ArrayList<Collider> colliders = new ArrayList<>();
-
-        int zone_x = (int)(x/zone_size);
-        int zone_y = (int)(y/zone_size);
-
-        colliders.addAll(getCollidersInZone(zone_x, zone_y));
-
-        // Cardinal directions
-        colliders.addAll(getCollidersInZone(zone_x-1, zone_y));
-        colliders.addAll(getCollidersInZone(zone_x, zone_y-1));
-        colliders.addAll(getCollidersInZone(zone_x+1, zone_y));
-        colliders.addAll(getCollidersInZone(zone_x, zone_y+1));
-
-        // Diagonals
-        colliders.addAll(getCollidersInZone(zone_x-1, zone_y-1));
-        colliders.addAll(getCollidersInZone(zone_x-1, zone_y+1));
-        colliders.addAll(getCollidersInZone(zone_x+1, zone_y-1));
-        colliders.addAll(getCollidersInZone(zone_x+1, zone_y+1));
-
-        return colliders;
     }
 
     /* Collision type */
@@ -114,7 +94,6 @@ public class Collider extends GameObject {
     protected Vector2 center; // Center point of the collider in local space; initially set to the mean of the vertices
     private final ArrayList<Vector2> local_vertices = new ArrayList<>(); // Vertices in local space
     public boolean draw_self = false;
-    private Collision last_collision; // Used for drawing
 
     /**
      * If true, the collider checks for collisions every frame and generates collision events. See
@@ -245,13 +224,36 @@ public class Collider extends GameObject {
         return lines;
     }
 
+    public ArrayList<Collider> getCollidersInNeighboringZones() {
+
+        int zone_x = (int)((position.x + center.x)/zone_size);
+        int zone_y = (int)((position.y + center.x)/zone_size);
+
+        ArrayList<Collider> colliders = new ArrayList<>(getCollidersInZone(zone_x, zone_y));
+        colliders.remove(this);
+
+        // Cardinal directions
+        colliders.addAll(getCollidersInZone(zone_x-1, zone_y));
+        colliders.addAll(getCollidersInZone(zone_x, zone_y-1));
+        colliders.addAll(getCollidersInZone(zone_x+1, zone_y));
+        colliders.addAll(getCollidersInZone(zone_x, zone_y+1));
+
+        // Diagonals
+        colliders.addAll(getCollidersInZone(zone_x-1, zone_y-1));
+        colliders.addAll(getCollidersInZone(zone_x-1, zone_y+1));
+        colliders.addAll(getCollidersInZone(zone_x+1, zone_y-1));
+        colliders.addAll(getCollidersInZone(zone_x+1, zone_y+1));
+
+        return colliders;
+    }
+
     /**
      * Checks which {@code Colliders} {@code this} collides with at its current position. Checks all other
      * {@code Colliders} in the game world.
      * @return A Collision object. Populates {@code collision_found}, {@code collided_with}, and {@code intersections}.
      */
     public ArrayList<Collision> getCollisions() {
-        return getCollisions(getCollidersInNeighboringZones(position.x, position.y));
+        return getCollisions(this.getCollidersInNeighboringZones());
     }
 
     /**
@@ -275,11 +277,10 @@ public class Collider extends GameObject {
     }
 
     /**
-     * Checks if {@code this} collides with other. This function should be overridden to handle collisions with
-     * different collider types.
+     * Checks if {@code this} collides with {@code other}.
      * @return A Collision object. Populates {@code collision_found}, {@code collided_with}, and {@code intersections}.
      */
-    public Collision getIntersections(Collider other) {
+    private Collision getIntersections(Collider other) {
         Collision collision = new Collision(this);
 
         for(Line this_l : this.getLines()) {
@@ -292,8 +293,6 @@ public class Collider extends GameObject {
                 }
             }
         }
-
-        last_collision = collision;
 
         return collision;
     }
@@ -309,6 +308,10 @@ public class Collider extends GameObject {
      * Populates {@code collision_found}, {@code collided_with}, {@code intersections}, {@code normal},
      */
     public Collision getCollisionDetails(Vector2 delta_position, ArrayList<Collider> colliders) {
+        if(colliders.size() == 0) {
+            return new Collision(this);
+        }
+
         double closest_distance = Double.MAX_VALUE;
         Line closest_ray = null;
         Vector2 closest_intersection = null;
@@ -402,7 +405,7 @@ public class Collider extends GameObject {
      * @return The normal vector corresponding to the first collision experienced when moving by delta_position.
      */
     public Collision getCollisionDetails(Vector2 delta_position) {
-        return getCollisionDetails(delta_position, getCollidersInNeighboringZones(position.x, position.y));
+        return getCollisionDetails(delta_position, this.getCollidersInNeighboringZones());
     }
 
     @Override
@@ -429,18 +432,6 @@ public class Collider extends GameObject {
             ArrayList<Line> lines = getLines();
             for(Line l : lines) {
                 l.draw();
-            }
-
-            if(!(object instanceof Player)) {
-                return;
-            }
-
-            if(last_collision != null) {
-                for (Vector2 i : last_collision.intersections) {
-                    GameGraphics.drawPoint((int) i.x, (int) i.y, false, Color.RED);
-                }
-
-                last_collision = null;
             }
         }
     }

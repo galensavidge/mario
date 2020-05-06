@@ -73,13 +73,14 @@ public class Player extends PhysicsObject {
     }
 
     @Override
-    protected boolean collideWith(PhysicsObject o) {
-        if(o.solid) {
+    protected boolean collideWith(Collision c) {
+        if(c.collided_with.solid) {
             return true;
         }
-        else if((o.getType().equals(CloudBlock.type_name) || o.getType().equals(MovingPlatform.type_name))
-                && position.y + height - Mario.getGridScale()/2.0 - Collider.edge_separation < o.position.y
-                && velocity.y >= 0) {
+        else if((c.collided_with.getType().equals(CloudBlock.type_name)
+                || c.collided_with.getType().equals(MovingPlatform.type_name))
+                && position.y+height-Mario.getGridScale()/2.0-Collider.edge_separation < c.collided_with.position.y
+                && c.normal_reject.x == 0) {
             return true;
         }
         else {
@@ -109,7 +110,7 @@ public class Player extends PhysicsObject {
     public void draw() {
         state_machine.state.draw();
 
-        for(Collider c : Collider.getCollidersInNeighboringZones(position.x, position.y)) {
+        for(Collider c : collider.getCollidersInNeighboringZones()) {
             c.draw_self = true;
             c.draw();
             c.draw_self = false;
@@ -311,7 +312,8 @@ public class Player extends PhysicsObject {
 
     private class WalkState extends PlayerState {
 
-        Vector2 v_parallel_to_ground;
+        Vector2 vx; // Velocity parallel to ground relative to the ground's velocity
+        Vector2 last_ground_velocity; // Ground velocity last frame
         boolean skidding;
         boolean running;
 
@@ -325,29 +327,34 @@ public class Player extends PhysicsObject {
             // Ground checks and pre-movement physics
             Collision ground = snapToGround();
             if(ground.collision_found) {
-                v_parallel_to_ground = getVelocityParallelToGround(ground);
-                applyFriction(v_parallel_to_ground, friction);
+                if(last_ground_velocity != null) {
+                    velocity = velocity.sum(ground.collided_with.velocity.difference(last_ground_velocity));
+                }
+                last_ground_velocity = ground.collided_with.velocity.copy();
+
+                vx = getVelocityParallelToGround(ground);
+                applyFriction(vx, friction);
             }
             else {
-                v_parallel_to_ground = velocity;
+                vx = velocity;
             }
             GroundType ground_type = checkGroundType(ground.normal_reject);
 
             // Check for skidding
-            skidding = (InputManager.getDown(InputManager.K_RIGHT) && v_parallel_to_ground.x < 0) ||
-                    (InputManager.getDown(InputManager.K_LEFT) && v_parallel_to_ground.x > 0);
+            skidding = (InputManager.getDown(InputManager.K_RIGHT) && vx.x < 0) ||
+                    (InputManager.getDown(InputManager.K_LEFT) && vx.x > 0);
 
             // Left/right input and running check
             running = false;
             if(InputManager.getDown(InputManager.K_SPRINT)) {
-                movement(run_accel, run_max_speed, v_parallel_to_ground, ground.normal_reject);
+                movement(run_accel, run_max_speed, vx, ground.normal_reject);
 
-                if(Math.abs(v_parallel_to_ground.x) >= run_speed) {
+                if(Math.abs(vx.x) >= run_speed) {
                     running = true;
                 }
             }
             else {
-                movement(walk_accel, walk_max_speed, v_parallel_to_ground, ground.normal_reject);
+                movement(walk_accel, walk_max_speed, vx, ground.normal_reject);
             }
 
             // Stick to slopes
@@ -401,8 +408,8 @@ public class Player extends PhysicsObject {
                 } else {
                     s = walk_sprite;
                 }
-                s.setFrameTime((int)(run_max_speed - Math.abs(v_parallel_to_ground.x)/2)/100);
-                if(Math.abs(v_parallel_to_ground.x) < walk_max_speed /20) {
+                s.setFrameTime((int)(run_max_speed - Math.abs(vx.x)/2)/100);
+                if(Math.abs(vx.x) < walk_max_speed /20) {
                     s.reset();
                 }
                 drawSprite(s.getCurrentFrame());
@@ -411,6 +418,7 @@ public class Player extends PhysicsObject {
 
         @Override
         void enter() {
+            last_ground_velocity = null;
             Collision ground = snapToGround();
             if(ground.collision_found) {
                 velocity.y = 0;
