@@ -1,6 +1,5 @@
 package engine.objects;
 
-import engine.Game;
 import engine.objects.Collider.Collision;
 import engine.util.Vector2;
 
@@ -173,9 +172,7 @@ public abstract class PhysicsObject extends GameObject {
     public void collisionEvent(PhysicsObject object) {}
 
     @Override
-    public void update() {
-        double t = Game.stepTimeSeconds();
-    }
+    public abstract void update();
 
     @Override
     public abstract void draw();
