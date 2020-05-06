@@ -25,9 +25,10 @@ public class Player extends PhysicsObject {
 
     public static final int height = (int)(Mario.getGridScale()*1.5);
 
-    private static final Vector2 gravity = new Vector2(0,2500); // Pixels/s^2
     private static final double max_fall_speed = 700;
+    private static final double gravity = 2500;
     private static final double friction = 600;
+    private static final double slide_gravity = 1500;
     private static final double slide_friction = 400;
 
     private static final double walk_max_speed = 300;
@@ -68,7 +69,7 @@ public class Player extends PhysicsObject {
                 Mario.getGridScale()/2.0, Mario.getGridScale(), Mario.getGridScale());
         collider.active_check = true;
         this.type = type_name;
-        state_machine = new PlayerStateMachine(States.WALK);
+        state_machine = new PlayerStateMachine(State.WALK);
     }
 
     @Override
@@ -77,7 +78,8 @@ public class Player extends PhysicsObject {
             return true;
         }
         else if(o.getType().equals(CloudBlock.type_name) &&
-                position.y + height - 8 - Collider.edge_separation < o.position.y && velocity.y >= 0) {
+                position.y + height - Mario.getGridScale()/2.0 - Collider.edge_separation < o.position.y
+                && velocity.y >= 0) {
             return true;
         }
         else {
@@ -106,6 +108,12 @@ public class Player extends PhysicsObject {
     @Override
     public void draw() {
         state_machine.state.draw();
+
+        for(Collider c : Collider.getCollidersInNeighboringZones(position.x, position.y)) {
+            c.draw_self = true;
+            c.draw();
+            c.draw_self = false;
+        }
     }
 
 
@@ -122,7 +130,7 @@ public class Player extends PhysicsObject {
         SLOPE
     }
 
-    private enum States {
+    private enum State {
         WALK,
         JUMP,
         RUN_JUMP,
@@ -136,23 +144,23 @@ public class Player extends PhysicsObject {
     /* State machine */
 
     private class PlayerStateMachine {
-        Dictionary<States, PlayerState> state_objects = new Hashtable<>();
+        Dictionary<State, PlayerState> state_objects = new Hashtable<>();
         PlayerState state;
 
-        PlayerStateMachine(States state) {
-            state_objects.put(States.WALK, new WalkState());
-            state_objects.put(States.JUMP, new JumpState());
-            state_objects.put(States.RUN_JUMP, new RunJumpState());
-            state_objects.put(States.FALL, new FallState());
-            state_objects.put(States.RUN_FALL, new RunFallState());
-            state_objects.put(States.SLIDE, new SlideState());
-            state_objects.put(States.DUCK, new DuckState());
+        PlayerStateMachine(State state) {
+            state_objects.put(State.WALK, new WalkState());
+            state_objects.put(State.JUMP, new JumpState());
+            state_objects.put(State.RUN_JUMP, new RunJumpState());
+            state_objects.put(State.FALL, new FallState());
+            state_objects.put(State.RUN_FALL, new RunFallState());
+            state_objects.put(State.SLIDE, new SlideState());
+            state_objects.put(State.DUCK, new DuckState());
 
             this.state = state_objects.get(state);
             this.state.enter();
         }
 
-        void changeState(States new_state) {
+        void changeState(State new_state) {
             state.exit();
             state = state_objects.get(new_state);
             state.enter();
@@ -161,47 +169,13 @@ public class Player extends PhysicsObject {
 
     private abstract class PlayerState {
 
-        protected void gravity() {
-            velocity = velocity.sum(gravity.multiply(Game.stepTimeSeconds()));
+        /* Physics */
+
+        protected void applyGravity(double gravity) {
+            velocity.y += gravity*Game.stepTimeSeconds();
         }
 
-        protected GroundType checkGroundType(Vector2 normal) {
-            if(normal == null) {
-                return GroundType.NONE;
-            }
-
-            // Check if normal is pointing up and slope is less than about 46 degrees
-            if(normal.x == 0) {
-                return GroundType.FLAT;
-            }
-            else if(normal.y < 0 && Math.abs(normal.y/normal.x) >= 0.95) {
-                return GroundType.SLOPE;
-            }
-            else {
-                return GroundType.NONE;
-            }
-        }
-
-        protected Collision snapToGround() {
-            Collision collision = sweepForCollision(down);
-            if(collision.collision_found) {
-                // Check that normal points up and is within 45 degrees of vertical
-                if(checkGroundType(collision.normal_reject) != GroundType.NONE) {
-                    // Snap to ground
-                    position = position.sum(collision.to_contact);
-                }
-            }
-            return collision;
-        }
-
-        protected Vector2 getVelocityParallelToGround(Collision ground) {
-            if(!ground.collision_found) {
-                return null;
-            }
-            return velocity.normalComponent(ground.normal_reject).difference(ground.collided_with.velocity);
-        }
-
-        protected void groundPhysics(Vector2 v_relative_to_ground, double friction) {
+        protected void applyFriction(Vector2 v_relative_to_ground, double friction) {
             // Friction
             double friction_delta = friction*Game.stepTimeSeconds();
             if(v_relative_to_ground.abs() > friction_delta) {
@@ -255,6 +229,46 @@ public class Player extends PhysicsObject {
             return ground_found;
         }
 
+        /* Ground checks */
+
+        protected GroundType checkGroundType(Vector2 normal) {
+            if(normal == null) {
+                return GroundType.NONE;
+            }
+
+            // Check if normal is pointing up and slope is less than about 46 degrees
+            if(normal.x == 0) {
+                return GroundType.FLAT;
+            }
+            else if(normal.y < 0 && Math.abs(normal.y/normal.x) >= 0.95) {
+                return GroundType.SLOPE;
+            }
+            else {
+                return GroundType.NONE;
+            }
+        }
+
+        protected Vector2 getVelocityParallelToGround(Collision ground) {
+            if(!ground.collision_found) {
+                return null;
+            }
+            return velocity.normalComponent(ground.normal_reject).difference(ground.collided_with.velocity);
+        }
+
+        protected Collision snapToGround() {
+            Collision collision = sweepForCollision(down);
+            if(collision.collision_found) {
+                // Check that normal points up and is within 45 degrees of vertical
+                if(checkGroundType(collision.normal_reject) != GroundType.NONE) {
+                    // Snap to ground
+                    position = position.sum(collision.to_contact);
+                }
+            }
+            return collision;
+        }
+
+        /* Misc */
+
         protected void movement(double accel, double max_speed, Vector2 v_relative_to_ground,
                                 Vector2 ground_normal) {
             if(ground_normal == null) {
@@ -284,6 +298,8 @@ public class Player extends PhysicsObject {
         }
 
 
+        abstract State getState();
+
         abstract void update();
 
         abstract void draw();
@@ -295,10 +311,14 @@ public class Player extends PhysicsObject {
 
     private class WalkState extends PlayerState {
 
-        Vector2 last_normal;
         Vector2 v_parallel_to_ground;
         boolean skidding;
         boolean running;
+
+        @Override
+        State getState() {
+            return State.WALK;
+        }
 
         @Override
         void update() {
@@ -306,7 +326,7 @@ public class Player extends PhysicsObject {
             Collision ground = snapToGround();
             if(ground.collision_found) {
                 v_parallel_to_ground = getVelocityParallelToGround(ground);
-                groundPhysics(v_parallel_to_ground, friction);
+                applyFriction(v_parallel_to_ground, friction);
             }
             else {
                 v_parallel_to_ground = velocity;
@@ -341,30 +361,30 @@ public class Player extends PhysicsObject {
             // Jump
             if(InputManager.getPressed(InputManager.K_JUMP)) {
                 if(running) {
-                    state_machine.changeState(States.RUN_JUMP);
+                    state_machine.changeState(State.RUN_JUMP);
                 }
                 else {
-                    state_machine.changeState(States.JUMP);
+                    state_machine.changeState(State.JUMP);
                 }
             }
 
             // Fall
             if(ground_type == GroundType.NONE) {
                 if(running) {
-                    state_machine.changeState(States.RUN_FALL);
+                    state_machine.changeState(State.RUN_FALL);
                 }
                 else {
-                    state_machine.changeState(States.FALL);
+                    state_machine.changeState(State.FALL);
                 }
             }
 
             // Slide
             if(InputManager.getDown(InputManager.K_DOWN)) {
                 if(ground_type == GroundType.FLAT) {
-                    state_machine.changeState(States.DUCK);
+                    state_machine.changeState(State.DUCK);
                 }
                 else if(ground_type == GroundType.SLOPE) {
-                    state_machine.changeState(States.SLIDE);
+                    state_machine.changeState(State.SLIDE);
                 }
             }
         }
@@ -391,9 +411,7 @@ public class Player extends PhysicsObject {
 
         @Override
         void enter() {
-            last_normal = new Vector2(0, -1);
             Collision ground = snapToGround();
-
             if(ground.collision_found) {
                 velocity.y = 0;
                 velocity = ground.normal_reject.RHNormal().normalize().multiply(velocity.x);
@@ -411,6 +429,11 @@ public class Player extends PhysicsObject {
         protected int timer;
 
         @Override
+        State getState() {
+            return State.JUMP;
+        }
+
+        @Override
         void update() {
             // Input checks
             if(InputManager.getDown(InputManager.K_SPRINT)) {
@@ -425,7 +448,7 @@ public class Player extends PhysicsObject {
 
             timer--;
             if(timer == 0 || !InputManager.getDown(InputManager.K_JUMP) || velocity.y >= jump_speed/2) {
-                state_machine.changeState(States.FALL);
+                state_machine.changeState(State.FALL);
             }
         }
 
@@ -452,6 +475,12 @@ public class Player extends PhysicsObject {
     }
 
     private class RunJumpState extends JumpState {
+
+        @Override
+        State getState() {
+            return State.RUN_JUMP;
+        }
+
         @Override
         void update() {
             // Input checks
@@ -467,7 +496,7 @@ public class Player extends PhysicsObject {
 
             timer--;
             if(timer == 0 || InputManager.getReleased(InputManager.K_JUMP) || velocity.y >= 0) {
-                state_machine.changeState(States.RUN_FALL);
+                state_machine.changeState(State.RUN_FALL);
             }
         }
 
@@ -480,8 +509,13 @@ public class Player extends PhysicsObject {
     private class FallState extends PlayerState {
 
         @Override
+        State getState() {
+            return State.FALL;
+        }
+
+        @Override
         void update() {
-            gravity();
+            applyGravity(gravity);
 
             if(InputManager.getDown(InputManager.K_SPRINT)) {
                 movement(walk_accel, run_max_speed, velocity, null);
@@ -493,16 +527,22 @@ public class Player extends PhysicsObject {
             if(InputManager.getDown(InputManager.K_DOWN)) {
                 GroundType ground_type = updatePositionWithCollisions(true);
                 if (ground_type == GroundType.SLOPE) {
-                    state_machine.changeState(States.SLIDE);
+                    state_machine.changeState(State.SLIDE);
+
+                    Collision ground = snapToGround();
+                    if(ground.collision_found) {
+                        velocity.y = 0;
+                        velocity = ground.normal_reject.RHNormal().normalize().multiply(velocity.x);
+                    }
                 }
                 else if(ground_type == GroundType.FLAT) {
-                    state_machine.changeState(States.DUCK);
+                    state_machine.changeState(State.DUCK);
                 }
             }
             else {
                 GroundType ground_type = updatePositionWithCollisions(false);
                 if (ground_type != GroundType.NONE) {
-                    state_machine.changeState(States.WALK);
+                    state_machine.changeState(State.WALK);
                 }
             }
         }
@@ -538,11 +578,16 @@ public class Player extends PhysicsObject {
     private class SlideState extends DuckState {
 
         @Override
+        State getState() {
+            return State.SLIDE;
+        }
+
+        @Override
         void update() {
             super.update();
 
             if(InputManager.getDown(InputManager.K_DOWN) && velocity.x == 0) {
-                state_machine.changeState(States.DUCK);
+                state_machine.changeState(State.DUCK);
             }
         }
 
@@ -553,6 +598,12 @@ public class Player extends PhysicsObject {
     }
 
     private class DuckState extends PlayerState {
+
+        @Override
+        State getState() {
+            return State.DUCK;
+        }
+
         @Override
         void update() {
             // Physics
@@ -560,25 +611,28 @@ public class Player extends PhysicsObject {
             Vector2 v_parallel_to_ground;
             if(ground.collision_found) {
                 v_parallel_to_ground = getVelocityParallelToGround(ground);
-                groundPhysics(v_parallel_to_ground, slide_friction);
+                applyFriction(v_parallel_to_ground, slide_friction);
+                applyGravity(slide_gravity);
             }
-            gravity();
+            else {
+                applyGravity(gravity);
+            }
 
             GroundType ground_type = updatePositionWithCollisions(true);
 
             // Stand up
             if(!InputManager.getDown(InputManager.K_DOWN)) {
-                state_machine.changeState(States.WALK);
-            }
-
-            // Slide
-            if(ground_type == GroundType.SLOPE) {
-                state_machine.changeState(States.SLIDE);
+                state_machine.changeState(State.WALK);
             }
 
             // Jump
-            if(InputManager.getPressed(InputManager.K_JUMP) && ground_type != GroundType.NONE) {
-                state_machine.changeState(States.JUMP);
+            else if(InputManager.getPressed(InputManager.K_JUMP) && ground_type != GroundType.NONE) {
+                state_machine.changeState(State.JUMP);
+            }
+
+            // Slide
+            else if(ground_type == GroundType.SLOPE && this.getState() != State.SLIDE) {
+                state_machine.changeState(State.SLIDE);
             }
         }
 
