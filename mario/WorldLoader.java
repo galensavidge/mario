@@ -119,6 +119,17 @@ public class WorldLoader {
                         false, false);
                 World.gridSet(x, y, s);
             }
+            else if(args.size() == 6) {
+                int x = args.get(0);
+                int y = args.get(1);
+                int width = args.get(2);
+                int height = args.get(3);
+                boolean flip_horizontal = args.get(4) == 1;
+                boolean flip_vertical = args.get(5) == 1;
+                Slope s = new Slope(x*World.getGridScale(), y*World.getGridScale(), width, height,
+                        flip_horizontal, flip_vertical);
+                World.gridSet(x, y, s);
+            }
         }
     }
 }

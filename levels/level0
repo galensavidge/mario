@@ -12,5 +12,10 @@ CloudBlock 9,10 11,10
 
 Slope 28,10 3 3
 HardBlock 31,10 38,10
-HardBlock 31,11 39,11
-HardBlock 31,12 40,12
+HardBlock 31,11 38,11
+HardBlock 31,12 38,12
+Slope 39,10 3 3 1 0
+
+HardBlock 26,0 31,5
+HardBlock 26,6 27,7
+Slope 28,6 3 2 1 1
