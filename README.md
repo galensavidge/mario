@@ -3,6 +3,7 @@ A Mario-like platformer built from scratch. Disclaimer: I don't own the rights t
 
 ## Controls
 
+| Function | Keybind |
 | ------- | ----- |
 | Left    | A     |
 | Right   | D     |
