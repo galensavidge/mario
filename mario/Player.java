@@ -89,7 +89,7 @@ public class Player extends PhysicsObject {
     public void collisionEvent(PhysicsObject object) {
         switch(object.getType()) {
             case Coin.type_name:
-                System.out.println("Coins +1!");
+                GameController.coins += 1;
                 object.delete();
                 break;
             default:

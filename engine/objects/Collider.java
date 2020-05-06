@@ -65,7 +65,7 @@ public class Collider extends GameObject {
         }
     }
 
-    private static ArrayList<Collider> getCollidersInNeighboringZones(double x, double y) {
+    public static ArrayList<Collider> getCollidersInNeighboringZones(double x, double y) {
         ArrayList<Collider> colliders = new ArrayList<>();
 
         int zone_x = (int)(x/zone_size);

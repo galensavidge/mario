@@ -266,6 +266,16 @@ public class GameGraphics extends GameObject {
         bufferGraphics.drawImage(image, _x, _y, w, h, null);
     }
 
+    public static void drawText(int x, int y, boolean absolute_position, String text, Color color) {
+        if(!absolute_position) {
+            x -= camera_x;
+            y -= camera_y;
+        }
+
+        bufferGraphics.setColor(color);
+        bufferGraphics.drawString(text, x, y);
+    }
+
 
     /* Private GameGraphics methods */
 

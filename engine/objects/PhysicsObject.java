@@ -110,6 +110,7 @@ public abstract class PhysicsObject extends GameObject {
         for(Collision c : collisions) {
             if(c.collision_found) {
                 collisionEvent(c.collided_with);
+                c.collided_with.collisionEvent(this);
             }
         }
 
