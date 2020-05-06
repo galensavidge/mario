@@ -4,6 +4,7 @@ import engine.*;
 import engine.objects.*;
 import engine.util.Vector2;
 import engine.objects.Collider.Collision;
+import mario.objects.*;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -496,7 +497,7 @@ public class Player extends PhysicsObject {
                 }
             }
             else {
-                GroundType ground_type = updatePositionWithCollisions(true);
+                GroundType ground_type = updatePositionWithCollisions(false);
                 if (ground_type != GroundType.NONE) {
                     state_machine.changeState(States.WALK);
                 }
