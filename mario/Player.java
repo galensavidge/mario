@@ -424,7 +424,7 @@ public class Player extends PhysicsObject {
             updatePositionWithCollisions(true);
 
             timer--;
-            if(timer == 0 || !InputManager.getDown(InputManager.K_JUMP) || velocity.y >= 0) {
+            if(timer == 0 || !InputManager.getDown(InputManager.K_JUMP) || velocity.y >= jump_speed/2) {
                 state_machine.changeState(States.FALL);
             }
         }
