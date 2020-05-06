@@ -77,8 +77,8 @@ public class Player extends PhysicsObject {
         if(o.solid) {
             return true;
         }
-        else if(o.getType().equals(CloudBlock.type_name) &&
-                position.y + height - Mario.getGridScale()/2.0 - Collider.edge_separation < o.position.y
+        else if((o.getType().equals(CloudBlock.type_name) || o.getType().equals(MovingPlatform.type_name))
+                && position.y + height - Mario.getGridScale()/2.0 - Collider.edge_separation < o.position.y
                 && velocity.y >= 0) {
             return true;
         }
