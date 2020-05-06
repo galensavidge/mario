@@ -1,8 +1,9 @@
-package mario;
+package mario.objects;
 
 import engine.objects.Collider;
 import engine.objects.PhysicsObject;
 import engine.util.Vector2;
+import mario.Mario;
 
 /**
  * Slope object with configurable size.

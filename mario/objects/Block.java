@@ -21,7 +21,7 @@ public abstract class Block extends WorldObject {
 
     @Override
     public void update() {
-        super.update();
+
     }
 
     @Override
