@@ -2,12 +2,15 @@ Gridscale: 64
 Width: 100
 Height: 14
 
-Block 0,13 100,13
-Block 0,0 0,12
+HardBlock 0,13 100,13
+HardBlock 0,0 0,12
 
 Coin 12,6 17,6
 CloudBlock 12,7 17,7
 
 CloudBlock 9,10 11,10
 
-Block 28,10 38,12
+Slope 28,10 3 3
+HardBlock 31,10 38,10
+HardBlock 31,11 39,11
+HardBlock 31,12 40,12

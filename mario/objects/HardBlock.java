@@ -11,7 +11,7 @@ import java.awt.*;
  * @version 5/5/2020
  */
 public class HardBlock extends Block {
-    public static final String type_name = "Block";
+    public static final String type_name = "HardBlock";
 
     private static final String sprite_file = "./sprites/hardblock.png";
     private static final Image sprite = GameGraphics.getImage(sprite_file);

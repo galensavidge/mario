@@ -42,7 +42,6 @@ public class Mario
         Background b = new mario.Background();
         Player player = new Player(3* getGridScale(),11.5* getGridScale());
         new Camera(player);
-        new Slope(25*getGridScale(),10*getGridScale());
 
         // Run game
         Game.run();

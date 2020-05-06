@@ -124,7 +124,7 @@ public class World {
         World.width = grid_width*grid_size;
         World.height = grid_height*grid_size;
         gridInit(grid_width, grid_height);
-        Collider.initColliders(3*grid_size); // This is lazy and needs updating for more flexibility
+        Collider.initColliders(5*grid_size); // This is lazy and needs updating for more flexibility
 
         // Reset scanner
         try {

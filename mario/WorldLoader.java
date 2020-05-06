@@ -16,7 +16,7 @@ import java.util.ArrayList;
 public class WorldLoader {
 
     private static final World.LineFormat[] line_formats =
-            {new BlockLineFormat(), new CloudBlockLineFormat(), new CoinLineFormat()};
+            {new BlockLineFormat(), new CloudBlockLineFormat(), new CoinLineFormat(), new SlopeLineFormat()};
 
     public static boolean loadFromFile(String file_name) {
         return World.loadFromFile(file_name, Mario.getGridScale(), line_formats);
@@ -32,7 +32,9 @@ public class WorldLoader {
         @Override
         public void handleLine(ArrayList<Integer> args) {
             if(args.size() == 2) {
-                addObject(args.get(0), args.get(1));
+                int x = args.get(0);
+                int y = args.get(1);
+                World.gridSet(x, y, addObject(x*World.getGridScale(), y*World.getGridScale()));
             }
             else if(args.size() == 4) {
                 int x1, y1, x2, y2;
@@ -46,6 +48,9 @@ public class WorldLoader {
                         World.gridSet(x, y, addObject(x*World.getGridScale(), y*World.getGridScale()));
                     }
                 }
+            }
+            else {
+                System.out.println("Bad line!");
             }
         }
 
@@ -91,6 +96,29 @@ public class WorldLoader {
         @Override
         protected PhysicsObject addObject(double x, double y) {
             return new Coin(x, y);
+        }
+    }
+
+    /**
+     * Format: {@code <x>,<y> <width> <height> (<flip-vertical?> = 0) (<flip-horizontal?> = 0)}
+     */
+    private static class SlopeLineFormat extends World.LineFormat {
+        @Override
+        public String getName() {
+            return Slope.type_name;
+        }
+
+        @Override
+        public void handleLine(ArrayList<Integer> args) {
+            if(args.size() == 4) {
+                int x = args.get(0);
+                int y = args.get(1);
+                int width = args.get(2);
+                int height = args.get(3);
+                Slope s = new Slope(x*World.getGridScale(), y*World.getGridScale(), width, height,
+                        false, false);
+                World.gridSet(x, y, s);
+            }
         }
     }
 }

@@ -132,6 +132,9 @@ public class Player extends PhysicsObject {
         SLIDE
     }
 
+
+    /* State machine */
+
     private class PlayerStateMachine {
         Dictionary<States, PlayerState> state_objects = new Hashtable<>();
         PlayerState state;
@@ -553,7 +556,7 @@ public class Player extends PhysicsObject {
         @Override
         void update() {
             // Physics
-            Collision ground = snapToGround();
+            Collision ground = sweepForCollision(down);
             Vector2 v_parallel_to_ground;
             if(ground.collision_found) {
                 v_parallel_to_ground = getVelocityParallelToGround(ground);
