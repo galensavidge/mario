@@ -16,7 +16,8 @@ import java.util.ArrayList;
 public class WorldLoader {
 
     private static final World.LineFormat[] line_formats =
-            {new BlockLineFormat(), new CloudBlockLineFormat(), new CoinLineFormat(), new SlopeLineFormat()};
+            {new BlockLineFormat(), new CloudBlockLineFormat(), new CoinLineFormat(), new SlopeLineFormat(),
+            new MovingPlatformLineFormat()};
 
     public static boolean loadFromFile(String file_name) {
         return World.loadFromFile(file_name, Mario.getGridScale(), line_formats);
@@ -129,6 +130,26 @@ public class WorldLoader {
                 Slope s = new Slope(x*World.getGridScale(), y*World.getGridScale(), width, height,
                         flip_horizontal, flip_vertical);
                 World.gridSet(x, y, s);
+            }
+        }
+    }
+
+    private static class MovingPlatformLineFormat extends World.LineFormat {
+
+        @Override
+        public String getName() {
+            return MovingPlatform.type_name;
+        }
+
+        @Override
+        public void handleLine(ArrayList<Integer> args) {
+            if(args.size() == 4) {
+                int x = args.get(0);
+                int y = args.get(1);
+                int size = args.get(2);
+                int distance = args.get(3);
+                World.gridSet(x, y,
+                        new MovingPlatform(World.getGridScale()*x, World.getGridScale()*y, size, distance));
             }
         }
     }

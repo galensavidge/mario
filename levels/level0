@@ -21,3 +21,5 @@ Slope 39,10 3 3 1 0
 HardBlock 26,0 31,5
 HardBlock 26,6 27,7
 Slope 28,6 3 2 1 1
+
+MovingPlatform 40,6 4 16

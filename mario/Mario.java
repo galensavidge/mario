@@ -39,7 +39,6 @@ public class Mario
         WorldLoader.loadFromFile("./levels/level0");
 
         // Instantiate objects
-        new MovingPlatform(40*getGridScale(), 6*getGridScale(), 4, 8);
         Background b = new mario.Background();
         Player player = new Player(3* getGridScale(),11.5* getGridScale());
         new Camera(player);
