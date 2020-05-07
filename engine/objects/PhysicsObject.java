@@ -9,14 +9,17 @@ import java.util.ArrayList;
  * The parent class for all objects that inhabit physical space in the game world.
  *
  * @author Galen Savidge
- * @version 4/27/2020
+ * @version 5/6/2020
  */
 public abstract class PhysicsObject extends GameObject {
+
+    // Used to identify objects
     protected String type;
+    protected String type_group;
+    public boolean solid = false;
     public Collider collider;
     public Vector2 position;
     public Vector2 velocity;
-    public boolean solid = false;
 
     public PhysicsObject(int priority, int layer, double x, double y) {
         super(priority, layer);
@@ -32,6 +35,13 @@ public abstract class PhysicsObject extends GameObject {
      */
     public String getType() {
         return type;
+    }
+
+    /**
+     * @return The PhysicsObject's {@code type_group}, if one was set, otherwise returns null.
+     */
+    public String getTypeGroup() {
+        return type_group;
     }
 
     /**
@@ -54,7 +64,7 @@ public abstract class PhysicsObject extends GameObject {
      * with only objects marked solid.
      *
      * @param delta_position The change in position this step.
-     * @return A list of the normal vectors from the surfaces collided with.
+     * @return A list of {@code Collision} objects corresponding to the surfaces collided with.
      */
     protected ArrayList<Collision> collideWithObjects(Vector2 delta_position) {
         ArrayList<Collision> collisions = new ArrayList<>();
@@ -98,8 +108,7 @@ public abstract class PhysicsObject extends GameObject {
      * Returns the {@code Collision} first encountered when moving from {@code position} to
      * {@code position + delta_position}.
      *
-     * @param check_all If true, will check all colliders in the game world. If false, will check only colliders
-     *                  encountered at the destination point. False also ignores collisions based on
+     * @param check_all If true, will check all colliders in the game world. If false, ignores collisions based on
      *                  {@code collideWith}. Defaults to false.
      * @return A {code Collision} if a collision was found, otherwise null.
      */
@@ -133,6 +142,12 @@ public abstract class PhysicsObject extends GameObject {
         return new Collision(this.collider);
     }
 
+    /**
+     * Returns the {@code Collision} first encountered when moving from {@code position} to
+     * {@code position + delta_position}.
+     *
+     * @return A {code Collision} if a collision was found, otherwise null.
+     */
     protected Collision sweepForCollision(Vector2 delta_position) {
         return sweepForCollision(delta_position, false);
     }

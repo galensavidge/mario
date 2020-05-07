@@ -110,6 +110,7 @@ public class Collider extends GameObject {
      */
     public Collider(PhysicsObject object, Vector2[] local_vertices) {
         super(object.priority, object.layer);
+        this.suspend_tier = object.suspend_tier;
         this.object = object;
         this.position = Vector2.zero();
         this.local_vertices.addAll(Arrays.asList(local_vertices));

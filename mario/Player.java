@@ -65,6 +65,7 @@ public class Player extends PhysicsObject {
 
     public Player(double x, double y) {
         super(10, 10, x, y);
+        this.suspend_tier = Mario.pause_suspend_tier;
         collider = Collider.newBox(this,0,
                 Mario.getGridScale()/2.0, Mario.getGridScale(), Mario.getGridScale());
         collider.active_check = true;
@@ -77,8 +78,7 @@ public class Player extends PhysicsObject {
         if(c.collided_with.solid) {
             return true;
         }
-        else if((c.collided_with.getType().equals(CloudBlock.type_name)
-                || c.collided_with.getType().equals(MovingPlatform.type_name))
+        else if(c.collided_with.getTypeGroup().equals(Types.semisolid_type_group)
                 && position.y+height-Mario.getGridScale()/2.0-Collider.edge_separation < c.collided_with.position.y
                 && c.normal_reject.x == 0) {
             return true;

@@ -18,12 +18,12 @@ public class Coin extends PhysicsObject {
 
     public Coin(double x, double y) {
         super(0, 0, x, y);
+        this.type = Coin.type_name;
+        this.type_group = Types.pickup_type_group;
 
         collider = Collider.newPolygon(this, 8,
                 Mario.getGridScale()/6.0, Mario.getGridScale()/6.0,
                 Mario.getGridScale()/3.0,0);
-        assert collider != null;
-        type = Coin.type_name;
 
         // Coin animation
         String[] sprite_files = {"./sprites/coin-1.png","./sprites/coin-2.png","./sprites/coin-3.png"};

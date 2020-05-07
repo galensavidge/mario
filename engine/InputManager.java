@@ -120,6 +120,7 @@ public class InputManager extends GameObject {
      */
     private InputManager() {
         super(1000,0);
+        this.suspend_tier = Integer.MAX_VALUE;
         this.persistent = true;
     }
 

@@ -1,6 +1,7 @@
 package mario.objects;
 
 import engine.GameGraphics;
+import engine.objects.PhysicsObject;
 
 import java.awt.*;
 
@@ -14,6 +15,7 @@ public class CloudBlock extends HardBlock {
     public CloudBlock(double x, double y) {
         super(x, y);
         this.type = type_name;
+        this.type_group = Types.semisolid_type_group;
         this.solid = false;
     }
 

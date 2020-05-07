@@ -15,9 +15,21 @@ public class Game
     private static final ArrayList<GameObject> draw_queue = new ArrayList<>();
     
     private static boolean running;
+    private static int current_suspend_tier = 0;
     private static boolean use_frame_time;
     private static long step_time = 0;
     private static int target_fps = 60;
+
+    /**
+     * Sets which objects are suspended. Any objects with {@code suspend_tier} less than {@code tier} will not receive
+     * update events.
+     */
+    public static void setSuspendTier(int tier) {
+        if(tier < 0) {
+            tier = 0;
+        }
+        current_suspend_tier = tier;
+    }
 
     /**
      * Sets the target frame rate of the game.
@@ -97,7 +109,7 @@ public class Game
             ListIterator<GameObject> i = update_queue.listIterator();
             while(i.hasNext()) {
                 GameObject o = i.next();
-                if(!o.isDeleted()) {
+                if(!o.isDeleted() && o.getSuspendTier() >= current_suspend_tier) {
                     o.update();
                 }
             }
@@ -106,7 +118,7 @@ public class Game
             i = draw_queue.listIterator();
             while(i.hasNext()) {
                 GameObject o = i.next();
-                if(!o.isDeleted()) {
+                if(!o.isDeleted() && o.visible) {
                     o.draw();
                 }
             }

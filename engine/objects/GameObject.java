@@ -6,16 +6,24 @@ import engine.Game;
  * Base game object class which is the parent of all other game object types.
  *
  * @author Galen Savidge
- * @version 4/24/2020
+ * @version 5/6/2020
  */
 public abstract class GameObject
 {
     protected int priority;
     protected int layer;
-    private boolean deleted;
+    public boolean visible = true;
+    private boolean deleted = false;
 
-    // Whether this object persists between scenes or is deleted when the scene changes
-    protected boolean persistent = false;
+    /**
+     * Any objects with lower suspend_tier than {@code Game.suspend_tier} will not run {@code update}.
+     */
+    protected int suspend_tier;
+
+    /**
+     * Whether this object persists between scenes or is deleted when the scene changes
+     */
+    protected boolean persistent;
 
     /**
      * @param priority The execution priority for this object's {@link #update()}. Higher priority means this object
@@ -28,8 +36,8 @@ public abstract class GameObject
         // initialise instance variables
         this.priority = priority;
         this.layer = layer;
-        this.deleted = false;
-        
+        this.suspend_tier = 0;
+        this.persistent = false;
         Game.addObject(this);
     }
 
@@ -42,19 +50,24 @@ public abstract class GameObject
         return layer;
     }
 
+    public int getSuspendTier() {
+        return suspend_tier;
+    }
+
     public boolean isPersistent() {
         return persistent;
     }
 
 
     /**
-     * This method is called by Game every step and should be overwritten in child classes. Order depends on the
+     * This method is called by {@link Game} every step and should be overwritten in child classes. Order depends on the
      * priority of the created objects.
      */
     public abstract void update();
 
     /**
-     * This method is called by Game every step and should be overwritten in child classes.
+     * This method is called by {@link Game} every step while {@code this.visible == true}. Order depends on
+     * {@code layer}.
      */
     public abstract void draw();
 
@@ -65,12 +78,4 @@ public abstract class GameObject
     public boolean isDeleted() {
         return deleted;
     }
-
-    /* @SuppressWarnings("deprecation")
-    @Override
-    protected void finalize() throws Throwable
-    {
-        // will print name of object
-        System.out.println(this + " successfully garbage collected");
-    }*/
 }

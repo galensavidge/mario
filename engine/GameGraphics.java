@@ -323,6 +323,7 @@ public class GameGraphics extends GameObject {
      */
     private GameGraphics() {
         super(0, Integer.MAX_VALUE); // Put this object at the very bottom of the draw queue
+        this.suspend_tier = Integer.MAX_VALUE;
         this.persistent = true;
     }
 

@@ -12,7 +12,7 @@ import java.util.Scanner;
  * A class used to construct the game world from templates.
  *
  * @author Galen Savidge
- * @version 4/26/2020
+ * @version 5/6/2020
  */
 public class World {
     // Size of the world in pixels
@@ -124,7 +124,7 @@ public class World {
         World.width = grid_width*grid_size;
         World.height = grid_height*grid_size;
         gridInit(grid_width, grid_height);
-        Collider.initColliders(5*grid_size); // This is lazy and needs updating for more flexibility
+        Collider.initColliders(3*grid_size); // This is lazy and needs updating for more flexibility
 
         // Reset scanner
         try {

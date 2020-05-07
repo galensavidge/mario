@@ -29,6 +29,7 @@ public class MovingPlatform extends WorldObject {
     public MovingPlatform(double x, double y, int size, int move_distance) {
         super(0, 5, x, y);
         this.type = type_name;
+        this.type_group = Types.semisolid_type_group;
         this.size = Math.max(2, size);
         this.initial_x = position.x;
         this.farthest_position = initial_x + move_distance*Mario.getGridScale() - size*Mario.getGridScale();

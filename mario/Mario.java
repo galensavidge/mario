@@ -1,13 +1,12 @@
 package mario;
 
 import engine.*;
-import mario.objects.*;
 
 /**
  * Main game class that runs the program.
  *
  * @author Galen Savidge
- * @version 4/24/2020
+ * @version 5/6/2020
  */
 public class Mario
 {
@@ -17,6 +16,9 @@ public class Mario
     private static final int scaling_ratio = 4;
     public static final int window_scale = 1;
     public static final int fps = 60;
+
+    public static final int pause_suspend_tier = 5;
+    public static final int menu_suspend_tier = 10;
 
     public static int getGridScale() {
         return grid_scale *scaling_ratio;
@@ -44,6 +46,7 @@ public class Mario
         new Camera(player);
 
         // Run game
+        Game.setSuspendTier(0);
         Game.run();
 
         // End game
