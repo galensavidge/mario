@@ -1,11 +1,10 @@
 package mario.objects;
 
 import engine.GameGraphics;
-import engine.objects.PhysicsObject;
 
 import java.awt.*;
 
-public class CloudBlock extends HardBlock {
+public class CloudBlock extends Block {
 
     public static final String type_name = "CloudBlock";
 
@@ -21,7 +20,7 @@ public class CloudBlock extends HardBlock {
 
     @Override
     public void draw() {
-        if(isOnscreen()) {
+        if(isOnScreen()) {
             GameGraphics.drawImage((int) Math.round(position.x), (int) Math.round(position.y), false, sprite);
         }
     }

@@ -1,7 +1,6 @@
 package mario.objects;
 
 import engine.objects.Collider;
-import engine.objects.PhysicsObject;
 import engine.util.Vector2;
 import mario.Mario;
 
@@ -11,7 +10,7 @@ import mario.Mario;
  * @author Galen Savidge
  * @version 5/5/2020
  */
-public class Slope extends PhysicsObject {
+public class Slope extends WorldObject {
     public static final String type_name = "Slope";
 
     /**
@@ -42,16 +41,6 @@ public class Slope extends PhysicsObject {
         this.collider.draw_self = true;
         this.solid = true;
         this.type = Slope.type_name;
-    }
-
-    @Override
-    public void collisionEvent(PhysicsObject object) {
-
-    }
-
-    @Override
-    public void update() {
-
     }
 
     @Override

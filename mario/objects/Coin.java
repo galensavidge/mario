@@ -12,7 +12,7 @@ import mario.Mario;
  * @author Galen Savidge
  * @version 5/5/2020
  */
-public class Coin extends PhysicsObject {
+public class Coin extends WorldObject {
     public static final String type_name = "Coin";
     private final Sprite sprite;
 
@@ -33,7 +33,7 @@ public class Coin extends PhysicsObject {
 
     @Override
     public void update() {
-
+        sprite.incrementFrame();
     }
 
     @Override

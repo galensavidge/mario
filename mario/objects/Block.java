@@ -19,14 +19,4 @@ public abstract class Block extends WorldObject {
         this.collider = Collider.newBox(this,0,0, Mario.getGridScale(),Mario.getGridScale());
         this.solid = true;
     }
-
-    @Override
-    public void update() {
-
-    }
-
-    @Override
-    public void draw() {
-
-    }
 }

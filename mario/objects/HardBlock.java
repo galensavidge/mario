@@ -21,12 +21,8 @@ public class HardBlock extends Block {
         this.type = HardBlock.type_name;
     }
 
-    public void update() {
-        super.update();
-    }
-
     public void draw() {
-        if(isOnscreen()) {
+        if(isOnScreen()) {
             GameGraphics.drawImage((int) Math.round(position.x), (int) Math.round(position.y), false, sprite);
         }
     }

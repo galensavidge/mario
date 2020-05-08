@@ -23,7 +23,7 @@ public class WorldObject extends PhysicsObject {
     /**
      * @return True if the object is completely off the screen.
      */
-    protected boolean isOnscreen() {
+    protected boolean isOnScreen() {
         return position.x <= GameGraphics.camera_x + GameGraphics.getWindowWidth()
                 && position.y <= GameGraphics.camera_y + GameGraphics.getWindowHeight()
                 && position.x >= GameGraphics.camera_x - Mario.getGridScale()

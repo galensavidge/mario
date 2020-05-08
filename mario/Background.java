@@ -1,8 +1,6 @@
 package mario;
 
-import engine.Game;
 import engine.GameGraphics;
-import engine.World;
 import engine.objects.GameObject;
 
 import java.awt.*;
