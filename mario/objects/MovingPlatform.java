@@ -27,7 +27,7 @@ public class MovingPlatform extends WorldObject {
      * @param move_distance Number of grid squares to move before turning around.
      */
     public MovingPlatform(double x, double y, int size, int move_distance) {
-        super(0, 5, x, y);
+        super(15, 5, x, y);
         this.type = type_name;
         this.type_group = Types.semisolid_type_group;
         this.size = Math.max(2, size);
@@ -41,14 +41,21 @@ public class MovingPlatform extends WorldObject {
 
     @Override
     public void update() {
-        position.x += velocity.x*Game.stepTimeSeconds();
-        if(velocity.x > 0 && position.x > farthest_position) {
-            position.x = farthest_position;
-            velocity.x *= -1;
+        double t = Game.stepTimeSeconds();
+        if(position.x == farthest_position) {
+            velocity.x = -speed;
         }
-        else if(velocity.x < 0 && position.x < initial_x) {
+        else if(position.x == initial_x) {
+            velocity.x = speed;
+        }
+        position.x += velocity.x*t;
+        if(position.x > farthest_position) {
+            velocity.x = (farthest_position - position.x)/t;
+            position.x = farthest_position;
+        }
+        else if(position.x < initial_x) {
+            velocity.x = (initial_x - position.x)/t;
             position.x = initial_x;
-            velocity.x *= -1;
         }
 
         collider.setPosition(position);

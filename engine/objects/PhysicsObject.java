@@ -60,7 +60,7 @@ public abstract class PhysicsObject extends GameObject {
      * {@code delta_position} of {@code <0, 0>} will always return an empty list. Pushing should be handled in the
      * pushing object's movement code.
      *
-     * Override {@link #collideWith} to change which objects are passed through and which are not. Defaults to colliding
+     * Override {@link #collidesWith} to change which objects are passed through and which are not. Defaults to colliding
      * with only objects marked solid.
      *
      * @param delta_position The change in position this step.
@@ -95,9 +95,11 @@ public abstract class PhysicsObject extends GameObject {
 
         // Send collision events
         for(Collision c : collisions) {
-            if(c.collision_found) {
-                collisionEvent(c.collided_with);
-                c.collided_with.collisionEvent(this);
+            if(collidesWith(c)) {
+                collisionEvent(c);
+                Collision other_c = c.copy();
+                c.collided_with = this;
+                c.collided_with.collisionEvent(other_c);
             }
         }
 
@@ -131,7 +133,7 @@ public abstract class PhysicsObject extends GameObject {
             Collision c = collider.getCollisionDetails(delta_position, other_colliders);
 
             // Done if: no collision was found, check all is true, or this object collides with the object at c
-            if(!c.collision_found || check_all || collideWith(c)) {
+            if(!c.collision_found || check_all || collidesWith(c)) {
                 return c;
             }
 
@@ -156,7 +158,7 @@ public abstract class PhysicsObject extends GameObject {
      * Used by {@link #collideWithObjects} to determine which objects to collide with and which to pass through.
      * @return True to collide with this object, false to pass through.
      */
-    protected boolean collideWith(Collision c) {
+    protected boolean collidesWith(Collision c) {
         return c.collided_with.solid;
     }
 
@@ -164,7 +166,7 @@ public abstract class PhysicsObject extends GameObject {
      * Override this method to respond to collisions with other objects. Events will be generated if
      * {@code collider.active_check == true}.
      */
-    public void collisionEvent(PhysicsObject object) {}
+    public void collisionEvent(Collision c) {}
 
     @Override
     public abstract void update();

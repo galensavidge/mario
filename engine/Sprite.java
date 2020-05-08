@@ -27,7 +27,7 @@ public class Sprite {
         frame_counter = 1;
     }
 
-    public Image getCurrentFrame() {
+    public void incrementFrame() {
         frame_counter++;
         if(frame_counter > frame_time) {
             frame_counter = 1;
@@ -37,7 +37,9 @@ public class Sprite {
                 current_frame = 0;
             }
         }
+    }
 
+    public Image getCurrentFrame() {
         return frames.get(current_frame);
     }
 }

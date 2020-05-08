@@ -77,13 +77,32 @@ public class Collider extends GameObject {
         public Collider collider;
         public boolean collision_found;
         public PhysicsObject collided_with;
-        public ArrayList<Vector2> intersections = new ArrayList<>();
+        public ArrayList<Vector2> intersections;
         public Vector2 normal_reject;
         public Vector2 to_contact;
 
         public Collision(Collider collider) {
             this.collider = collider;
             this.collision_found = false;
+            this.intersections = new ArrayList<>();
+        }
+
+        public Collision copy() {
+            Collision c = new Collision(collider);
+            c.collision_found = collision_found;
+            c.collided_with = collided_with;
+            c.intersections = new ArrayList<>();
+            for(Vector2 i : intersections) {
+                c.intersections.add(i.copy());
+            }
+            c.normal_reject = normal_reject.copy();
+            c.to_contact = to_contact.copy();
+
+            return c;
+        }
+
+        public boolean isDetailed() {
+            return normal_reject != null && to_contact != null;
         }
     }
 
@@ -225,6 +244,9 @@ public class Collider extends GameObject {
         return lines;
     }
 
+    /**
+     * @return The list of colliders in the zone this collider is in and the zones directly neighboring it.
+     */
     public ArrayList<Collider> getCollidersInNeighboringZones() {
 
         int zone_x = (int)((position.x + center.x)/zone_size);
@@ -416,7 +438,7 @@ public class Collider extends GameObject {
             ArrayList<Collision> collisions = getCollisions();
             for (Collision c : collisions) {
                 if(c.collision_found) {
-                    object.collisionEvent(c.collided_with);
+                    object.collisionEvent(c);
                 }
             }
         }

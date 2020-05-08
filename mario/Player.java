@@ -74,7 +74,7 @@ public class Player extends PhysicsObject {
     }
 
     @Override
-    protected boolean collideWith(Collision c) {
+    protected boolean collidesWith(Collision c) {
         if(c.collided_with.solid) {
             return true;
         }
@@ -89,11 +89,11 @@ public class Player extends PhysicsObject {
     }
 
     @Override
-    public void collisionEvent(PhysicsObject object) {
-        switch(object.getType()) {
+    public void collisionEvent(Collision c) {
+        switch(c.collided_with.getType()) {
             case Coin.type_name:
                 GameController.coins += 1;
-                object.delete();
+                c.collided_with.delete();
                 break;
             default:
                 //System.out.println("Collided with "+object.getType());
