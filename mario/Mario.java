@@ -37,13 +37,10 @@ public class Mario
         GameController gc = new GameController();
 
         // Create game world
-        Game.clearNonPersistentObjects();
-        WorldLoader.loadFromFile("./levels/level0");
+        GameController.switchLevel("./levels/level0");
 
         // Instantiate objects
         Background b = new mario.Background();
-        Player player = new Player(3* getGridScale(),11.5* getGridScale());
-        new Camera(player);
 
         // Run game
         Game.setSuspendTier(0);

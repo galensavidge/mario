@@ -2,6 +2,8 @@ Gridscale: 64
 Width: 100
 Height: 14
 
+PlayerSpawn 4, 10
+
 HardBlock 0,13 100,13
 HardBlock 0,0 0,12
 

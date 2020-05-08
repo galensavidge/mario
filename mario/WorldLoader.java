@@ -1,7 +1,9 @@
 package mario;
 
+import engine.Game;
 import engine.World;
 import engine.objects.PhysicsObject;
+import engine.util.Vector2;
 import mario.objects.*;
 
 import java.util.ArrayList;
@@ -16,10 +18,12 @@ import java.util.ArrayList;
 public class WorldLoader {
 
     private static final World.LineFormat[] line_formats =
-            {new BlockLineFormat(), new CloudBlockLineFormat(), new CoinLineFormat(), new SlopeLineFormat(),
-            new MovingPlatformLineFormat()};
+            {new PlayerSpawnLineFormat(), new BlockLineFormat(), new CloudBlockLineFormat(), new CoinLineFormat(),
+             new SlopeLineFormat(), new MovingPlatformLineFormat()};
+
 
     public static boolean loadFromFile(String file_name) {
+        Game.clearNonPersistentObjects();
         return World.loadFromFile(file_name, Mario.getGridScale(), line_formats);
     }
 
@@ -61,6 +65,22 @@ public class WorldLoader {
         protected abstract PhysicsObject addObject(double x, double y);
     }
 
+    private static class PlayerSpawnLineFormat extends World.LineFormat {
+
+        @Override
+        public String getName() {
+            return "PlayerSpawn";
+        }
+
+        @Override
+        public void handleLine(ArrayList<Integer> args) {
+            if(args.size() == 2) {
+                GameController.setPlayerSpawn(new Vector2(args.get(0)*World.getGridScale(),
+                        args.get(1)*World.getGridScale()));
+            }
+        }
+    }
+
     private static class BlockLineFormat extends StandardLineFormat {
 
         @Override
@@ -71,32 +91,6 @@ public class WorldLoader {
         @Override
         protected PhysicsObject addObject(double x, double y) {
             return new HardBlock(x, y);
-        }
-    }
-
-    private static class CloudBlockLineFormat extends StandardLineFormat {
-
-        @Override
-        public String getName() {
-            return CloudBlock.type_name;
-        }
-
-        @Override
-        protected PhysicsObject addObject(double x, double y) {
-            return new CloudBlock(x, y);
-        }
-    }
-
-    private static class CoinLineFormat extends StandardLineFormat {
-
-        @Override
-        public String getName() {
-            return Coin.type_name;
-        }
-
-        @Override
-        protected PhysicsObject addObject(double x, double y) {
-            return new Coin(x, y);
         }
     }
 
@@ -131,6 +125,32 @@ public class WorldLoader {
                         flip_horizontal, flip_vertical);
                 World.gridSet(x, y, s);
             }
+        }
+    }
+
+    private static class CloudBlockLineFormat extends StandardLineFormat {
+
+        @Override
+        public String getName() {
+            return CloudBlock.type_name;
+        }
+
+        @Override
+        protected PhysicsObject addObject(double x, double y) {
+            return new CloudBlock(x, y);
+        }
+    }
+
+    private static class CoinLineFormat extends StandardLineFormat {
+
+        @Override
+        public String getName() {
+            return Coin.type_name;
+        }
+
+        @Override
+        protected PhysicsObject addObject(double x, double y) {
+            return new Coin(x, y);
         }
     }
 
