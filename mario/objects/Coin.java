@@ -38,6 +38,8 @@ public class Coin extends WorldObject {
 
     @Override
     public void draw() {
-        GameGraphics.drawImage((int)position.x, (int)position.y, false, sprite.getCurrentFrame());
+        if(isOnScreen()) {
+            GameGraphics.drawImage((int) position.x, (int) position.y, false, sprite.getCurrentFrame());
+        }
     }
 }

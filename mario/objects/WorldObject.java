@@ -15,11 +15,6 @@ public class WorldObject extends PhysicsObject {
         super(priority, layer, x, y);
     }
 
-    @Override
-    public void update() {
-
-    }
-
     /**
      * @return True if the object is completely off the screen.
      */
@@ -28,6 +23,11 @@ public class WorldObject extends PhysicsObject {
                 && position.y <= GameGraphics.camera_y + GameGraphics.getWindowHeight()
                 && position.x >= GameGraphics.camera_x - Mario.getGridScale()
                 && position.y >= GameGraphics.camera_y - Mario.getGridScale();
+    }
+
+    @Override
+    public void update() {
+
     }
 
     @Override

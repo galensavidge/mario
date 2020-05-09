@@ -211,6 +211,8 @@ public class PlatformingObject extends WorldObject {
 
     @Override
     public void draw() {
-        state.draw();
+        if(isOnScreen()) {
+            state.draw();
+        }
     }
 }

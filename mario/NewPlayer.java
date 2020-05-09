@@ -55,7 +55,7 @@ public class NewPlayer extends PlatformingObject {
     /* Instance variables */
 
     public NewPlayer(double x, double y) {
-        super(10, Mario.player_layer, x, y);
+        super(Mario.player_priority, Mario.player_layer, x, y);
         this.suspend_tier = Mario.pause_suspend_tier;
         collider = Collider.newBox(this,0,
                 Mario.getGridScale()/2.0, Mario.getGridScale(), Mario.getGridScale());

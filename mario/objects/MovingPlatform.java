@@ -17,7 +17,7 @@ public class MovingPlatform extends WorldObject {
     Image center_sprite = GameGraphics.getImage("./sprites/movingplatform-2.png");
     Image right_sprite = GameGraphics.getImage("./sprites/movingplatform-3.png");
 
-    private static double speed = 200;
+    private static final double speed = 200;
 
     private final int size;
     private final double initial_x;
@@ -27,7 +27,7 @@ public class MovingPlatform extends WorldObject {
      * @param move_distance Number of grid squares to move before turning around.
      */
     public MovingPlatform(double x, double y, int size, int move_distance) {
-        super(15, Mario.gizmo_layer, x, y);
+        super(Mario.gizmo_priority, Mario.gizmo_layer, x, y);
         this.type = type_name;
         this.type_group = Types.semisolid_type_group;
         this.size = Math.max(2, size);

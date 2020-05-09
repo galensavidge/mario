@@ -2,6 +2,7 @@ package mario;
 
 import engine.Camera;
 import engine.GameGraphics;
+import engine.objects.Collider;
 import engine.objects.GameObject;
 import engine.util.Vector2;
 
@@ -11,7 +12,7 @@ import java.awt.*;
  * A persistent object that keeps track of game variables and controls the high level flow of the game.
  *
  * @author Galen Savidge
- * @version 4/30/2020
+ * @version 5/8/2020
  */
 public class GameController extends GameObject {
 

@@ -14,7 +14,7 @@ import mario.Mario;
 public abstract class Block extends WorldObject {
 
     public Block(double x, double y) {
-        super(1, Mario.block_layer, x, y);
+        super(Mario.block_priority, Mario.block_layer, x, y);
         this.type_group = Types.block_type_group;
         this.collider = Collider.newBox(this,0,0, Mario.getGridScale(),Mario.getGridScale());
         this.solid = true;

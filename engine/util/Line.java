@@ -57,10 +57,10 @@ public class Line {
      * both line segments.
      */
     public Vector2 intersection(Line l) {
-        double det = this.A*l.B - l.A*this.B;
+        double det = 1.0/(this.A*l.B - l.A*this.B);
         if(det != 0) {
             // Point of intersection
-            Vector2 p = new Vector2((l.B*this.C - this.B*l.C)/det,(this.A*l.C - l.A*this.C)/det);
+            Vector2 p = new Vector2((l.B*this.C - this.B*l.C)*det,(this.A*l.C - l.A*this.C)*det);
 
             if(Misc.betweenIncl(p.x, p1.x, p2.x) && Misc.betweenIncl(p.y, p1.y, p2.y)
                     && Misc.betweenIncl(p.x, l.p1.x, l.p2.x) && Misc.betweenIncl(p.y, l.p1.y, l.p2.y)) {

@@ -8,8 +8,8 @@ import engine.*;
  * @author Galen Savidge
  * @version 5/6/2020
  */
-public class Mario
-{
+public class Mario {
+
     /* Game constants */
 
     private static final int grid_scale = 16; // Size of a block and the grid on which most objects are placed
@@ -19,6 +19,11 @@ public class Mario
 
     public static final int pause_suspend_tier = 5;
     public static final int menu_suspend_tier = 10;
+
+    public static final int player_priority = 10;
+    public static final int enemy_priority = 12;
+    public static final int gizmo_priority = 15;
+    public static final int block_priority = 0;
 
     public static final int player_layer = 10;
     public static final int enemy_layer = 5;
@@ -30,8 +35,7 @@ public class Mario
         return grid_scale *scaling_ratio;
     }
 
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) {
         // Engine init
         Game.setTargetFPS(fps);
         Game.setUseFrameTime(true);
