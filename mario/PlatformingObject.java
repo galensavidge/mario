@@ -80,7 +80,7 @@ public class PlatformingObject extends WorldObject {
 
         }
 
-        void updateVelocityOnCollision(Collision c, GroundType c_ground_type) {
+        void handleCollision(Collision c, GroundType c_ground_type) {
             velocity = velocity.difference(velocity.projection(c.normal_reject));
         }
     }
@@ -155,8 +155,12 @@ public class PlatformingObject extends WorldObject {
     /* Misc */
 
     protected void drawSprite(Image image) {
+        drawSprite(image, false);
+    }
+
+    protected void drawSprite(Image image, boolean flip_vertical) {
         GameGraphics.drawImage((int)position.x, (int)position.y, false,
-                direction_facing == Direction.RIGHT, false, 0, image);
+                direction_facing == Direction.RIGHT, flip_vertical, 0, image);
     }
 
 
@@ -195,8 +199,8 @@ public class PlatformingObject extends WorldObject {
         // Get ground type of this collision
         GroundType c_ground_type = checkGroundType(c.normal_reject);
 
-        // Update velocity based on state behavior
-        state.updateVelocityOnCollision(c, c_ground_type);
+        // Update velocity or do other things based on state behavior
+        state.handleCollision(c, c_ground_type);
 
         // Record ground type in global variable
         if(c_ground_type == GroundType.FLAT ||

@@ -40,8 +40,8 @@ public class NewPlayer extends PlatformingObject {
     private static final int high_jump_time = Mario.fps/3;
     private static final int low_jump_time = Mario.fps/4;
 
-    private static final String[] walk_sprite_Files = {"./sprites/mario-walk-1.png", "./sprites/mario-walk-2.png"};
-    private static final Sprite walk_sprite = new Sprite(walk_sprite_Files);
+    private static final String[] walk_sprite_files = {"./sprites/mario-walk-1.png", "./sprites/mario-walk-2.png"};
+    private static final Sprite walk_sprite = new Sprite(walk_sprite_files);
     private static final String[] run_sprite_files = {"./sprites/mario-run-1.png", "./sprites/mario-run-2.png"};
     private static final Sprite run_sprite = new Sprite(run_sprite_files);
     private static final Image skid_sprite = GameGraphics.getImage("./sprites/mario-skid.png");
@@ -61,6 +61,7 @@ public class NewPlayer extends PlatformingObject {
                 Mario.getGridScale()/2.0, Mario.getGridScale(), Mario.getGridScale());
         collider.active_check = true;
         this.type = type_name;
+        this.type_group = type_name;
         this.height = (int)(Mario.getGridScale()*1.5);
         this.direction_facing = Direction.RIGHT;
         this.state = new WalkState();
@@ -78,6 +79,12 @@ public class NewPlayer extends PlatformingObject {
                 GameController.coins += 1;
                 c.collided_with.delete();
                 break;
+            case Galoomba.type_name:
+                Galoomba g = (Galoomba)c.collided_with;
+                if(position.y + height < c.collided_with.position.y + g.height/2.0) {
+                    state.setNextState(new JumpState(high_jump_time, false, false));
+                    g.stun();
+                }
             default:
                 //System.out.println("Collided with "+object.getType());
                 break;
@@ -149,8 +156,8 @@ public class NewPlayer extends PlatformingObject {
         }
 
         @Override
-        void updateVelocityOnCollision(Collision c, GroundType c_ground_type) {
-            super.updateVelocityOnCollision(c, c_ground_type);
+        void handleCollision(Collision c, GroundType c_ground_type) {
+            super.handleCollision(c, c_ground_type);
             local_velocity = local_velocity.difference(local_velocity.projection(c.normal_reject));
         }
 
@@ -162,7 +169,17 @@ public class NewPlayer extends PlatformingObject {
 
             if(ground_type != GroundType.NONE) {
                 // Stick to slope corners
-                local_velocity = local_velocity.difference(local_velocity.projection(ground.normal_reject));
+                if(local_velocity.x <= 0) {
+                    local_velocity = ground.normal_reject.LHNormal().normalize().multiply(local_velocity.abs());
+                }
+                else {
+                    local_velocity = ground.normal_reject.RHNormal().normalize().multiply(local_velocity.abs());
+                }
+
+                /*Vector2 off_axis_velocity = local_velocity.projection(ground.normal_reject);
+                Vector2 new_local_velocity = local_velocity.difference(off_axis_velocity);
+                new_local_velocity = new_local_velocity.normalize().multiply(local_velocity.abs());
+                local_velocity = new_local_velocity;*/
 
                 // Friction
                 local_velocity = applyFriction(local_velocity, friction);
@@ -284,16 +301,6 @@ public class NewPlayer extends PlatformingObject {
         }
 
         @Override
-        void updateVelocityOnCollision(Collision c, GroundType c_ground_type) {
-            if(c_ground_type != GroundType.NONE) {
-                state.setNextState(new WalkState());
-            }
-            else {
-                super.updateVelocityOnCollision(c, c_ground_type);
-            }
-        }
-
-        @Override
         void update() {
             velocity = applyGravity(velocity, gravity, max_fall_speed);
 
@@ -319,6 +326,16 @@ public class NewPlayer extends PlatformingObject {
                     state_machine.changeState(State.DUCK);
                 }
             }*/
+        }
+
+        @Override
+        void handleCollision(Collision c, GroundType c_ground_type) {
+            if(c_ground_type != GroundType.NONE) {
+                state.setNextState(new WalkState());
+            }
+            else {
+                super.handleCollision(c, c_ground_type);
+            }
         }
 
         @Override

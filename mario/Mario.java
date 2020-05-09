@@ -47,6 +47,7 @@ public class Mario
 
         // Instantiate objects
         Background b = new mario.Background();
+        Galoomba g = new Galoomba(38*getGridScale(), 8*getGridScale());
 
         // Run game
         Game.setSuspendTier(0);
