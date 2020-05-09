@@ -87,6 +87,9 @@ public abstract class PhysicsObject extends GameObject {
                 delta_position = delta_position.sum(collision.normal_reject);
                 collisions.add(collision);
             }
+            else {
+                break;
+            }
         }
 
         // Update object position
