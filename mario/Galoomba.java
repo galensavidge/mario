@@ -3,9 +3,8 @@ package mario;
 import engine.Sprite;
 import engine.objects.Collider;
 import engine.objects.Collider.Collision;
-import mario.objects.Types;
 
-public class Galoomba extends PlatformingObject {
+public class Galoomba extends Enemy {
 
     public static final String type_name = "Galoomba";
 
@@ -19,9 +18,8 @@ public class Galoomba extends PlatformingObject {
     private final Sprite walk_sprite = new Sprite(walk_sprite_files);
 
     public Galoomba(double x, double y) {
-        super(12, 5, x, y);
+        super( x, y);
         this.type = Galoomba.type_name;
-        this.type_group = Types.enemy_type_group;
 
         this.collider = Collider.newPolygon(this, 8, 0, 0, Mario.getGridScale()/2.0, 0);
         this.height = Mario.getGridScale();
@@ -34,9 +32,10 @@ public class Galoomba extends PlatformingObject {
         state.setNextState(new StunState());
     }
 
-    private class WalkState extends State {
+
+    private class WalkState extends EnemyState {
         public String name = "Walk";
-        double speed = -walk_speed;
+        double speed;
         boolean reverse_direction = false;
 
         @Override
@@ -47,6 +46,12 @@ public class Galoomba extends PlatformingObject {
         @Override
         void enter() {
             walk_sprite.setFrameTime(20);
+            if(direction_facing == Direction.LEFT) {
+                 speed = -walk_speed;
+            }
+            else {
+                speed = walk_speed;
+            }
         }
 
         @Override
@@ -84,12 +89,20 @@ public class Galoomba extends PlatformingObject {
         }
 
         @Override
+        void bounce(NewPlayer player) {
+            if(player.position.y + player.height < Galoomba.this.position.y + Galoomba.this.height/2.0) {
+                player.bounce();
+                Galoomba.this.stun();
+            }
+        }
+
+        @Override
         void draw() {
             drawSprite(walk_sprite.getCurrentFrame());
         }
     }
 
-    private class FallState extends State {
+    private class FallState extends EnemyState {
         public String name = "Fall";
 
         @Override
@@ -117,7 +130,7 @@ public class Galoomba extends PlatformingObject {
         }
     }
 
-    private class StunState extends State {
+    private class StunState extends EnemyState {
         public String name = "Stun";
         private int timer;
 

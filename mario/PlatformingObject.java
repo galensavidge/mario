@@ -83,6 +83,10 @@ public class PlatformingObject extends WorldObject {
         void handleCollision(Collision c, GroundType c_ground_type) {
             velocity = velocity.difference(velocity.projection(c.normal_reject));
         }
+
+        void handleIntersection(Collision c) {
+
+        }
     }
 
 
@@ -207,6 +211,11 @@ public class PlatformingObject extends WorldObject {
                 (c_ground_type == GroundType.SLOPE && ground_found != GroundType.FLAT)) {
             ground_found = c_ground_type;
         }
+    }
+
+    @Override
+    public void intersectionEvent(Collision c) {
+        state.handleIntersection(c);
     }
 
     @Override

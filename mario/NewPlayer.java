@@ -7,7 +7,8 @@ import engine.Sprite;
 import engine.objects.Collider;
 import engine.objects.Collider.Collision;
 import engine.util.Vector2;
-import mario.objects.Coin;
+import mario.objects.Pickup;
+import mario.objects.Types;
 
 import java.awt.*;
 
@@ -68,33 +69,24 @@ public class NewPlayer extends PlatformingObject {
         this.state.enter();
     }
 
-    @Override
-    public void collisionEvent(Collision c) {
-        if(c.isDetailed()) {
-            super.collisionEvent(c);
-        }
 
-        switch(c.collided_with.getType()) {
-            case Coin.type_name:
-                GameController.coins += 1;
-                c.collided_with.delete();
-                break;
-            case Galoomba.type_name:
-                Galoomba g = (Galoomba)c.collided_with;
-                if(position.y + height < c.collided_with.position.y + g.height/2.0) {
-                    state.setNextState(new JumpState(high_jump_time, false, false));
-                    g.stun();
-                }
-            default:
-                //System.out.println("Collided with "+object.getType());
-                break;
-        }
+    /* Public methods */
+
+    public void bounce() {
+        state.setNextState(new NewPlayer.JumpState(high_jump_time, false, false));
     }
+
+    public void damage() {
+
+    }
+
+
+    /* Event handlers */
 
     @Override
     public void draw() {
         super.draw();
-
+        collider.draw_self = true;
         for(Collider c : collider.getCollidersInNeighboringZones()) {
             c.draw_self = true;
             c.draw();
@@ -132,7 +124,24 @@ public class NewPlayer extends PlatformingObject {
 
     /* State machine */
 
-    private class WalkState extends State {
+    private abstract class PlayerState extends State {
+
+        @Override
+        void handleIntersection(Collision c) {
+            switch(c.collided_with.getTypeGroup()) {
+                case Types.pickup_type_group:
+                    ((Pickup)c.collided_with).collect();
+                    break;
+                case Types.enemy_type_group:
+                    ((Enemy)c.collided_with).bounceOn(NewPlayer.this);
+                default:
+                    //System.out.println("Collided with "+object.getType());
+                    break;
+            }
+        }
+    }
+
+    private class WalkState extends PlayerState {
 
         public String name = "Walk";
         Vector2 local_velocity; // Velocity relative to ground
@@ -157,8 +166,10 @@ public class NewPlayer extends PlatformingObject {
 
         @Override
         void handleCollision(Collision c, GroundType c_ground_type) {
-            super.handleCollision(c, c_ground_type);
-            local_velocity = local_velocity.difference(local_velocity.projection(c.normal_reject));
+            if(c_ground_type == GroundType.NONE) {
+                super.handleCollision(c, c_ground_type);
+                local_velocity = local_velocity.difference(local_velocity.projection(c.normal_reject));
+            }
         }
 
         @Override
@@ -247,7 +258,7 @@ public class NewPlayer extends PlatformingObject {
         }
     }
 
-    private class JumpState extends State {
+    private class JumpState extends PlayerState {
 
         public String name = "Jump";
         protected int timer;
@@ -292,7 +303,7 @@ public class NewPlayer extends PlatformingObject {
         }
     }
 
-    private class FallState extends State {
+    private class FallState extends PlayerState {
         public String name = "Fall";
 
         @Override

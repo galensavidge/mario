@@ -3,7 +3,7 @@ package mario.objects;
 import engine.GameGraphics;
 import engine.Sprite;
 import engine.objects.Collider;
-import engine.objects.PhysicsObject;
+import mario.GameController;
 import mario.Mario;
 
 /**
@@ -12,14 +12,13 @@ import mario.Mario;
  * @author Galen Savidge
  * @version 5/5/2020
  */
-public class Coin extends WorldObject {
+public class Coin extends Pickup {
     public static final String type_name = "Coin";
     private final Sprite sprite;
 
     public Coin(double x, double y) {
-        super(0, Mario.gizmo_layer, x, y);
+        super(x, y);
         this.type = Coin.type_name;
-        this.type_group = Types.pickup_type_group;
 
         collider = Collider.newPolygon(this, 8,
                 Mario.getGridScale()/6.0, Mario.getGridScale()/6.0,
@@ -29,6 +28,12 @@ public class Coin extends WorldObject {
         String[] sprite_files = {"./sprites/coin-1.png","./sprites/coin-2.png","./sprites/coin-3.png"};
         sprite = new Sprite(sprite_files);
         sprite.setFrameTime(10);
+    }
+
+    @Override
+    public void collect() {
+        GameController.coins++;
+        this.delete();
     }
 
     @Override

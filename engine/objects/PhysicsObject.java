@@ -166,10 +166,19 @@ public abstract class PhysicsObject extends GameObject {
     }
 
     /**
-     * Override this method to respond to collisions with other objects. Events will be generated if
-     * {@code collider.active_check == true}.
+     * Override this method to respond to collisions with other objects. Events are generated when collision rejection
+     * occurs when using {@code collideWithObjects}.
+     * @param c A collision event with details populated (e.g. {@code c.isDetailed()} returns {@code true}).
      */
     public void collisionEvent(Collision c) {}
+
+    /**
+     * Override this method to respond to collider intersections with other objects. Events are generated if
+     * {@code collider.active_check} is {@code true} and this object intersects other objects, or when another object
+     * with active checking enabled intersects this object.
+     * @param c A collision event without details (e.g. {@code c.isDetailed()} returns {@code false}).
+     */
+    public void intersectionEvent(Collision c) {}
 
     @Override
     public abstract void update();
