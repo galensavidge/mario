@@ -95,9 +95,10 @@ public class Collider extends GameObject {
             for(Vector2 i : intersections) {
                 c.intersections.add(i.copy());
             }
-            c.normal_reject = normal_reject.copy();
-            c.to_contact = to_contact.copy();
-
+            if(this.isDetailed()) {
+                c.normal_reject = normal_reject.copy();
+                c.to_contact = to_contact.copy();
+            }
             return c;
         }
 
@@ -112,6 +113,7 @@ public class Collider extends GameObject {
     protected Vector2 position; // The coordinates of the top left corner of this collider in the game world
     protected Vector2 center; // Center point of the collider in local space; initially set to the mean of the vertices
     private final ArrayList<Vector2> local_vertices = new ArrayList<>(); // Vertices in local space
+    private boolean enabled = true;
     public boolean draw_self = false;
 
     /**
@@ -161,9 +163,6 @@ public class Collider extends GameObject {
 
     public static Collider newPolygon(PhysicsObject object, int num_sides, double x_offset, double y_offset,
                                       double radius, double rotation) {
-        if(num_sides < 3) {
-            return null;
-        }
 
         Vector2[] vertices = new Vector2 [num_sides];
         double rotation_step = 2*Math.PI/num_sides;
@@ -206,6 +205,32 @@ public class Collider extends GameObject {
      */
     public void setCenter(Vector2 center) {
         this.center = center.copy();
+    }
+
+    /**
+     * Disables the {@code Collider}, meaning it will no longer actively check for collisions and will not be returned
+     * by collision checks by other {@code Colliders}. {@code Colliders} are enabled by default.
+     */
+    public void disable() {
+        this.enabled = false;
+        Collider.removeFromCollidersArray(this);
+    }
+
+    /**
+     * Enables the {@code Collider} if it is disabled.
+     * @see #disable()
+     */
+    public void enable() {
+        this.enabled = true;
+        Collider.addToCollidersArray(this);
+    }
+
+    /**
+     * @return True iff this {@code Collider} is enabled.
+     * @see #disable()
+     */
+    public boolean isEnabled() {
+        return this.enabled;
     }
 
     /**
@@ -287,11 +312,13 @@ public class Collider extends GameObject {
     public ArrayList<Collision> getCollisions(ArrayList<Collider> colliders) {
         ArrayList<Collision> collisions = new ArrayList<>();
 
-        for(Collider c : colliders) {
-            if(c != this) {
-                Collision collision = this.getIntersections(c);
-                if(collision.collision_found) {
-                    collisions.add(collision);
+        if(this.enabled) {
+            for (Collider c : colliders) {
+                if (c != this) {
+                    Collision collision = this.getIntersections(c);
+                    if (collision.collision_found) {
+                        collisions.add(collision);
+                    }
                 }
             }
         }
@@ -304,12 +331,13 @@ public class Collider extends GameObject {
      * @return A Collision object. Populates {@code collision_found}, {@code collided_with}, and {@code intersections}.
      */
     private Collision getIntersections(Collider other) {
+
         Collision collision = new Collision(this);
 
-        for(Line this_l : this.getLines()) {
-            for(Line other_l : other.getLines()) {
+        for (Line this_l : this.getLines()) {
+            for (Line other_l : other.getLines()) {
                 Vector2 p = this_l.intersection(other_l);
-                if(p != null) {
+                if (p != null) {
                     collision.collision_found = true;
                     collision.collided_with = other.object;
                     Misc.addNoDuplicates(collision.intersections, p);
@@ -331,7 +359,7 @@ public class Collider extends GameObject {
      * Populates {@code collision_found}, {@code collided_with}, {@code intersections}, {@code normal},
      */
     public Collision getCollisionDetails(Vector2 delta_position, ArrayList<Collider> colliders) {
-        if(colliders.size() == 0) {
+        if(!this.enabled || colliders.size() == 0) {
             return new Collision(this);
         }
 
@@ -433,12 +461,15 @@ public class Collider extends GameObject {
 
     @Override
     public void update() {
-        if(active_check) {
+        if(this.enabled && active_check) {
             setPosition(object.position);
             ArrayList<Collision> collisions = getCollisions();
             for (Collision c : collisions) {
                 if(c.collision_found) {
-                    object.collisionEvent(c);
+                    object.intersectionEvent(c);
+                    Collision other_c = c.copy();
+                    other_c.collided_with = object;
+                    c.collided_with.intersectionEvent(other_c);
                 }
             }
         }
