@@ -94,7 +94,8 @@ public class NewPlayer extends PlatformingObject {
         }
     }
 
-    /* Misc */
+
+    /* Helper functions */
 
     protected Vector2 applyLateralMovement(Vector2 v, Vector2 ground_normal, double accel, double max_speed) {
         if(ground_normal == null) {
@@ -103,22 +104,29 @@ public class NewPlayer extends PlatformingObject {
 
         Vector2 axis = ground_normal.RHNormal().normalize();
         Vector2 vx = v.projection(axis);
-        Vector2 new_v = v.copy();
+        double vx_abs = vx.abs();
+        Vector2 new_vx = vx.copy();
 
-        if(vx.abs() <= max_speed || vx.x >= 0) {
-            if (InputManager.getDown(InputManager.K_LEFT)) {
-                new_v = new_v.difference(axis.multiply(accel * Game.stepTimeSeconds()));
+        if (InputManager.getDown(InputManager.K_LEFT)) {
+            if(vx_abs < max_speed || vx.x > 0) {
+                new_vx = new_vx.difference(axis.multiply(accel * Game.stepTimeSeconds()));
+                if (vx_abs <= max_speed && new_vx.abs() > max_speed) {
+                    new_vx = axis.multiply(-max_speed);
+                }
                 direction_facing = Direction.LEFT;
             }
         }
-        if(vx.abs() <= max_speed || vx.x <= 0) {
-            if (InputManager.getDown(InputManager.K_RIGHT)) {
-                new_v = new_v.sum(axis.multiply(accel * Game.stepTimeSeconds()));
+        else if (InputManager.getDown(InputManager.K_RIGHT)) {
+            if(vx_abs < max_speed || vx.x < 0) {
+                new_vx = new_vx.sum(axis.multiply(accel * Game.stepTimeSeconds()));
+                if (vx_abs <= max_speed && new_vx.abs() > max_speed) {
+                    new_vx = axis.multiply(max_speed);
+                }
                 direction_facing = Direction.RIGHT;
             }
         }
 
-        return new_v;
+        return new_vx.sum(v.projection(ground_normal));
     }
 
 
@@ -160,8 +168,11 @@ public class NewPlayer extends PlatformingObject {
             if(ground.collision_found) {
                 velocity.y = 0;
                 velocity = ground.normal_reject.RHNormal().normalize().multiply(velocity.x);
+                local_velocity = velocity.difference(ground.collided_with.velocity);
             }
-            local_velocity = velocity;
+            else {
+                local_velocity = velocity.copy();
+            }
         }
 
         @Override
@@ -186,11 +197,6 @@ public class NewPlayer extends PlatformingObject {
                 else {
                     local_velocity = ground.normal_reject.RHNormal().normalize().multiply(local_velocity.abs());
                 }
-
-                /*Vector2 off_axis_velocity = local_velocity.projection(ground.normal_reject);
-                Vector2 new_local_velocity = local_velocity.difference(off_axis_velocity);
-                new_local_velocity = new_local_velocity.normalize().multiply(local_velocity.abs());
-                local_velocity = new_local_velocity;*/
 
                 // Friction
                 local_velocity = applyFriction(local_velocity, friction);
@@ -235,16 +241,6 @@ public class NewPlayer extends PlatformingObject {
                 s.reset();
             }
             s.incrementFrame();
-
-            // Slide
-            /*if(InputManager.getDown(InputManager.K_DOWN)) {
-                if(ground_type == GroundType.FLAT) {
-                    state_machine.changeState(State.DUCK);
-                }
-                else if(ground_type == GroundType.SLOPE) {
-                    state_machine.changeState(State.SLIDE);
-                }
-            }*/
         }
 
         @Override
@@ -322,21 +318,6 @@ public class NewPlayer extends PlatformingObject {
             else {
                 velocity = applyLateralMovement(velocity, null, walk_accel, walk_max_speed);
             }
-
-            /*if(InputManager.getDown(InputManager.K_DOWN)) {
-                if (ground_type == GroundType.SLOPE) {
-                    state_machine.changeState(State.SLIDE);
-
-                    Collision ground = snapToGround();
-                    if(ground.collision_found) {
-                        velocity.y = 0;
-                        velocity = ground.normal_reject.RHNormal().normalize().multiply(velocity.x);
-                    }
-                }
-                else if(ground_type == GroundType.FLAT) {
-                    state_machine.changeState(State.DUCK);
-                }
-            }*/
         }
 
         @Override
@@ -359,88 +340,4 @@ public class NewPlayer extends PlatformingObject {
             }
         }
     }
-
-    /*private class RunFallState extends FallState {
-        @Override
-        void draw() {
-            drawSprite(run_jump_sprite);
-        }
-    }
-
-    private class SlideState extends DuckState {
-
-        @Override
-        State getState() {
-            return State.SLIDE;
-        }
-
-        @Override
-        void update() {
-            super.update();
-
-            if(InputManager.getDown(InputManager.K_DOWN) && velocity.x == 0) {
-                state_machine.changeState(State.DUCK);
-            }
-        }
-
-        @Override
-        void draw() {
-            drawSprite(slide_sprite);
-        }
-    }
-
-    private class DuckState extends PlayerState {
-
-        @Override
-        State getState() {
-            return State.DUCK;
-        }
-
-        @Override
-        void update() {
-            // Physics
-            Collision ground = sweepForCollision(down);
-            Vector2 v_parallel_to_ground;
-            if(ground.collision_found) {
-                v_parallel_to_ground = getVelocityParallelToGround(ground);
-                applyFriction(v_parallel_to_ground, slide_friction);
-                applyGravity(slide_gravity);
-            }
-            else {
-                applyGravity(gravity);
-            }
-
-            GroundType ground_type = updatePositionWithCollisions(true);
-
-            // Stand up
-            if(!InputManager.getDown(InputManager.K_DOWN)) {
-                state_machine.changeState(State.WALK);
-            }
-
-            // Jump
-            else if(InputManager.getPressed(InputManager.K_JUMP) && ground_type != GroundType.NONE) {
-                state_machine.changeState(State.JUMP);
-            }
-
-            // Slide
-            else if(ground_type == GroundType.SLOPE && this.getState() != State.SLIDE) {
-                state_machine.changeState(State.SLIDE);
-            }
-        }
-
-        @Override
-        void draw() {
-            drawSprite(duck_sprite);
-        }
-
-        @Override
-        void enter() {
-
-        }
-
-        @Override
-        void exit() {
-
-        }
-    }*/
 }
