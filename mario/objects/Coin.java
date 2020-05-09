@@ -17,7 +17,7 @@ public class Coin extends WorldObject {
     private final Sprite sprite;
 
     public Coin(double x, double y) {
-        super(0, 0, x, y);
+        super(0, Mario.gizmo_layer, x, y);
         this.type = Coin.type_name;
         this.type_group = Types.pickup_type_group;
 

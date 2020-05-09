@@ -27,7 +27,7 @@ public class MovingPlatform extends WorldObject {
      * @param move_distance Number of grid squares to move before turning around.
      */
     public MovingPlatform(double x, double y, int size, int move_distance) {
-        super(15, 5, x, y);
+        super(15, Mario.gizmo_layer, x, y);
         this.type = type_name;
         this.type_group = Types.semisolid_type_group;
         this.size = Math.max(2, size);

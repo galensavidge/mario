@@ -12,7 +12,7 @@ public class Background extends GameObject {
     private final int scale = 2;
 
     public Background() {
-        super(0, -10);
+        super(0, Mario.bg_layer);
         do {
             width = image.getWidth(null)*scale;
             height = image.getHeight(null)*scale;

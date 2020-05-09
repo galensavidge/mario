@@ -20,7 +20,7 @@ public class Slope extends WorldObject {
      * @param height Height in grid squares.
      */
     public Slope(double x, double y, int width, int height, boolean flip_horizontal, boolean flip_vertical) {
-        super(1, 1, x, y);
+        super(0,Mario.block_layer, x, y);
         double width_px = Mario.getGridScale()*width;
         double height_px = Mario.getGridScale()*height;
         Vector2[] vertices = {new Vector2(0, height_px), // Bottom left

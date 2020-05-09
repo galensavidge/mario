@@ -20,6 +20,12 @@ public class Mario
     public static final int pause_suspend_tier = 5;
     public static final int menu_suspend_tier = 10;
 
+    public static final int player_layer = 10;
+    public static final int enemy_layer = 5;
+    public static final int gizmo_layer = 2;
+    public static final int block_layer = 0;
+    public static final int bg_layer = -10;
+
     public static int getGridScale() {
         return grid_scale *scaling_ratio;
     }
