@@ -76,6 +76,10 @@ public class Game {
      * @param object The {@link GameObject} or object of a child class.
      */
     private static void addToQueues(GameObject object) {
+        if(object.isDeleted()) {
+            return;
+        }
+
         // Insert object into the update queue
         int i = 0;
         while(i < update_queue.size()) {
@@ -104,6 +108,13 @@ public class Game {
     public static void clearNonPersistentObjects() {
         for(GameObject o : update_queue) {
             if(!o.isPersistent()) {
+                o.delete();
+            }
+        }
+
+        for(GameObject o : new_objects) {
+            if(!o.isPersistent()) {
+                new_objects.remove(o);
                 o.delete();
             }
         }
