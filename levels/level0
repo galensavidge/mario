@@ -4,7 +4,7 @@ Height: 14
 
 Background 1
 
-PlayerSpawn 4, 10
+PlayerSpawn 4, 11
 
 HardBlock 0,13 100,13
 HardBlock 0,0 0,12

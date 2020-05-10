@@ -36,10 +36,13 @@ public class GameController extends GameObject {
     }
 
     public static void spawnPlayer() {
-        WorldLoader.loadFromFile(player_spawn_level);
         player = new NewPlayer(player_spawn_position.x, player_spawn_position.y);
         new Camera(player);
         Game.setSuspendTier(0);
+    }
+
+    public static void respawnPlayer() {
+        switchLevel(player_spawn_level);
     }
 
     public static void setPlayerSpawn(Vector2 position) {

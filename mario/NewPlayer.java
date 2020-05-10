@@ -368,7 +368,7 @@ public class NewPlayer extends PlatformingObject {
         void update() {
             timer--;
             if(timer == 0) {
-                GameController.spawnPlayer();
+                GameController.respawnPlayer();
             }
         }
 

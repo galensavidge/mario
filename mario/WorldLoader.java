@@ -76,7 +76,7 @@ public class WorldLoader {
         public void handleLine(ArrayList<Integer> args) {
             if(args.size() == 2) {
                 GameController.setPlayerSpawn(new Vector2(args.get(0)*World.getGridScale(),
-                        args.get(1)*World.getGridScale()));
+                        args.get(1)*World.getGridScale() + 0.5*World.getGridScale()));
             }
         }
     }
