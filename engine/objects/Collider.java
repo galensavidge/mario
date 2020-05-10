@@ -3,7 +3,6 @@ package engine.objects;
 import engine.GameGraphics;
 import engine.World;
 import engine.util.*;
-import mario.Player;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -14,11 +13,11 @@ import java.util.Arrays;
  * points connected by n lines.
  *
  * @author Galen Savidge
- * @version 4/30/2020
+ * @version 5/9/2020
  */
 public class Collider extends GameObject {
 
-    /* Static Collider class */
+    /* Class constants */
 
     private static int zone_size;
     protected static ArrayList<Collider>[][] colliders; // A list of all colliders that exist
@@ -27,6 +26,14 @@ public class Collider extends GameObject {
     public static final double reject_separation = 2*Misc.delta;
 
 
+    /* Static methods */
+
+    /**
+     * Initializes the data structure used to check which {@link Collider} instances lie within a specific area. Should
+     * be called before any {@link Collider} objects are created.
+     * @param zone_size The size, in units of {@link engine.World}.{@code getGridScale()}.
+     * @throws ExceptionInInitializerError Throws if {@link engine.World} has not yet been initialized.
+     */
     public static void initColliders(int zone_size) throws ExceptionInInitializerError {
         if(World.getGridScale() == 0) {
             throw new ExceptionInInitializerError("World not initialized!");
@@ -47,18 +54,29 @@ public class Collider extends GameObject {
 
     /* Collider zone helper functions */
 
+    /**
+     * Adds {@code c} to the array used by the {@link #Collider} class to find nearby {@code Colliders}.
+     * @see #getCollidersInZone
+     */
     private static void addToCollidersArray(Collider c) {
         int zone_x = Math.min(Math.max(0, (int)(c.position.x+c.center.x)/zone_size), colliders.length-1);
         int zone_y = Math.min(Math.max(0, (int)(c.position.y+c.center.x)/zone_size), colliders[0].length-1);
         colliders[zone_x][zone_y].add(c);
     }
 
+    /**
+     * Removes {@code c} from the array used by the {@link #Collider} class to find nearby {@code Colliders}.
+     * @see #getCollidersInZone
+     */
     private static void removeFromCollidersArray(Collider c) {
         int zone_x = Math.min(Math.max(0, (int)(c.position.x+c.center.x)/zone_size), colliders.length-1);
         int zone_y = Math.min(Math.max(0, (int)(c.position.y+c.center.x)/zone_size), colliders[0].length-1);
         colliders[zone_x][zone_y].remove(c);
     }
 
+    /**
+     * @return The colliders in zone {@code (x, y)} in the 2D array of zones.
+     */
     private static ArrayList<Collider> getCollidersInZone(int x, int y) {
         if(x >= 0 && x < colliders.length && y >= 0 && y < colliders[0].length) {
             return colliders[x][y];
@@ -68,7 +86,8 @@ public class Collider extends GameObject {
         }
     }
 
-    /* Collision type */
+
+    /* Collision class */
 
     /**
      * This class holds information about collision events. It is instantiated by certain {@code Collider} methods.
@@ -107,13 +126,14 @@ public class Collider extends GameObject {
         }
     }
 
-    /* Instantiable Collider class */
+
+    /* Collider instance variables */
 
     protected PhysicsObject object; // The object this collider is attached to
     protected Vector2 position; // The coordinates of the top left corner of this collider in the game world
     protected Vector2 center; // Center point of the collider in local space; initially set to the mean of the vertices
     private final ArrayList<Vector2> local_vertices = new ArrayList<>(); // Vertices in local space
-    private boolean enabled = true;
+    private boolean enabled = true; // If false, does not check for or return collisions with other Colliders
     public boolean draw_self = false;
 
     /**
@@ -126,7 +146,7 @@ public class Collider extends GameObject {
     /* Constructors */
 
     /**
-     * @param object The {@code PhysicsObject} to which to attach.
+     * @param object The {@link PhysicsObject} to which to attach.
      * @param local_vertices A list of vertices in clockwise order.
      */
     public Collider(PhysicsObject object, Vector2[] local_vertices) {
@@ -144,12 +164,12 @@ public class Collider extends GameObject {
     }
 
     /**
-     * @param object The {@code PhysicsObject} to which to attach.
+     * @param object The {@link PhysicsObject} to which to attach.
      * @param x_offset {@code X} offset of the top left corner.
      * @param y_offset {@code Y} offset of the top left corner.
      * @param width Width of the rectangle.
      * @param height Height of the rectangle.
-     * @return A new Collider in the shape of a rectangle.
+     * @return A new {@link Collider} in the shape of a rectangle.
      */
     public static Collider newBox(PhysicsObject object, double x_offset, double y_offset, double width, double height) {
         Vector2[] vertices = {new Vector2(x_offset, y_offset),
@@ -161,6 +181,15 @@ public class Collider extends GameObject {
         return collider;
     }
 
+    /**
+     * @param object The {@link PhysicsObject} to which to attach.
+     * @param num_sides The number of sides of the polygon.
+     * @param x_offset {@code X} offset of the top left corner.
+     * @param y_offset {@code Y} offset of the top left corner.
+     * @param radius The distance from the center of the polygon to each corner.
+     * @param rotation Rotation in radians. With no rotation the top face of the polygon is horizontal.
+     * @return A new {@link Collider} in the shape of a regular polygon.
+     */
     public static Collider newPolygon(PhysicsObject object, int num_sides, double x_offset, double y_offset,
                                       double radius, double rotation) {
 
@@ -181,12 +210,15 @@ public class Collider extends GameObject {
     /* Instance methods */
 
     /**
-     * @return The position of the top left corner of the collider's bounding box.
+     * @return The position of the top left corner of the {@link Collider}'s bounding box in world space.
      */
     public Vector2 getPosition() {
         return position.copy();
     }
 
+    /**
+     * @param position The position of the top left corner of the {@link Collider}'s bounding box in world space.
+     */
     public void setPosition(Vector2 position) {
         removeFromCollidersArray(this);
         this.position = position.copy();
@@ -194,14 +226,14 @@ public class Collider extends GameObject {
     }
 
     /**
-     * @return The center of this {@code Collider} in global space.
+     * @return The center of this {@link Collider} in world space.
      */
     public Vector2 getCenter() {
         return center.sum(position);
     }
 
     /**
-     * @param center The new center for this {@code Collider} in local space.
+     * @param center The new center for this {@link Collider} in local space.
      */
     public void setCenter(Vector2 center) {
         this.center = center.copy();
@@ -217,7 +249,7 @@ public class Collider extends GameObject {
     }
 
     /**
-     * Enables the {@code Collider} if it is disabled.
+     * Enables the {@link Collider} if it is disabled.
      * @see #disable()
      */
     public void enable() {
@@ -226,7 +258,7 @@ public class Collider extends GameObject {
     }
 
     /**
-     * @return True iff this {@code Collider} is enabled.
+     * @return True iff this {@link Collider} is enabled.
      * @see #disable()
      */
     public boolean isEnabled() {
@@ -270,7 +302,8 @@ public class Collider extends GameObject {
     }
 
     /**
-     * @return The list of colliders in the zone this collider is in and the zones directly neighboring it.
+     * @return A list of nearby {@link Collider} objects. Objects returned lie in the same zone as or neighboring zones
+     * to this {@link Collider}, where zone size is defined by {@link #initColliders}.
      */
     public ArrayList<Collider> getCollidersInNeighboringZones() {
 
@@ -355,7 +388,7 @@ public class Collider extends GameObject {
      *
      * @param delta_position The new position after the desired translation.
      * @param colliders A set of colliders to check.
-     * @return A {@code Collision} encapsulating the first collision experienced when moving by delta_position.
+     * @return A {@link Collision} encapsulating the first collision experienced when moving by delta_position.
      * Populates {@code collision_found}, {@code collided_with}, {@code intersections}, {@code normal},
      */
     public Collision getCollisionDetails(Vector2 delta_position, ArrayList<Collider> colliders) {
@@ -459,6 +492,9 @@ public class Collider extends GameObject {
         return getCollisionDetails(delta_position, this.getCollidersInNeighboringZones());
     }
 
+    /**
+     * Runs active checks for intersections with other colliders, if enabled.
+     */
     @Override
     public void update() {
         if(this.enabled && active_check) {
@@ -476,7 +512,7 @@ public class Collider extends GameObject {
     }
 
     /**
-     * Draws the edges of the collider as well as any recorded intersections from collision checks.
+     * Draws the edges and center of the collider.
      */
     @Override
     public void draw() {

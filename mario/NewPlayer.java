@@ -16,7 +16,7 @@ import java.awt.*;
  * The physical object that the player controls.
  *
  * @author Galen Savidge
- * @version 4/24/2020
+ * @version 5/9/2020
  */
 public class NewPlayer extends PlatformingObject {
 
@@ -135,13 +135,13 @@ public class NewPlayer extends PlatformingObject {
     private abstract class PlayerState extends State {
 
         @Override
-        void handleIntersection(Collision c) {
+        void handleIntersectionEvent(Collision c) {
             switch(c.collided_with.getTypeGroup()) {
                 case Types.pickup_type_group:
                     ((Pickup)c.collided_with).collect();
                     break;
                 case Types.enemy_type_group:
-                    ((Enemy)c.collided_with).bounceOn(NewPlayer.this);
+                    ((Enemy)c.collided_with).bounceEvent(NewPlayer.this);
                 default:
                     //System.out.println("Collided with "+object.getType());
                     break;
@@ -176,9 +176,9 @@ public class NewPlayer extends PlatformingObject {
         }
 
         @Override
-        void handleCollision(Collision c, GroundType c_ground_type) {
+        void handleCollisionEvent(Collision c, GroundType c_ground_type) {
             if(c_ground_type == GroundType.NONE) {
-                super.handleCollision(c, c_ground_type);
+                super.handleCollisionEvent(c, c_ground_type);
                 local_velocity = local_velocity.difference(local_velocity.projection(c.normal_reject));
             }
         }
@@ -321,12 +321,12 @@ public class NewPlayer extends PlatformingObject {
         }
 
         @Override
-        void handleCollision(Collision c, GroundType c_ground_type) {
+        void handleCollisionEvent(Collision c, GroundType c_ground_type) {
             if(c_ground_type != GroundType.NONE) {
                 state.setNextState(new WalkState());
             }
             else {
-                super.handleCollision(c, c_ground_type);
+                super.handleCollisionEvent(c, c_ground_type);
             }
         }
 

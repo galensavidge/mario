@@ -10,7 +10,13 @@ import mario.objects.WorldObject;
 
 import java.awt.*;
 
-public class PlatformingObject extends WorldObject {
+/**
+ * Base class for objects that use platforming physics.
+ *
+ * @author Galen Savidge
+ * @version 5/9/2020
+ */
+public abstract class PlatformingObject extends WorldObject {
 
     /* Constants */
     protected static final Vector2 up = new Vector2(0, -1);
@@ -44,15 +50,37 @@ public class PlatformingObject extends WorldObject {
 
 
     /* State machine template */
+
+    /**
+     * States made from this base class will have their functions executed in the following order every frame:
+     * 1. The state will be switched to {@link #next_state} as set by {@link #setNextState}. At this point, {@link #exit}
+     * will be called for the last state and {@link #enter} will be called for the new state.
+     * 2. The current state's {@link #update} is called.
+     * 3. Physics updates. The parent's {@link #position} is updated based on {@link #velocity} and the state's
+     * {@link #handleCollisionEvent} is called for each object collided with while moving.
+     * 4. The current ground type {@link #ground_found} is updated based on the collisions encountered.
+     * 5. The current state's {@link #draw} is called.
+     */
     protected abstract class State {
         State next_state = null;
 
+        /**
+         * @return An identifier string that can be used for state checks.
+         */
         abstract String getState();
 
+        /**
+         * Flags the state machine to change states at the end of this step.
+         * @param next_state The {@link State} to switch to.
+         */
         void setNextState(State next_state) {
             this.next_state = next_state;
         }
 
+        /**
+         * Switches states.
+         * @return The {@link State} switched to.
+         */
         State switchToNextState() {
             if(next_state != null) {
                 this.exit();
@@ -64,34 +92,53 @@ public class PlatformingObject extends WorldObject {
             }
         }
 
-        void enter() {
+        /**
+         * Called automatically when this {@link State} is entered.
+         */
+        void enter() {}
 
-        }
+        /**
+         * Called automatically when this {@link State} is left.
+         */
+        void exit() {}
 
-        void exit() {
+        /**
+         * Called every step during this object's update.
+         * @see State
+         */
+        void update() {}
 
-        }
+        /**
+         * Called every step during this object's draw.
+         * @see State
+         */
+        void draw() {}
 
-        void update() {
-
-        }
-
-        void draw() {
-
-        }
-
-        void handleCollision(Collision c, GroundType c_ground_type) {
+        /**
+         * Called when this object attempts to move into, and is rejected by, the {@link Collider} of another object.
+         * @param c A detailed {@link Collision} object.
+         * @param c_ground_type The {@link GroundType} of the object encountered.
+         */
+        void handleCollisionEvent(Collision c, GroundType c_ground_type) {
             velocity = velocity.difference(velocity.projection(c.normal_reject));
         }
 
-        void handleIntersection(Collision c) {
-
-        }
+        /**
+         * Called when this object's {@link Collider} detects that it is intersecting another {@link Collider}.
+         * @param c A non-detailed {@link Collision} object.
+         */
+        void handleIntersectionEvent(Collision c) {}
     }
 
 
     /* Physics */
 
+    /**
+     * @param v The current velocity vector.
+     * @param gravity_acceleration The downwards acceleration due to gravity.
+     * @param max_speed The maximum downwards speed allowed.
+     * @return A new velocity vector.
+     */
     protected Vector2 applyGravity(Vector2 v, double gravity_acceleration, double max_speed) {
         Vector2 new_v = v.copy();
         new_v.y += gravity_acceleration*Game.stepTimeSeconds();
@@ -119,6 +166,11 @@ public class PlatformingObject extends WorldObject {
 
     /* Ground checks */
 
+    /**
+     * Checks up to 1/2 grid square down for ground. If it is found, moves this object straight down to the point of
+     * contact with the ground.
+     * @return A detailed {@link Collision} object.
+     */
     protected Collision snapToGround() {
         Collision collision = sweepForCollision(down);
         if(collision.collision_found) {
@@ -146,13 +198,6 @@ public class PlatformingObject extends WorldObject {
         else {
             return GroundType.NONE;
         }
-    }
-
-    protected Vector2 getHorizontalVelocityRelativeToGround(Collision ground) {
-        if(!ground.collision_found) {
-            return null;
-        }
-        return velocity.normalComponent(ground.normal_reject).difference(ground.collided_with.velocity);
     }
 
 
@@ -189,6 +234,8 @@ public class PlatformingObject extends WorldObject {
         if(c.collided_with.solid) {
             return true;
         }
+
+        // Semisolid collision check
         else if(c.collided_with.getTypeGroup().equals(Types.semisolid_type_group)) {
             return position.y+height-Mario.getGridScale()/2.0-Collider.edge_separation < c.collided_with.position.y
                     && c.normal_reject.x == 0;
@@ -204,7 +251,7 @@ public class PlatformingObject extends WorldObject {
         GroundType c_ground_type = checkGroundType(c.normal_reject);
 
         // Update velocity or do other things based on state behavior
-        state.handleCollision(c, c_ground_type);
+        state.handleCollisionEvent(c, c_ground_type);
 
         // Record ground type in global variable
         if(c_ground_type == GroundType.FLAT ||
@@ -215,7 +262,7 @@ public class PlatformingObject extends WorldObject {
 
     @Override
     public void intersectionEvent(Collision c) {
-        state.handleIntersection(c);
+        state.handleIntersectionEvent(c);
     }
 
     @Override
@@ -223,5 +270,11 @@ public class PlatformingObject extends WorldObject {
         if(isOnScreen()) {
             state.draw();
         }
+    }
+
+    @Override
+    public void delete() {
+        state.exit();
+        super.delete();
     }
 }

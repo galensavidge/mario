@@ -1,15 +1,13 @@
 package mario.objects;
 
-import engine.GameGraphics;
 import engine.objects.Collider;
-import engine.objects.PhysicsObject;
 import mario.Mario;
 
 /**
  * The base class for ground and other types of blocks.
  *
  * @author Galen Savidge
- * @version 5/6/2020
+ * @version 5/9/2020
  */
 public abstract class Block extends WorldObject {
 

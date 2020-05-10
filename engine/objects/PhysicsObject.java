@@ -9,13 +9,15 @@ import java.util.ArrayList;
  * The parent class for all objects that inhabit physical space in the game world.
  *
  * @author Galen Savidge
- * @version 5/6/2020
+ * @version 5/9/2020
  */
 public abstract class PhysicsObject extends GameObject {
 
-    // Used to identify objects
+    // Used to identify instances of child classes
     protected String type;
     protected String type_group;
+
+    // Variables used for physics calculations
     public boolean solid = false;
     public Collider collider;
     public Vector2 position;
@@ -31,14 +33,14 @@ public abstract class PhysicsObject extends GameObject {
     /* Accessor functions */
 
     /**
-     * @return The PhysicsObject's {@code type}, if one was set, otherwise returns null.
+     * @return The {@link PhysicsObject}'s {@code type}, if one was set, otherwise returns null.
      */
     public String getType() {
         return type;
     }
 
     /**
-     * @return The PhysicsObject's {@code type_group}, if one was set, otherwise returns null.
+     * @return The {@link PhysicsObject}'s {@code type_group}, if one was set, otherwise returns null.
      */
     public String getTypeGroup() {
         return type_group;
@@ -55,7 +57,7 @@ public abstract class PhysicsObject extends GameObject {
     /* Physics functions */
 
     /**
-     * Handles collision with other objects. Moves the {@code PhysicsObject} as far as possible in the desired direction
+     * Handles collision with other objects. Moves the {@link PhysicsObject} as far as possible in the desired direction
      * without intersecting an object and returns the collisions that it encountered. Note: calling this function with a
      * {@code delta_position} of {@code <0, 0>} will always return an empty list. Pushing should be handled in the
      * pushing object's movement code.
@@ -64,7 +66,7 @@ public abstract class PhysicsObject extends GameObject {
      * with only objects marked solid.
      *
      * @param delta_position The change in position this step.
-     * @return A list of {@code Collision} objects corresponding to the surfaces collided with.
+     * @return A list of {@link Collision} objects corresponding to the surfaces collided with.
      */
     protected ArrayList<Collision> collideWithObjects(Vector2 delta_position) {
         ArrayList<Collision> collisions = new ArrayList<>();
@@ -110,12 +112,12 @@ public abstract class PhysicsObject extends GameObject {
     }
 
     /**
-     * Returns the {@code Collision} first encountered when moving from {@code position} to
+     * Returns the {@link Collision} first encountered when moving from {@code position} to
      * {@code position + delta_position}.
      *
      * @param check_all If true, will check all colliders in the game world. If false, ignores collisions based on
-     *                  {@code collideWith}. Defaults to false.
-     * @return A {code Collision} if a collision was found, otherwise null.
+     *                  {@link #collidesWith}. Defaults to false.
+     * @return A {@link Collision} if a collision was found, otherwise null.
      */
     protected Collision sweepForCollision(Vector2 delta_position, boolean check_all) {
         // Do a fast collision check at the final position to narrow down the list of collider to check
@@ -148,10 +150,10 @@ public abstract class PhysicsObject extends GameObject {
     }
 
     /**
-     * Returns the {@code Collision} first encountered when moving from {@code position} to
+     * Returns the {@link Collision} first encountered when moving from {@code position} to
      * {@code position + delta_position}.
      *
-     * @return A {code Collision} if a collision was found, otherwise null.
+     * @return A {@link Collision} if a collision was found, otherwise null.
      */
     protected Collision sweepForCollision(Vector2 delta_position) {
         return sweepForCollision(delta_position, false);
@@ -167,7 +169,7 @@ public abstract class PhysicsObject extends GameObject {
 
     /**
      * Override this method to respond to collisions with other objects. Events are generated when collision rejection
-     * occurs when using {@code collideWithObjects}.
+     * occurs when using {@link #collideWithObjects}.
      * @param c A collision event with details populated (e.g. {@code c.isDetailed()} returns {@code true}).
      */
     public void collisionEvent(Collision c) {}

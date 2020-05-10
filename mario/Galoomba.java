@@ -81,15 +81,15 @@ public class Galoomba extends Enemy {
         }
 
         @Override
-        void handleCollision(Collision c, GroundType c_ground_type) {
-            super.handleCollision(c, c_ground_type);
+        void handleCollisionEvent(Collision c, GroundType c_ground_type) {
+            super.handleCollisionEvent(c, c_ground_type);
             if(c_ground_type == GroundType.NONE) {
                 reverse_direction = true;
             }
         }
 
         @Override
-        void bounce(NewPlayer player) {
+        void handleBounceEvent(NewPlayer player) {
             if(player.position.y + player.height < Galoomba.this.position.y + Galoomba.this.height/2.0) {
                 player.bounce();
                 Galoomba.this.stun();
@@ -117,8 +117,8 @@ public class Galoomba extends Enemy {
         }
 
         @Override
-        void handleCollision(Collision c, GroundType c_ground_type) {
-            super.handleCollision(c, c_ground_type);
+        void handleCollisionEvent(Collision c, GroundType c_ground_type) {
+            super.handleCollisionEvent(c, c_ground_type);
             if(c_ground_type != GroundType.NONE) {
                 setNextState(new WalkState());
             }
