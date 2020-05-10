@@ -18,8 +18,8 @@ import java.util.ArrayList;
 public class WorldLoader {
 
     private static final World.LineFormat[] line_formats =
-            {new PlayerSpawnLineFormat(), new BlockLineFormat(), new CloudBlockLineFormat(), new CoinLineFormat(),
-             new SlopeLineFormat(), new MovingPlatformLineFormat()};
+            {new BackgroundLineFormat(), new PlayerSpawnLineFormat(), new BlockLineFormat(), new CloudBlockLineFormat(),
+             new CoinLineFormat(), new SlopeLineFormat(), new MovingPlatformLineFormat()};
 
 
     public static boolean loadFromFile(String file_name) {
@@ -78,6 +78,19 @@ public class WorldLoader {
                 GameController.setPlayerSpawn(new Vector2(args.get(0)*World.getGridScale(),
                         args.get(1)*World.getGridScale()));
             }
+        }
+    }
+
+    private static class BackgroundLineFormat extends World.LineFormat {
+
+        @Override
+        public String getName() {
+            return "Background";
+        }
+
+        @Override
+        public void handleLine(ArrayList<Integer> args) {
+            new mario.Background();
         }
     }
 

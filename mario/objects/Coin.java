@@ -24,6 +24,8 @@ public class Coin extends Pickup {
                 Mario.getGridScale()/6.0, Mario.getGridScale()/6.0,
                 Mario.getGridScale()/3.0,0);
 
+        this.suspend_tier = Mario.pause_suspend_tier;
+
         // Coin animation
         String[] sprite_files = {"./sprites/coin-1.png","./sprites/coin-2.png","./sprites/coin-3.png"};
         sprite = new Sprite(sprite_files);

@@ -1,8 +1,8 @@
 package mario;
 
 import engine.Camera;
+import engine.Game;
 import engine.GameGraphics;
-import engine.objects.Collider;
 import engine.objects.GameObject;
 import engine.util.Vector2;
 
@@ -36,11 +36,10 @@ public class GameController extends GameObject {
     }
 
     public static void spawnPlayer() {
-        if(!current_level.equals(player_spawn_level)) {
-            WorldLoader.loadFromFile(player_spawn_level);
-        }
+        WorldLoader.loadFromFile(player_spawn_level);
         player = new NewPlayer(player_spawn_position.x, player_spawn_position.y);
         new Camera(player);
+        Game.setSuspendTier(0);
     }
 
     public static void setPlayerSpawn(Vector2 position) {

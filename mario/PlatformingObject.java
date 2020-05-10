@@ -183,6 +183,9 @@ public abstract class PlatformingObject extends WorldObject {
         return collision;
     }
 
+    /**
+     * @param normal The normal vector of a surface, e.g. the {@code normal_reject} from a detailed {@link Collision}.
+     */
     protected GroundType checkGroundType(Vector2 normal) {
         if(normal == null) {
             return GroundType.NONE;

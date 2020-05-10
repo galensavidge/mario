@@ -94,6 +94,9 @@ public class Galoomba extends Enemy {
                 player.bounce();
                 Galoomba.this.stun();
             }
+            else {
+                player.damage();
+            }
         }
 
         @Override

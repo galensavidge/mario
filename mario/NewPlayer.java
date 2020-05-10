@@ -77,7 +77,7 @@ public class NewPlayer extends PlatformingObject {
     }
 
     public void damage() {
-
+        state.setNextState(new DieState());
     }
 
 
@@ -338,6 +338,43 @@ public class NewPlayer extends PlatformingObject {
             else {
                 drawSprite(jump_sprite);
             }
+        }
+    }
+
+    private class DieState extends State {
+        public String name = "Die";
+
+        private int timer;
+
+        @Override
+        String getState() {
+            return name;
+        }
+
+        @Override
+        void enter() {
+            Game.setSuspendTier(Mario.pause_suspend_tier);
+            collider.disable();
+            velocity = Vector2.zero();
+            timer = Mario.fps; // 1 second
+        }
+
+        @Override
+        void exit() {
+            Game.setSuspendTier(0);
+        }
+
+        @Override
+        void update() {
+            timer--;
+            if(timer == 0) {
+                GameController.spawnPlayer();
+            }
+        }
+
+        @Override
+        void draw() {
+
         }
     }
 }
