@@ -9,15 +9,29 @@ import java.util.*;
  * @author Galen Savidge
  * @version 4/26/2020
  */
-public class Game
-{
+public class Game {
+
+    /**
+     * A list of all objects in the game sorted by {@code priority}. Defines the order in which objects' {@code update}
+     * methods are called.
+     */
     private static final ArrayList<GameObject> update_queue = new ArrayList<>();
+
+    /**
+     * A list of all objects in the game sorted by {@code layer}. Defines the order in which objects' {@code draw}
+     * methods are called.
+     */
     private static final ArrayList<GameObject> draw_queue = new ArrayList<>();
+
+    /**
+     * A stack of new objects to be added to {@link #update_queue} and {@link #draw_queue} once this step is complete.
+     */
+    private static final Stack<GameObject> new_objects = new Stack<>();
     
     private static boolean running;
     private static int current_suspend_tier = 0;
     private static boolean use_frame_time;
-    private static long step_time = 0;
+    private static long step_time = 0; // In nanoseconds
     private static int target_fps = 60;
 
     /**
@@ -50,12 +64,19 @@ public class Game
     }
 
     /**
-     * Adds an object at the proper places in the update and draw queues.
-     * @param object The GameObject or object of a derived class.
+     * Adds an object to the {@link #new_objects} stack.
+     * @param object The {@link GameObject} or object of a child class.
      */
-    public static void addObject(GameObject object)
-    {
-        // Insert o into the update queue
+    public static void addObject(GameObject object) {
+        new_objects.push(object);
+    }
+
+    /**
+     * Adds an object at the proper places in {@link #update_queue} and {@link #draw_queue}.
+     * @param object The {@link GameObject} or object of a child class.
+     */
+    private static void addToQueues(GameObject object) {
+        // Insert object into the update queue
         int i = 0;
         while(i < update_queue.size()) {
             if(update_queue.get(i).getPriority() <= object.getPriority()) {
@@ -65,7 +86,7 @@ public class Game
         }
         update_queue.add(i, object);
 
-        // Insert o into the draw queue
+        // Insert object into the draw queue
         i = 0;
         while(i < draw_queue.size()) {
             if(draw_queue.get(i).getLayer() >= object.getLayer()) {
@@ -81,7 +102,6 @@ public class Game
      * draw queues and will also free any additional resources they are using.
      */
     public static void clearNonPersistentObjects() {
-        int i = 0;
         for(GameObject o : update_queue) {
             if(!o.isPersistent()) {
                 o.delete();
@@ -126,6 +146,11 @@ public class Game
             // Remove deleted objects from update and draw queues
             update_queue.removeIf(GameObject::isDeleted);
             draw_queue.removeIf(GameObject::isDeleted);
+
+            // Add new objects to the queues from the new object stack
+            while(new_objects.size() > 0) {
+                addToQueues(new_objects.pop());
+            }
 
             // Sleep to save CPU cycles
             long update_time = System.nanoTime() - start_time;
