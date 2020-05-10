@@ -192,7 +192,7 @@ public abstract class PlatformingObject extends WorldObject {
         }
 
         // Check if normal is pointing up and slope is less than about 46 degrees
-        if(normal.x == 0) {
+        if(normal.x == 0 && normal.y < 0) {
             return GroundType.FLAT;
         }
         else if(normal.y < 0 && Math.abs(normal.y/normal.x) >= 0.95) {
