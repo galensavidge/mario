@@ -1,6 +1,7 @@
 package mario.objects;
 
 import engine.GameGraphics;
+import mario.Mario;
 
 import java.awt.*;
 
@@ -8,8 +9,7 @@ public class CloudBlock extends Block {
 
     public static final String type_name = "CloudBlock";
 
-    private static final String sprite_file = "./sprites/cloudblock.png";
-    private static final Image sprite = GameGraphics.getImage(sprite_file);
+    private static final Image sprite = GameGraphics.getImage(Mario.sprite_path+"cloudblock.png");
 
     public CloudBlock(double x, double y) {
         super(x, y);

@@ -288,22 +288,25 @@ public class GameGraphics extends GameObject {
             graphics = (Graphics2D) strategy.getDrawGraphics();
         } catch (IllegalStateException e) {
             graphics = null;
-            System.out.println("Exception in GameGraphics, updateGraphics(), graphics section!");
+            e.printStackTrace();
         }
 
         // Draw buffer to screen
-        assert graphics != null;
-        graphics.drawImage(buffer, 0, 0, window_width*window_scale, window_height*window_scale,
-                0, 0, window_width, window_height, null);
+        try {
+            graphics.drawImage(buffer, 0, 0, window_width*window_scale, window_height*window_scale,
+                    0, 0, window_width, window_height, null);
 
-        graphics.dispose();
+            graphics.dispose();
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        }
 
         try {
             strategy.show();
             Toolkit.getDefaultToolkit().sync();
 
         } catch (NullPointerException | IllegalStateException e) {
-            System.out.println("Exception in GameGraphics, updateGraphics(), strategy section!");
+            e.printStackTrace();
         }
     }
 

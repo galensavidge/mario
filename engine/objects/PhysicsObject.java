@@ -193,8 +193,12 @@ public abstract class PhysicsObject extends GameObject {
         if(!this.isDeleted()) {
             super.delete();
             collider.delete();
-            collider = null;
         }
+    }
+
+    @Override
+    public void deleteEvent() {
+        collider = null;
     }
 }
 

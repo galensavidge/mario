@@ -31,6 +31,9 @@ public class Mario {
     public static final int block_layer = 0;
     public static final int bg_layer = -10;
 
+    public static final String sprite_path = "./sprites/";
+    public static final String level_path = "./levels/";
+
     public static int getGridScale() {
         return grid_scale *scaling_ratio;
     }
@@ -50,8 +53,13 @@ public class Mario {
         GameController.switchLevel("./levels/level0");
 
         // Instantiate objects
-        Background b = new mario.Background();
-        Galoomba g = new Galoomba(38*getGridScale(), 8*getGridScale());
+        new Galoomba(38*getGridScale(), 8*getGridScale());
+        new Galoomba(39*getGridScale(), 8*getGridScale());
+        new Galoomba(40*getGridScale(), 8*getGridScale());
+        new Galoomba(41*getGridScale(), 8*getGridScale());
+        new Galoomba(42*getGridScale(), 8*getGridScale());
+        new Galoomba(43*getGridScale(), 8*getGridScale());
+        new Galoomba(44*getGridScale(), 8*getGridScale());
 
         // Run game
         Game.setSuspendTier(0);

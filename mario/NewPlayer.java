@@ -16,7 +16,7 @@ import java.awt.*;
  * The physical object that the player controls.
  *
  * @author Galen Savidge
- * @version 5/9/2020
+ * @version 5/10/2020
  */
 public class NewPlayer extends PlatformingObject {
 
@@ -41,17 +41,24 @@ public class NewPlayer extends PlatformingObject {
     private static final int high_jump_time = Mario.fps/3;
     private static final int low_jump_time = Mario.fps/4;
 
-    private static final String[] walk_sprite_files = {"./sprites/mario-walk-1.png", "./sprites/mario-walk-2.png"};
-    private static final Sprite walk_sprite = new Sprite(walk_sprite_files);
-    private static final String[] run_sprite_files = {"./sprites/mario-run-1.png", "./sprites/mario-run-2.png"};
-    private static final Sprite run_sprite = new Sprite(run_sprite_files);
-    private static final Image skid_sprite = GameGraphics.getImage("./sprites/mario-skid.png");
-    private static final Image jump_sprite = GameGraphics.getImage("./sprites/mario-jump.png");
-    private static final Image fall_sprite = GameGraphics.getImage("./sprites/mario-fall.png");
-    private static final Image run_jump_sprite = GameGraphics.getImage("./sprites/mario-run-jump.png");
-    private static final Image duck_sprite = GameGraphics.getImage("./sprites/mario-duck.png");
-    private static final Image slide_sprite = GameGraphics.getImage("./sprites/mario-slide.png");
+    private static final double die_pause_time = 1; // In seconds
+    private static final double die_jump_speed = -100;
+    private static final double die_gravity = 1000;
+    private static final double die_max_fall_speed = 400;
 
+    private static final String sprite_sub = "";
+    private static final String[] walk_sprite_files = {Mario.sprite_path+sprite_sub+"mario-walk-1.png", Mario.sprite_path+sprite_sub+"mario-walk-2.png"};
+    private static final Sprite walk_sprite = new Sprite(walk_sprite_files);
+    private static final String[] run_sprite_files = {Mario.sprite_path+sprite_sub+"mario-run-1.png", Mario.sprite_path+sprite_sub+"mario-run-2.png"};
+    private static final Sprite run_sprite = new Sprite(run_sprite_files);
+    private static final Image skid_sprite = GameGraphics.getImage(Mario.sprite_path+sprite_sub+"mario-skid.png");
+    private static final Image jump_sprite = GameGraphics.getImage(Mario.sprite_path+sprite_sub+"mario-jump.png");
+    private static final Image fall_sprite = GameGraphics.getImage(Mario.sprite_path+sprite_sub+"mario-fall.png");
+    private static final Image run_jump_sprite = GameGraphics.getImage(Mario.sprite_path+sprite_sub+"mario-run-jump.png");
+    private static final Image duck_sprite = GameGraphics.getImage(Mario.sprite_path+sprite_sub+"mario-duck.png");
+    private static final Image slide_sprite = GameGraphics.getImage(Mario.sprite_path+sprite_sub+"mario-slide.png");
+    private static final String[] die_sprite_files = {Mario.sprite_path+sprite_sub+"mario-die-1.png", Mario.sprite_path+sprite_sub+"mario-die-2.png"};
+    private static final Sprite die_sprite = new Sprite(die_sprite_files);
 
     /* Instance variables */
 
@@ -354,9 +361,11 @@ public class NewPlayer extends PlatformingObject {
         @Override
         void enter() {
             Game.setSuspendTier(Mario.pause_suspend_tier);
+            GameController.releaseCamera();
             collider.disable();
             velocity = Vector2.zero();
-            timer = Mario.fps; // 1 second
+            timer = (int)(Mario.fps*die_pause_time);
+            die_sprite.setFrameTime(Mario.fps/6);
         }
 
         @Override
@@ -368,13 +377,20 @@ public class NewPlayer extends PlatformingObject {
         void update() {
             timer--;
             if(timer == 0) {
-                GameController.respawnPlayer();
+                velocity.y = die_jump_speed;
+            }
+            if(timer <= 0) {
+                velocity = applyGravity(velocity, die_gravity, die_max_fall_speed);
+                if(!isOnScreen()) {
+                    GameController.respawnPlayer();
+                }
+                die_sprite.incrementFrame();
             }
         }
 
         @Override
         void draw() {
-
+            drawSprite(die_sprite.getCurrentFrame());
         }
     }
 }

@@ -1,6 +1,7 @@
 package mario.objects;
 
 import engine.GameGraphics;
+import mario.Mario;
 
 import java.awt.*;
 
@@ -13,8 +14,7 @@ import java.awt.*;
 public class HardBlock extends Block {
     public static final String type_name = "HardBlock";
 
-    private static final String sprite_file = "./sprites/hardblock.png";
-    private static final Image sprite = GameGraphics.getImage(sprite_file);
+    private static final Image sprite = GameGraphics.getImage(Mario.sprite_path+"hardblock.png");
 
     public HardBlock(double x, double y) {
         super(x, y);

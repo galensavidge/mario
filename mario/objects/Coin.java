@@ -10,7 +10,7 @@ import mario.Mario;
  * A single coin.
  *
  * @author Galen Savidge
- * @version 5/5/2020
+ * @version 5/10/2020
  */
 public class Coin extends Pickup {
     public static final String type_name = "Coin";
@@ -27,7 +27,7 @@ public class Coin extends Pickup {
         this.suspend_tier = Mario.pause_suspend_tier;
 
         // Coin animation
-        String[] sprite_files = {"./sprites/coin-1.png","./sprites/coin-2.png","./sprites/coin-3.png"};
+        String[] sprite_files = {Mario.sprite_path+"coin-1.png",Mario.sprite_path+"coin-2.png",Mario.sprite_path+"coin-3.png"};
         sprite = new Sprite(sprite_files);
         sprite.setFrameTime(10);
     }

@@ -14,7 +14,7 @@ public class Galoomba extends Enemy {
 
     private static final int stun_time = 10*Mario.fps;
 
-    private static final String[] walk_sprite_files = {"./sprites/galoomba-walk-1.png", "./sprites/galoomba-walk-2.png"};
+    private static final String[] walk_sprite_files = {Mario.sprite_path+"galoomba-walk-1.png", Mario.sprite_path+"galoomba-walk-2.png"};
     private final Sprite walk_sprite = new Sprite(walk_sprite_files);
 
     public Galoomba(double x, double y) {

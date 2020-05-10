@@ -13,9 +13,9 @@ import java.awt.*;
  */
 public class MovingPlatform extends WorldObject {
     public static final String type_name = "MovingPlatform";
-    Image left_sprite = GameGraphics.getImage("./sprites/movingplatform-1.png");
-    Image center_sprite = GameGraphics.getImage("./sprites/movingplatform-2.png");
-    Image right_sprite = GameGraphics.getImage("./sprites/movingplatform-3.png");
+    Image left_sprite = GameGraphics.getImage(Mario.sprite_path+"movingplatform-1.png");
+    Image center_sprite = GameGraphics.getImage(Mario.sprite_path+"movingplatform-2.png");
+    Image right_sprite = GameGraphics.getImage(Mario.sprite_path+"movingplatform-3.png");
 
     private static final double speed = 200;
 

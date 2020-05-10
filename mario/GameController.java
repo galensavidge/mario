@@ -21,6 +21,7 @@ public class GameController extends GameObject {
     private static String player_spawn_level;
 
     private static NewPlayer player;
+    private static Camera camera;
 
     public static int coins = 0;
 
@@ -37,7 +38,7 @@ public class GameController extends GameObject {
 
     public static void spawnPlayer() {
         player = new NewPlayer(player_spawn_position.x, player_spawn_position.y);
-        new Camera(player);
+        camera = new Camera(player);
         Game.setSuspendTier(0);
     }
 
@@ -48,6 +49,10 @@ public class GameController extends GameObject {
     public static void setPlayerSpawn(Vector2 position) {
         player_spawn_position = position.copy();
         player_spawn_level = current_level;
+    }
+
+    public static void releaseCamera() {
+        camera.anchor = null;
     }
 
     @Override

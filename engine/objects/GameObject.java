@@ -41,7 +41,12 @@ public abstract class GameObject
         Game.addObject(this);
     }
 
+    public void delete() {
+        deleted = true;
+    }
+
     /* Accessors */
+
     public int getPriority() {
         return priority;
     }
@@ -58,6 +63,11 @@ public abstract class GameObject
         return persistent;
     }
 
+    public boolean isDeleted() {
+        return deleted;
+    }
+
+    /* Events */
 
     /**
      * This method is called by {@link Game} every step and should be overwritten in child classes. Order depends on the
@@ -71,11 +81,8 @@ public abstract class GameObject
      */
     public abstract void draw();
 
-    public void delete() {
-        deleted = true;
-    }
-
-    public boolean isDeleted() {
-        return deleted;
-    }
+    /**
+     * This method is called by {@link Game} at the end of a step when this object is deleted.
+     */
+    public void deleteEvent() {}
 }
