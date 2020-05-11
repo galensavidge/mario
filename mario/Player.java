@@ -65,7 +65,7 @@ public class Player extends PhysicsObject {
 
     public Player(double x, double y) {
         super(10, 10, x, y);
-        this.suspend_tier = Mario.pause_suspend_tier;
+        this.suspend_tier = Mario.hitpause_suspend_tier;
         collider = Collider.newBox(this,0,
                 Mario.getGridScale()/2.0, Mario.getGridScale(), Mario.getGridScale());
         collider.active_check = true;

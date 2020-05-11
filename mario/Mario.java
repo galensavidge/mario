@@ -17,14 +17,16 @@ public class Mario {
     public static final int window_scale = 1;
     public static final int fps = 60;
 
-    public static final int pause_suspend_tier = 5;
+    public static final int hitpause_suspend_tier = 5;
     public static final int menu_suspend_tier = 10;
+    public static final int transition_suspend_tier = 15;
 
     public static final int player_priority = 10;
     public static final int enemy_priority = 12;
     public static final int gizmo_priority = 15;
     public static final int block_priority = 0;
 
+    public static final int transition_layer = 100;
     public static final int player_layer = 10;
     public static final int enemy_layer = 5;
     public static final int gizmo_layer = 2;
@@ -50,19 +52,12 @@ public class Mario {
         GameController gc = new GameController();
 
         // Create game world
-        GameController.switchLevel("./levels/level0");
+        GameController.switchToLevel(Mario.level_path+"level0");
 
         // Instantiate objects
-        new Galoomba(38*getGridScale(), 8*getGridScale());
-        new Galoomba(39*getGridScale(), 8*getGridScale());
-        new Galoomba(40*getGridScale(), 8*getGridScale());
-        new Galoomba(41*getGridScale(), 8*getGridScale());
-        new Galoomba(42*getGridScale(), 8*getGridScale());
-        new Galoomba(43*getGridScale(), 8*getGridScale());
-        new Galoomba(44*getGridScale(), 8*getGridScale());
+        new Galoomba(Mario.getGridScale()*15, Mario.getGridScale()*5);
 
         // Run game
-        Game.setSuspendTier(0);
         Game.run();
 
         // End game

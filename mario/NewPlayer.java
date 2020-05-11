@@ -42,8 +42,8 @@ public class NewPlayer extends PlatformingObject {
     private static final int low_jump_time = Mario.fps/4;
 
     private static final double die_pause_time = 1; // In seconds
-    private static final double die_jump_speed = -100;
-    private static final double die_gravity = 1000;
+    private static final double die_jump_speed = -200;
+    private static final double die_gravity = 500;
     private static final double die_max_fall_speed = 400;
 
     private static final String sprite_sub = "";
@@ -64,7 +64,7 @@ public class NewPlayer extends PlatformingObject {
 
     public NewPlayer(double x, double y) {
         super(Mario.player_priority, Mario.player_layer, x, y);
-        this.suspend_tier = Mario.pause_suspend_tier;
+        this.suspend_tier = Mario.hitpause_suspend_tier;
         collider = Collider.newBox(this,0,
                 Mario.getGridScale()/2.0, Mario.getGridScale(), Mario.getGridScale());
         collider.active_check = true;
@@ -162,7 +162,7 @@ public class NewPlayer extends PlatformingObject {
         Vector2 local_velocity; // Velocity relative to ground
         boolean skidding;
         boolean running;
-        Sprite s;
+        Sprite s = walk_sprite;
 
         @Override
         String getState() {
@@ -360,17 +360,12 @@ public class NewPlayer extends PlatformingObject {
 
         @Override
         void enter() {
-            Game.setSuspendTier(Mario.pause_suspend_tier);
+            Game.setSuspendTier(Mario.hitpause_suspend_tier);
             GameController.releaseCamera();
             collider.disable();
             velocity = Vector2.zero();
             timer = (int)(Mario.fps*die_pause_time);
             die_sprite.setFrameTime(Mario.fps/6);
-        }
-
-        @Override
-        void exit() {
-            Game.setSuspendTier(0);
         }
 
         @Override

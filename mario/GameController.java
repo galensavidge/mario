@@ -25,25 +25,24 @@ public class GameController extends GameObject {
 
     public static int coins = 0;
 
+    private static ActionQueue animationFinishAction;
+
+    private interface ActionQueue {
+        void nextAction();
+    }
+
     public GameController() {
         super(0, 20);
         this.persistent = true;
     }
 
-    public static void switchLevel(String file_name) {
-        current_level = file_name;
-        WorldLoader.loadFromFile(file_name);
-        spawnPlayer();
-    }
-
-    public static void spawnPlayer() {
-        player = new NewPlayer(player_spawn_position.x, player_spawn_position.y);
-        camera = new Camera(player);
-        Game.setSuspendTier(0);
+    public static void transitionToLevel(String file_name) {
+        animationFinishAction = ()->switchToLevel(file_name);
+        new Transition(1, Transition.Type.FADE_OUT);
     }
 
     public static void respawnPlayer() {
-        switchLevel(player_spawn_level);
+        transitionToLevel(player_spawn_level);
     }
 
     public static void setPlayerSpawn(Vector2 position) {
@@ -51,8 +50,25 @@ public class GameController extends GameObject {
         player_spawn_level = current_level;
     }
 
+    public static void switchToLevel(String file_name) {
+        current_level = file_name;
+        WorldLoader.loadFromFile(file_name);
+        _spawnPlayer();
+        animationFinishAction = ()->Game.setSuspendTier(0);
+        new Transition(1, Transition.Type.FADE_IN);
+    }
+
+    private static void _spawnPlayer() {
+        player = new NewPlayer(player_spawn_position.x, player_spawn_position.y);
+        camera = new Camera(player);
+    }
+
     public static void releaseCamera() {
         camera.anchor = null;
+    }
+
+    public static void animationFinishedEvent() {
+        animationFinishAction.nextAction();
     }
 
     @Override
