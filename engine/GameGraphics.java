@@ -120,6 +120,10 @@ public class GameGraphics extends GameObject {
         return canvas;
     }
 
+    public static BufferedImage getBuffer() {
+        return buffer;
+    }
+
     public static void setDrawScale(int draw_scale) {
         if(draw_scale > 0) {
             GameGraphics.draw_scale = draw_scale;
@@ -293,6 +297,7 @@ public class GameGraphics extends GameObject {
 
         // Draw buffer to screen
         try {
+            assert graphics != null;
             graphics.drawImage(buffer, 0, 0, window_width*window_scale, window_height*window_scale,
                     0, 0, window_width, window_height, null);
 

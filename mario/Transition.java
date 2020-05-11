@@ -5,17 +5,22 @@ import engine.GameGraphics;
 import engine.objects.GameObject;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 
 public class Transition extends GameObject {
 
+    private static final int max_pixel_size = Mario.getGridScale();
+
     public enum Type {
         FADE_IN,
-        FADE_OUT
+        FADE_OUT,
+        PIXEL_IN,
+        PIXEL_OUT
     }
 
     private int timer;
     private final int transition_frames;
-    private Type transition_type;
+    private final Type transition_type;
 
     public Transition(double transition_time, Type transition_type) {
         super(0, Mario.transition_layer);
@@ -41,14 +46,52 @@ public class Transition extends GameObject {
 
     @Override
     public void draw() {
-        int alpha = 0;
-        if(transition_type == Type.FADE_IN) {
-            alpha = 0xFF*timer/transition_frames;
+        int alpha;
+        Color c;
+        int pixel_size;
+        switch (transition_type) {
+            case FADE_IN:
+                alpha = 0xFF*timer/transition_frames;
+                c = new Color(alpha<<24, true);
+                GameGraphics.drawRectangle(0, 0, GameGraphics.getWindowWidth(), GameGraphics.getWindowHeight(), true, c);
+                break;
+            case FADE_OUT:
+                alpha = 0xFF - 0xFF*timer/transition_frames;
+                c = new Color(alpha<<24, true);
+                GameGraphics.drawRectangle(0, 0, GameGraphics.getWindowWidth(), GameGraphics.getWindowHeight(), true, c);
+                break;
+            case PIXEL_IN:
+                pixel_size = max_pixel_size*timer/transition_frames + 1;
+                drawPixelGrid(pixel_size);
+                break;
+            case PIXEL_OUT:
+                pixel_size = max_pixel_size - max_pixel_size*timer/transition_frames + 1;
+                drawPixelGrid(pixel_size);
+            default:
+                break;
         }
-        else if(transition_type == Type.FADE_OUT) {
-            alpha = 0xFF - 0xFF*timer/transition_frames;
+    }
+
+    private static int averagePixels(int[] pixels) {
+        int sum = 0;
+        for(int p : pixels) {
+            sum += p;
         }
-        Color c = new Color(alpha<<24, true);
-        GameGraphics.drawRectangle(0, 0, GameGraphics.getWindowWidth(), GameGraphics.getWindowHeight(), true, c);
+        return sum / pixels.length;
+    }
+
+    private static void drawPixelGrid(int pixel_size) {
+        BufferedImage buffer = GameGraphics.getBuffer();
+        int y;
+        for(y = 0;y < buffer.getHeight();y += pixel_size) {
+            int x;
+            Color c;
+            for(x = 0;x < buffer.getWidth();x += pixel_size) {
+                int x_pixel = Math.min(x + pixel_size/2, (x+buffer.getWidth())/2-1);
+                int y_pixel = Math.min(y + pixel_size/2, (y+buffer.getHeight())/2-1);
+                c = new Color(buffer.getRGB(x_pixel, y_pixel));
+                GameGraphics.drawRectangle(x, y, pixel_size, pixel_size, true, c);
+            }
+        }
     }
 }
