@@ -514,9 +514,7 @@ public class Collider extends GameObject {
             collision.normal_reject = normal.multiply(normal_mag);
 
             // Find contact vector
-            collision.to_contact = closest_intersection.difference(closest_ray.p1);
-            collision.to_contact = collision.to_contact.normalize().
-                    multiply(collision.to_contact.abs() - reject_separation);
+            collision.to_contact = delta_position.normalize().multiply(closest_distance - reject_separation);
         }
 
         return collision;
