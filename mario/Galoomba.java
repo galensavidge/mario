@@ -105,12 +105,17 @@ public class Galoomba extends Enemy {
         }
     }
 
-    private class FallState extends EnemyState {
+    private class FallState extends WalkState {
         public String name = "Fall";
 
         @Override
         String getState() {
             return name;
+        }
+
+        @Override
+        void enter() {
+
         }
 
         @Override
@@ -125,11 +130,6 @@ public class Galoomba extends Enemy {
             if(c_ground_type != GroundType.NONE) {
                 setNextState(new WalkState());
             }
-        }
-
-        @Override
-        void draw() {
-            drawSprite(walk_sprite.getCurrentFrame());
         }
     }
 

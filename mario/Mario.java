@@ -36,8 +36,11 @@ public class Mario {
     public static final String sprite_path = "./sprites/";
     public static final String level_path = "./levels/";
 
+    /**
+     * @return The size of the game grid in pixels.
+     */
     public static int getGridScale() {
-        return grid_scale *scaling_ratio;
+        return grid_scale*scaling_ratio;
     }
 
     public static void main(String[] args) {
@@ -56,6 +59,7 @@ public class Mario {
 
         // Instantiate objects
         new Galoomba(Mario.getGridScale()*15, Mario.getGridScale()*5);
+        new Galoomba(Mario.getGridScale()*45, Mario.getGridScale()*5);
 
         // Run game
         Game.run();

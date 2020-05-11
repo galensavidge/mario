@@ -38,7 +38,7 @@ public class GameController extends GameObject {
 
     public static void transitionToLevel(String file_name) {
         animationFinishAction = ()->switchToLevel(file_name);
-        new Transition(1, Transition.Type.FADE_OUT);
+        new Transition(1, Transition.Type.PIXEL_OUT);
     }
 
     public static void respawnPlayer() {
@@ -55,7 +55,7 @@ public class GameController extends GameObject {
         WorldLoader.loadFromFile(file_name);
         _spawnPlayer();
         animationFinishAction = ()->Game.setSuspendTier(0);
-        new Transition(1, Transition.Type.FADE_IN);
+        new Transition(1, Transition.Type.PIXEL_IN);
     }
 
     private static void _spawnPlayer() {

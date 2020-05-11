@@ -173,12 +173,10 @@ public abstract class PlatformingObject extends WorldObject {
      */
     protected Collision snapToGround() {
         Collision collision = sweepForCollision(down);
-        if(collision.collision_found) {
-            // Check that down is ground
-            if(checkGroundType(collision.normal_reject) != GroundType.NONE) {
-                // Snap to ground
-                position = position.sum(collision.to_contact);
-            }
+        // Check that down is ground
+        if(checkGroundType(collision.normal_reject) != GroundType.NONE) {
+            // Snap to ground
+            position = position.sum(collision.to_contact);
         }
         return collision;
     }

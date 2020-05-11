@@ -41,6 +41,7 @@ public class Slope extends WorldObject {
         this.collider.draw_self = true;
         this.solid = true;
         this.type = Slope.type_name;
+        this.type_group = Types.block_type_group;
     }
 
     @Override
