@@ -42,6 +42,10 @@ public class Line {
         return new Line(this.p2, this.p1);
     }
 
+    public double length() {
+        return this.vector().abs();
+    }
+
     /**
      * @return The unit-magnitude right-hand normal vector of the {@code Line}.
      */

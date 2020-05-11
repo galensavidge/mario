@@ -45,6 +45,7 @@ public class Slope extends WorldObject {
 
     @Override
     public void draw() {
+        collider.draw_self = true;
         collider.draw();
     }
 }

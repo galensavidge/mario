@@ -19,7 +19,7 @@ public class Collider extends GameObject {
 
     /* Class constants */
 
-    private static int zone_size;
+    private static int zone_size; // In pixels
     protected static ArrayList<Collider>[][] colliders; // A list of all colliders that exist
 
     public static final double edge_separation = 10*Misc.delta;
@@ -54,14 +54,24 @@ public class Collider extends GameObject {
 
     /* Collider zone helper functions */
 
+    private static void getZone(Collider c) {
+
+    }
+
     /**
      * Adds {@code c} to the array used by the {@link #Collider} class to find nearby {@code Colliders}.
      * @see #getCollidersInZone
      */
     private static void addToCollidersArray(Collider c) {
-        int zone_x = Math.min(Math.max(0, (int)(c.position.x+c.center.x)/zone_size), colliders.length-1);
-        int zone_y = Math.min(Math.max(0, (int)(c.position.y+c.center.x)/zone_size), colliders[0].length-1);
-        colliders[zone_x][zone_y].add(c);
+        for(Vector2 p : c.zone_points) {
+            int x = (int) ((p.x + c.position.x) / zone_size);
+            int y = (int) ((p.y + c.position.y) / zone_size);
+            int zone_x = Math.min(Math.max(0, x), colliders.length - 1);
+            int zone_y = Math.min(Math.max(0, y), colliders[0].length - 1);
+            if(!colliders[zone_x][zone_y].contains(c)) {
+                colliders[zone_x][zone_y].add(c);
+            }
+        }
     }
 
     /**
@@ -69,9 +79,13 @@ public class Collider extends GameObject {
      * @see #getCollidersInZone
      */
     private static void removeFromCollidersArray(Collider c) {
-        int zone_x = Math.min(Math.max(0, (int)(c.position.x+c.center.x)/zone_size), colliders.length-1);
-        int zone_y = Math.min(Math.max(0, (int)(c.position.y+c.center.x)/zone_size), colliders[0].length-1);
-        colliders[zone_x][zone_y].remove(c);
+        for(Vector2 p : c.zone_points) {
+            int x = (int) ((p.x + c.position.x) / zone_size);
+            int y = (int) ((p.y + c.position.y) / zone_size);
+            int zone_x = Math.min(Math.max(0, x), colliders.length - 1);
+            int zone_y = Math.min(Math.max(0, y), colliders[0].length - 1);
+            colliders[zone_x][zone_y].remove(c);
+        }
     }
 
     /**
@@ -133,6 +147,7 @@ public class Collider extends GameObject {
     protected Vector2 position; // The coordinates of the top left corner of this collider in the game world
     protected Vector2 center; // Center point of the collider in local space; initially set to the mean of the vertices
     private final ArrayList<Vector2> local_vertices = new ArrayList<>(); // Vertices in local space
+    private final ArrayList<Vector2> zone_points = new ArrayList<>(); // Points used to check which zone this is in
     private boolean enabled = true; // If false, does not check for or return collisions with other Colliders
     public boolean draw_self = false;
 
@@ -160,6 +175,19 @@ public class Collider extends GameObject {
             this.center = this.center.sum(v);
         }
         this.center = this.center.multiply(1.0/this.local_vertices.size());
+
+        // Get zone check points list
+        this.zone_points.add(this.center);
+        for(Line l : this.getLines(false)) {
+            if(l.length() >= zone_size || l.p1.difference(this.center).abs() >= zone_size) {
+                Vector2 new_point = l.p1;
+                while((new_point.difference(l.p1)).abs() < l.length()) {
+                    this.zone_points.add(new_point.copy());
+                    new_point = new_point.sum(l.vector().normalize().multiply(zone_size));
+                }
+            }
+        }
+
         addToCollidersArray(this);
     }
 
@@ -290,8 +318,14 @@ public class Collider extends GameObject {
     /**
      * @return A list of the line segments connecting the collider's vertices running clockwise.
      */
-    public ArrayList<Line> getLines() {
-        ArrayList<Vector2> vertices = this.getVertices();
+    public ArrayList<Line> getLines(boolean global) {
+        ArrayList<Vector2> vertices;
+        if(global) {
+            vertices = this.getVertices();
+        }
+        else {
+            vertices = this.local_vertices;
+        }
         ArrayList<Line> lines = new ArrayList<>();
         for(int i = 0;i < vertices.size();i++) {
             int j = i-1;
@@ -299,6 +333,13 @@ public class Collider extends GameObject {
             lines.add(new Line(vertices.get(j), vertices.get(i)));
         }
         return lines;
+    }
+
+    /**
+     * @return A list of the line segments connecting the collider's vertices running clockwise.
+     */
+    public ArrayList<Line> getLines() {
+        return getLines(true);
     }
 
     /**
@@ -522,6 +563,10 @@ public class Collider extends GameObject {
             ArrayList<Line> lines = getLines();
             for(Line l : lines) {
                 l.draw();
+            }
+
+            for(Vector2 p : zone_points) {
+                GameGraphics.drawPoint((int)(position.x + p.x), (int)(position.y + p.y), false, Color.RED);
             }
         }
     }
