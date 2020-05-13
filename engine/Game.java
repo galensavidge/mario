@@ -155,6 +155,11 @@ public class Game {
             }
 
             // Remove deleted objects from update and draw queues
+            for(GameObject o : update_queue) {
+                if(o.isDeleted()) {
+                    o.deleteEvent();
+                }
+            }
             update_queue.removeIf(GameObject::isDeleted);
             draw_queue.removeIf(GameObject::isDeleted);
 
