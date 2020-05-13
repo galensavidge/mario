@@ -376,7 +376,7 @@ public class NewPlayer extends PlatformingObject {
             }
             if(timer <= 0) {
                 velocity = applyGravity(velocity, die_gravity, die_max_fall_speed);
-                if(!isOnScreen()) {
+                if(!isOnScreen(Mario.getGridScale(), Mario.getGridScale()*1.5, 0)) {
                     GameController.respawnPlayer();
                 }
                 die_sprite.incrementFrame();

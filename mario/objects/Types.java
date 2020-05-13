@@ -13,4 +13,5 @@ public class Types {
     public static final String pickup_type_group = "Pickup";
     public static final String enemy_type_group = "Enemy";
 
+    public static final String semisolid_tag = "Semisolid";
 }

@@ -3,6 +3,7 @@ package mario.objects;
 import engine.Game;
 import engine.GameGraphics;
 import engine.objects.Collider;
+import engine.objects.PhysicsObject;
 import mario.Mario;
 
 import java.awt.*;
@@ -11,7 +12,7 @@ import java.awt.*;
  * @author Galen Savidge
  * @version 5/5/2020
  */
-public class MovingPlatform extends WorldObject {
+public class MovingPlatform extends PhysicsObject {
     public static final String type_name = "MovingPlatform";
     Image left_sprite = GameGraphics.getImage(Mario.sprite_path+"movingplatform-1.png");
     Image center_sprite = GameGraphics.getImage(Mario.sprite_path+"movingplatform-2.png");

@@ -1,6 +1,7 @@
 package mario.objects;
 
 import engine.objects.Collider;
+import engine.objects.PhysicsObject;
 import mario.Mario;
 
 /**
@@ -9,7 +10,7 @@ import mario.Mario;
  * @author Galen Savidge
  * @version 5/9/2020
  */
-public abstract class Block extends WorldObject {
+public abstract class Block extends PhysicsObject {
 
     public Block(double x, double y) {
         super(Mario.block_priority, Mario.block_layer, x, y);

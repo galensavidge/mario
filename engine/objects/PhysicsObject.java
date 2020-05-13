@@ -1,5 +1,6 @@
 package engine.objects;
 
+import engine.GameGraphics;
 import engine.objects.Collider.Collision;
 import engine.util.Vector2;
 
@@ -17,6 +18,8 @@ public abstract class PhysicsObject extends GameObject {
     // Used to identify instances of child classes
     protected String type;
     protected String type_group;
+
+    protected ArrayList<String> tags = new ArrayList<>();
 
     // Variables used for physics calculations
     public boolean solid = false;
@@ -54,6 +57,10 @@ public abstract class PhysicsObject extends GameObject {
         return type_group;
     }
 
+    public boolean hasTag(String tag) {
+        return this.tags.contains(tag);
+    }
+
     /**
      * @return The position of the object rounded down to the nearest pixel.
      */
@@ -61,6 +68,18 @@ public abstract class PhysicsObject extends GameObject {
         return position.round();
     }
 
+    /**
+     * @param width This object's width.
+     * @param height This object's height.
+     * @param margin Extra margin around the screen to include, in pixels.
+     * @return True if the object is completely off the screen.
+     */
+    protected boolean isOnScreen(double width, double height, double margin) {
+        return position.x <= GameGraphics.camera_x + GameGraphics.getWindowWidth() + margin
+                && position.y <= GameGraphics.camera_y + GameGraphics.getWindowHeight() + margin
+                && position.x >= GameGraphics.camera_x - width - margin
+                && position.y >= GameGraphics.camera_y - height - margin;
+    }
 
     /* Physics functions */
 
@@ -189,12 +208,6 @@ public abstract class PhysicsObject extends GameObject {
      * @param c A collision event without details (e.g. {@code c.isDetailed()} returns {@code false}).
      */
     public void intersectionEvent(Collision c) {}
-
-    @Override
-    public abstract void update();
-
-    @Override
-    public abstract void draw();
 
     @Override
     public void delete() {

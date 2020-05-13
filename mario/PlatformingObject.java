@@ -4,9 +4,9 @@ import engine.Game;
 import engine.GameGraphics;
 import engine.objects.Collider;
 import engine.objects.Collider.Collision;
+import engine.objects.PhysicsObject;
 import engine.util.Vector2;
 import mario.objects.Types;
-import mario.objects.WorldObject;
 
 import java.awt.*;
 
@@ -16,7 +16,7 @@ import java.awt.*;
  * @author Galen Savidge
  * @version 5/9/2020
  */
-public abstract class PlatformingObject extends WorldObject {
+public abstract class PlatformingObject extends PhysicsObject {
 
     /* Constants */
     protected static final Vector2 up = new Vector2(0, -1);
@@ -237,7 +237,7 @@ public abstract class PlatformingObject extends WorldObject {
         }
 
         // Semisolid collision check
-        else if(c.collided_with.getTypeGroup().equals(Types.semisolid_type_group)) {
+        else if(c.collided_with.hasTag(Types.semisolid_tag)) {
             return position.y+height-Mario.getGridScale()/2.0-Collider.edge_separation < c.collided_with.position.y
                     && c.normal_reject.x == 0;
         }
@@ -268,9 +268,7 @@ public abstract class PlatformingObject extends WorldObject {
 
     @Override
     public void draw() {
-        if(isOnScreen()) {
-            state.draw();
-        }
+        state.draw();
     }
 
     @Override

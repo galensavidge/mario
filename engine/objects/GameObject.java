@@ -77,16 +77,22 @@ public abstract class GameObject {
      * This method is called by {@link Game} every step and should be overwritten in child classes. Order depends on the
      * priority of the created objects.
      */
-    public abstract void update();
+    public void update() {
+
+    }
 
     /**
      * This method is called by {@link Game} every step while {@code this.visible == true}. Order depends on
      * {@code layer}.
      */
-    public abstract void draw();
+    public void draw() {
+
+    }
 
     /**
      * This method is called by {@link Game} at the end of a step when this object is deleted.
      */
-    public void deleteEvent() {}
+    public void deleteEvent() {
+
+    }
 }

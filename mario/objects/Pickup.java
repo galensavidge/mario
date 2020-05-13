@@ -1,5 +1,6 @@
 package mario.objects;
 
+import engine.objects.PhysicsObject;
 import mario.Mario;
 
 /**
@@ -8,7 +9,7 @@ import mario.Mario;
  * @author Galen Savidge
  * @version 5/9/2020
  */
-public abstract class Pickup extends WorldObject {
+public abstract class Pickup extends PhysicsObject {
     public Pickup(double x, double y) {
         super(Mario.gizmo_priority, Mario.gizmo_layer, x, y);
         this.type_group = Types.pickup_type_group;

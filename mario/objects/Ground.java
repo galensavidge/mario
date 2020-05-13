@@ -46,6 +46,9 @@ public class Ground extends PhysicsObject {
             Object solid = args.get("semisolid");
             if(solid != null) {
                 this.solid = !(boolean)solid;
+                if((boolean)solid) {
+                    this.tags.add(Types.semisolid_tag);
+                }
             }
             else {
                 this.solid = true;

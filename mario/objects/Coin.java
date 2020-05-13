@@ -10,7 +10,7 @@ import mario.Mario;
  * A single coin.
  *
  * @author Galen Savidge
- * @version 5/10/2020
+ * @version 5/12/2020
  */
 public class Coin extends Pickup {
     public static final String type_name = "Coin";
@@ -45,7 +45,7 @@ public class Coin extends Pickup {
 
     @Override
     public void draw() {
-        if(isOnScreen()) {
+        if(isOnScreen(Mario.getGridScale(), Mario.getGridScale(), 0)) {
             GameGraphics.drawImage((int) position.x, (int) position.y, false, sprite.getCurrentFrame());
         }
     }
