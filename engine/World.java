@@ -12,37 +12,36 @@ import java.util.Scanner;
  * A class used to construct the game world from templates.
  *
  * @author Galen Savidge
- * @version 5/6/2020
+ * @version 5/12/2020
  */
 public class World {
     // Size of the world in pixels
-    private static int width;
-    private static int height;
-    private static int grid_scale;
+    static int width;
+    static int height;
+    static int grid_size;
+
+    // Ratio between world coordinates and map coordinates (e.g. when using LevelParser)
+    static int grid_scaling_factor = 1;
 
     private static PhysicsObject[][] grid;
 
-    public static void init(int width, int height) {
-        World.width = width;
-        World.height = height;
-        gridInit(1, 1);
-
-        Game.clearNonPersistentObjects();
+    public static void setGridScale(int grid_scaling_factor) {
+        World.grid_scaling_factor = grid_scaling_factor;
     }
 
 
     /* Accessor functions */
 
     public static int getWidth() {
-        return width;
+        return World.width;
     }
 
     public static int getHeight() {
-        return height;
+        return World.height;
     }
 
-    public static int getGridScale() {
-        return grid_scale;
+    public static int getGridSize() {
+        return World.grid_size;
     }
 
 
@@ -92,7 +91,7 @@ public class World {
         }
 
         // Set world grid scale
-        grid_scale = grid_size;
+        World.grid_size = grid_size;
 
         // Get world size
         int grid_width = 0, grid_height = 0;

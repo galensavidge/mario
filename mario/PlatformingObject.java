@@ -20,7 +20,7 @@ public abstract class PlatformingObject extends WorldObject {
 
     /* Constants */
     protected static final Vector2 up = new Vector2(0, -1);
-    protected static final Vector2 down = new Vector2(0, Mario.getGridScale()/2.0);
+    protected static final Vector2 down = new Vector2(0, Mario.getGridScale()/4.0);
 
 
     /* Instance variables */

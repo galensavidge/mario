@@ -39,7 +39,7 @@ public class WorldLoader {
             if(args.size() == 2) {
                 int x = args.get(0);
                 int y = args.get(1);
-                World.gridSet(x, y, addObject(x*World.getGridScale(), y*World.getGridScale()));
+                World.gridSet(x, y, addObject(x*World.getGridSize(), y*World.getGridSize()));
             }
             else if(args.size() == 4) {
                 int x1, y1, x2, y2;
@@ -50,7 +50,7 @@ public class WorldLoader {
 
                 for (int x = x1; x <= x2; x++) {
                     for (int y = y1; y <= y2; y++) {
-                        World.gridSet(x, y, addObject(x*World.getGridScale(), y*World.getGridScale()));
+                        World.gridSet(x, y, addObject(x*World.getGridSize(), y*World.getGridSize()));
                     }
                 }
             }
@@ -75,8 +75,8 @@ public class WorldLoader {
         @Override
         public void handleLine(ArrayList<Integer> args) {
             if(args.size() == 2) {
-                GameController.setPlayerSpawn(new Vector2(args.get(0)*World.getGridScale(),
-                        args.get(1)*World.getGridScale() + 0.5*World.getGridScale()));
+                GameController.setPlayerSpawn(new Vector2(args.get(0)*World.getGridSize(),
+                        args.get(1)*World.getGridSize() + 0.5*World.getGridSize()));
             }
         }
     }
@@ -123,7 +123,7 @@ public class WorldLoader {
                 int y = args.get(1);
                 int width = args.get(2);
                 int height = args.get(3);
-                Slope s = new Slope(x*World.getGridScale(), y*World.getGridScale(), width, height,
+                Slope s = new Slope(x*World.getGridSize(), y*World.getGridSize(), width, height,
                         false, false);
                 World.gridSet(x, y, s);
             }
@@ -134,7 +134,7 @@ public class WorldLoader {
                 int height = args.get(3);
                 boolean flip_horizontal = args.get(4) == 1;
                 boolean flip_vertical = args.get(5) == 1;
-                Slope s = new Slope(x*World.getGridScale(), y*World.getGridScale(), width, height,
+                Slope s = new Slope(x*World.getGridSize(), y*World.getGridSize(), width, height,
                         flip_horizontal, flip_vertical);
                 World.gridSet(x, y, s);
             }
@@ -182,7 +182,7 @@ public class WorldLoader {
                 int size = args.get(2);
                 int distance = args.get(3);
                 World.gridSet(x, y,
-                        new MovingPlatform(World.getGridScale()*x, World.getGridScale()*y, size, distance));
+                        new MovingPlatform(World.getGridSize()*x, World.getGridSize()*y, size, distance));
             }
         }
     }

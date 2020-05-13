@@ -12,8 +12,8 @@ public class Mario {
 
     /* Game constants */
 
-    private static final int grid_scale = 16; // Size of a block and the grid on which most objects are placed
-    private static final int scaling_ratio = 4;
+    private static final int grid_size = 16; // Size of a block and the grid on which most objects are placed
+    private static final int scaling_ratio = 4; // The ratio (size of world grid)/grid_size
     public static final int window_scale = 1;
     public static final int fps = 60;
 
@@ -40,7 +40,7 @@ public class Mario {
      * @return The size of the game grid in pixels.
      */
     public static int getGridScale() {
-        return grid_scale*scaling_ratio;
+        return grid_size*scaling_ratio;
     }
 
     public static void main(String[] args) {

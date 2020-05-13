@@ -35,7 +35,7 @@ public class Collider extends GameObject {
      * @throws ExceptionInInitializerError Throws if {@link engine.World} has not yet been initialized.
      */
     public static void initColliders(int zone_size) throws ExceptionInInitializerError {
-        if(World.getGridScale() == 0) {
+        if(World.getGridSize() == 0) {
             throw new ExceptionInInitializerError("World not initialized!");
         }
 
@@ -170,6 +170,8 @@ public class Collider extends GameObject {
         this.object = object;
         this.position = Vector2.zero();
         this.local_vertices.addAll(Arrays.asList(local_vertices));
+
+        // Calculate center
         this.center = Vector2.zero();
         for(Vector2 v : this.local_vertices) {
             this.center = this.center.sum(v);
@@ -188,7 +190,8 @@ public class Collider extends GameObject {
             }
         }
 
-        addToCollidersArray(this);
+        // Set position and add to colliders array
+        this.setPosition(object.position);
     }
 
     /**
@@ -204,9 +207,8 @@ public class Collider extends GameObject {
                 new Vector2(x_offset+width-edge_separation, y_offset),
                 new Vector2(x_offset+width-edge_separation, y_offset+height-edge_separation),
                 new Vector2(x_offset, y_offset+height-edge_separation)};
-        Collider collider = new Collider(object, vertices);
-        collider.setPosition(object.position);
-        return collider;
+
+        return new Collider(object, vertices);
     }
 
     /**
@@ -230,9 +232,8 @@ public class Collider extends GameObject {
             vertices[i] = new Vector2(x_offset + radius + radius*Math.cos(rotation),
                                       y_offset + radius + radius*Math.sin(rotation));
         }
-        Collider collider = new Collider(object, vertices);
-        collider.setPosition(object.position);
-        return collider;
+
+        return new Collider(object, vertices);
     }
 
     /* Instance methods */

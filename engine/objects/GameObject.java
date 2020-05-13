@@ -8,8 +8,8 @@ import engine.Game;
  * @author Galen Savidge
  * @version 5/6/2020
  */
-public abstract class GameObject
-{
+public abstract class GameObject {
+
     protected int priority;
     protected int layer;
     public boolean visible = true;
@@ -41,6 +41,10 @@ public abstract class GameObject
         Game.addObject(this);
     }
 
+    /**
+     * Flags the object for deletion. It will no longer receive update or draw events and will be removed from the
+     * update and draw queues at the end of the current step.
+     */
     public void delete() {
         deleted = true;
     }
