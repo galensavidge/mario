@@ -7,13 +7,14 @@ import engine.util.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 
 /**
  * A class used to check for collisions between physics objects. All colliders are represented as a polygon made from n
  * points connected by n lines.
  *
  * @author Galen Savidge
- * @version 5/9/2020
+ * @version 5/13/2020
  */
 public class Collider extends GameObject {
 
@@ -48,55 +49,6 @@ public class Collider extends GameObject {
             for(int j = 0;j < grid_height;j++) {
                 colliders[i][j] = new ArrayList<>();
             }
-        }
-    }
-
-
-    /* Collider zone helper functions */
-
-    private static void getZone(Collider c) {
-
-    }
-
-    /**
-     * Adds {@code c} to the array used by the {@link #Collider} class to find nearby {@code Colliders}.
-     * @see #getCollidersInZone
-     */
-    private static void addToCollidersArray(Collider c) {
-        for(Vector2 p : c.zone_points) {
-            int x = (int) ((p.x + c.position.x) / zone_size);
-            int y = (int) ((p.y + c.position.y) / zone_size);
-            int zone_x = Math.min(Math.max(0, x), colliders.length - 1);
-            int zone_y = Math.min(Math.max(0, y), colliders[0].length - 1);
-            if(!colliders[zone_x][zone_y].contains(c)) {
-                colliders[zone_x][zone_y].add(c);
-            }
-        }
-    }
-
-    /**
-     * Removes {@code c} from the array used by the {@link #Collider} class to find nearby {@code Colliders}.
-     * @see #getCollidersInZone
-     */
-    private static void removeFromCollidersArray(Collider c) {
-        for(Vector2 p : c.zone_points) {
-            int x = (int) ((p.x + c.position.x) / zone_size);
-            int y = (int) ((p.y + c.position.y) / zone_size);
-            int zone_x = Math.min(Math.max(0, x), colliders.length - 1);
-            int zone_y = Math.min(Math.max(0, y), colliders[0].length - 1);
-            colliders[zone_x][zone_y].remove(c);
-        }
-    }
-
-    /**
-     * @return The colliders in zone {@code (x, y)} in the 2D array of zones.
-     */
-    private static ArrayList<Collider> getCollidersInZone(int x, int y) {
-        if(x >= 0 && x < colliders.length && y >= 0 && y < colliders[0].length) {
-            return colliders[x][y];
-        }
-        else {
-            return new ArrayList<>();
         }
     }
 
@@ -152,8 +104,8 @@ public class Collider extends GameObject {
     public boolean draw_self = false;
 
     /**
-     * If true, the collider checks for collisions every frame and generates collision events. See
-     * {@code PhysicsObject.collisionEvent}.
+     * If true, the collider checks for intersections every frame and generates intersection events. See
+     * {@code PhysicsObject.intersectionEvent}. Defaults to {@code false}.
      * @see PhysicsObject
      */
     public boolean active_check = false;
@@ -162,14 +114,18 @@ public class Collider extends GameObject {
 
     /**
      * @param object The {@link PhysicsObject} to which to attach.
-     * @param local_vertices A list of vertices in clockwise order.
+     * @param local_vertices A list of vertices where each adjacent pair forms one edge of the polygon.
      */
     public Collider(PhysicsObject object, Vector2[] local_vertices) {
         super(object.priority, object.layer);
         this.suspend_tier = object.suspend_tier;
         this.object = object;
-        this.position = Vector2.zero();
+
+        // Add vertices in clockwise order
         this.local_vertices.addAll(Arrays.asList(local_vertices));
+        if(polygonIsCCW(local_vertices)) {
+            Collections.reverse(this.local_vertices);
+        }
 
         // Calculate center
         this.center = Vector2.zero();
@@ -180,6 +136,7 @@ public class Collider extends GameObject {
 
         // Get zone check points list
         this.zone_points.add(this.center);
+        this.position = Vector2.zero();
         for(Line l : this.getLines(false)) {
             if(l.length() >= zone_size || l.p1.difference(this.center).abs() >= zone_size) {
                 Vector2 new_point = l.p1;
@@ -402,28 +359,6 @@ public class Collider extends GameObject {
     }
 
     /**
-     * Checks if {@code this} collides with {@code other}.
-     * @return A Collision object. Populates {@code collision_found}, {@code collided_with}, and {@code intersections}.
-     */
-    private Collision getIntersections(Collider other) {
-
-        Collision collision = new Collision(this);
-
-        for (Line this_l : this.getLines()) {
-            for (Line other_l : other.getLines()) {
-                Vector2 p = this_l.intersection(other_l);
-                if (p != null) {
-                    collision.collision_found = true;
-                    collision.collided_with = other.object;
-                    Misc.addNoDuplicates(collision.intersections, p);
-                }
-            }
-        }
-
-        return collision;
-    }
-
-    /**
      * Returns the proper normal vector for the first collision experienced by {@code this} when moving from
      * {@code this.position} to {@code this.position + delta_position}. Collisions are only checked for the provided
      * list of colliders.
@@ -530,6 +465,108 @@ public class Collider extends GameObject {
      */
     public Collision getCollisionDetails(Vector2 delta_position) {
         return getCollisionDetails(delta_position, this.getCollidersInNeighboringZones());
+    }
+
+
+    /* Helper functions */
+
+
+    /**
+     * @param vertices A list of vertices in either clockwise or counter-clockwise order.
+     * @return {@code true} if the vertices are in counter-clockwise order.
+     */
+    private boolean polygonIsCCW(Vector2[] vertices) {
+        double net_cw_angle = 0;
+        for(int i = 0;i < vertices.length;i++) {
+            Vector2 v1 = getVertex(vertices, i).difference(getVertex(vertices, i-1));
+            Vector2 v2 = getVertex(vertices, i+1).difference(getVertex(vertices, i));
+            double vertex_cw_angle = v2.clockwiseAngle() - v1.clockwiseAngle();
+            if(vertex_cw_angle < 0) {
+                vertex_cw_angle += Math.PI*2;
+            }
+            net_cw_angle += vertex_cw_angle;
+        }
+        return net_cw_angle != Math.PI*2;
+    }
+
+    /**
+     * Helper function to index into a circular list of vertices using any positive or negative integer.
+     */
+    private Vector2 getVertex(Vector2[] vertices, int index) {
+        while(index >= vertices.length) {
+            index -= vertices.length;
+        }
+        while(index < 0) {
+            index += vertices.length;
+        }
+        return vertices[index];
+    }
+
+    /**
+     * Checks if {@code this} collides with {@code other}.
+     * @return A Collision object. Populates {@code collision_found}, {@code collided_with}, and {@code intersections}.
+     */
+    private Collision getIntersections(Collider other) {
+
+        Collision collision = new Collision(this);
+
+        for (Line this_l : this.getLines()) {
+            for (Line other_l : other.getLines()) {
+                Vector2 p = this_l.intersection(other_l);
+                if (p != null) {
+                    collision.collision_found = true;
+                    collision.collided_with = other.object;
+                    Misc.addNoDuplicates(collision.intersections, p);
+                }
+            }
+        }
+
+        return collision;
+    }
+
+
+    /* Collider zone helper functions */
+
+    /**
+     * Adds {@code c} to the array used by the {@link #Collider} class to find nearby {@code Colliders}.
+     * @see #getCollidersInZone
+     */
+    private static void addToCollidersArray(Collider c) {
+        for(Vector2 p : c.zone_points) {
+            int x = (int) ((p.x + c.position.x) / zone_size);
+            int y = (int) ((p.y + c.position.y) / zone_size);
+            int zone_x = Math.min(Math.max(0, x), colliders.length - 1);
+            int zone_y = Math.min(Math.max(0, y), colliders[0].length - 1);
+            if(!colliders[zone_x][zone_y].contains(c)) {
+                colliders[zone_x][zone_y].add(c);
+            }
+        }
+    }
+
+    /**
+     * Removes {@code c} from the array used by the {@link #Collider} class to find nearby {@code Colliders}.
+     * @see #getCollidersInZone
+     */
+    private static void removeFromCollidersArray(Collider c) {
+        for(Vector2 p : c.zone_points) {
+            int x = (int) ((p.x + c.position.x) / zone_size);
+            int y = (int) ((p.y + c.position.y) / zone_size);
+            int zone_x = Math.min(Math.max(0, x), colliders.length - 1);
+            int zone_y = Math.min(Math.max(0, y), colliders[0].length - 1);
+            colliders[zone_x][zone_y].remove(c);
+        }
+    }
+
+    /**
+     * @return The colliders in zone {@code (x, y)} in the 2D array of zones.
+     */
+    private static ArrayList<Collider> getCollidersInZone(int x, int y) {
+        if(x >= 0 && x < colliders.length && y >= 0 && y < colliders[0].length) {
+            return colliders[x][y];
+        }
+        else {
+            return new ArrayList<>();
+        }
     }
 
     /**

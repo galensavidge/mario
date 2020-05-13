@@ -1,10 +1,10 @@
 package engine.util;
 
 /**
- * A simple class to hold a 2-vector with double precision.
+ * A simple class to represent a 2D vector with double precision.
  *
  * @author Galen Savidge
- * @version 4/30/2020
+ * @version 5/13/2020
  */
 public class Vector2 {
     /**
@@ -126,6 +126,17 @@ public class Vector2 {
      */
     public Vector2 normalComponent(Vector2 v) {
         return this.difference(this.projection(v));
+    }
+
+    /**
+     * @return The clockwise rotation, in radians, between {@code this} and the horizontal (the x+ unit vector).
+     */
+    public double clockwiseAngle() {
+        double angle = Math.atan2(this.y, this.x);
+        if(angle < 0) {
+            angle += Math.PI*2;
+        }
+        return angle;
     }
 
     public String toString() {
