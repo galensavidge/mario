@@ -4,6 +4,7 @@ import engine.objects.Collider.Collision;
 import engine.util.Vector2;
 
 import java.util.ArrayList;
+import java.util.Dictionary;
 
 /**
  * The parent class for all objects that inhabit physical space in the game world.
@@ -26,7 +27,14 @@ public abstract class PhysicsObject extends GameObject {
     public PhysicsObject(int priority, int layer, double x, double y) {
         super(priority, layer);
         position = new Vector2(x, y);
-        velocity = new Vector2(0, 0);
+        velocity = Vector2.zero();
+    }
+
+    public PhysicsObject(int priority, int layer, Dictionary<String, Object> args) {
+        super(priority, layer);
+        position = Vector2.zero();
+        velocity = Vector2.zero();
+        parseArgs(args);
     }
 
 
@@ -75,7 +83,7 @@ public abstract class PhysicsObject extends GameObject {
         }
 
         Vector2 new_position = position;
-        
+
         // Loop until a position is found with no collisions or we hit too many iterations
         for(int i = 0;i < 100;i++) {
             // Determine the new position to check
@@ -199,6 +207,31 @@ public abstract class PhysicsObject extends GameObject {
     @Override
     public void deleteEvent() {
         collider = null;
+    }
+
+    /**
+     * Parses properties from a list of JSON style name/value property pairs.
+     */
+    protected void parseArgs(Dictionary<String, Object> args) {
+        try {
+            Object priority = args.get("priority");
+            if(priority != null) this.priority = (int)priority;
+            Object layer = args.get("layer");
+            if(layer != null) this.layer = (int)layer;
+            Object suspend_tier = args.get("suspend_tier");
+            if(suspend_tier != null) this.suspend_tier = (int)suspend_tier;
+            Object persistent = args.get("persistent");
+            if(persistent != null) this.persistent = (boolean)persistent;
+            Object visible = args.get("visible");
+            if(visible != null) this.visible = (boolean)visible;
+            Object position = args.get("position");
+            if(position != null) this.position = (Vector2)position;
+            Object solid = args.get("solid");
+            if(solid != null) this.solid = (boolean)solid;
+        }
+        catch(ClassCastException | NullPointerException e) {
+            e.printStackTrace();
+        }
     }
 }
 

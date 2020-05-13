@@ -1,15 +1,9 @@
 package engine;
 
-import engine.objects.Collider;
 import engine.objects.PhysicsObject;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.Scanner;
-
 /**
- * A class used to construct the game world from templates.
+ * A class which contains the physical properties of the game world.
  *
  * @author Galen Savidge
  * @version 5/12/2020
@@ -68,111 +62,5 @@ public class World {
 
     public static PhysicsObject gridGet(int x, int y) {
         return grid[x][y];
-    }
-
-
-    /* World generation */
-
-    /**
-     * Need information about file formatting here...
-     *
-     * @param file_name The file to load.
-     * @return True if successful.
-     */
-    public static boolean loadFromFile(String file_name, int grid_size, LineFormat[] line_formats) {
-        // Open file
-        File file = new File(file_name);
-        Scanner scanner;
-        try {
-            scanner = new Scanner(file);
-        }
-        catch(FileNotFoundException e) {
-            return false;
-        }
-
-        // Set world grid scale
-        World.grid_size = grid_size;
-
-        // Get world size
-        int grid_width = 0, grid_height = 0;
-        while(scanner.hasNextLine()) {
-            String line = scanner.nextLine().trim();
-            String[] words = line.split(" ");
-            switch (words[0]) {
-                case "Width:":
-                    try {
-                        grid_width = Integer.parseInt(words[1]);
-                    } catch (NumberFormatException e) {
-                        return false;
-                    }
-                    break;
-                case "Height:":
-                    try {
-                        grid_height = Integer.parseInt(words[1]);
-                    } catch (NumberFormatException e) {
-                        return false;
-                    }
-                    break;
-            }
-        }
-
-        if(grid_size <= 0 || grid_width <= 0 || grid_height <= 0) {
-            return false;
-        }
-
-        World.width = grid_width*grid_size;
-        World.height = grid_height*grid_size;
-        gridInit(grid_width, grid_height);
-        Collider.initColliders(2*grid_size); // This is lazy and needs updating for more flexibility
-
-        // Reset scanner
-        try {
-            scanner = new Scanner(file);
-        }
-        catch(FileNotFoundException e) {
-            return false;
-        }
-
-        // Spawn objects
-        while(scanner.hasNextLine()) {
-            String line = scanner.nextLine().trim();
-            String[] words = line.split(" ");
-
-            // Get object name
-            String name = words[0];
-
-            // Get args
-            ArrayList<Integer> args = new ArrayList<>();
-            for(int i = 1;i < words.length;i++) {
-                String word = words[i];
-                String[] comma_split = word.split(",");
-                for(String value : comma_split) {
-                    try {
-                        args.add(Integer.parseInt(value));
-                    }
-                    catch (NumberFormatException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-
-            // Pass args to the correct LineFormat
-            for(LineFormat f : line_formats) {
-                if(f.getName().equals(name)) {
-                    f.handleLine(args);
-                    break;
-                }
-            }
-        }
-
-        return true;
-    }
-
-
-    public static abstract class LineFormat {
-
-        public abstract String getName();
-
-        public abstract void handleLine(ArrayList<Integer> args);
     }
 }

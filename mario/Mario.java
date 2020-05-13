@@ -49,17 +49,18 @@ public class Mario {
         Game.setUseFrameTime(true);
         GameGraphics.initWindow("Mario",24* getGridScale(),14* getGridScale(), window_scale);
         GameGraphics.setDrawScale(scaling_ratio);
+        World.setGridScale(scaling_ratio);
         InputManager.init();
 
         // Game init
-        GameController gc = new GameController();
+        //GameController gc = new GameController();
 
-        // Create game world
-        GameController.switchToLevel(Mario.level_path+"level0");
+        String level = "test.json";
+        WorldLoader.loadFromFile(level_path, level);
 
-        // Instantiate objects
-        new Galoomba(Mario.getGridScale()*15, Mario.getGridScale()*5);
-        new Galoomba(Mario.getGridScale()*45, Mario.getGridScale()*5);
+        NewPlayer player = new NewPlayer(64, 0);
+        new Camera(player);
+        new Background();
 
         // Run game
         Game.run();

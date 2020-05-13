@@ -14,7 +14,7 @@ import java.awt.image.BufferStrategy;
  * Class with methods to set up the game window and draw things.
  *
  * @author Galen Savidge
- * @version 4/24/2020
+ * @version 5/12/2020
  */
 public class GameGraphics extends GameObject {
 
@@ -150,6 +150,24 @@ public class GameGraphics extends GameObject {
 
 
     /* Functions to draw different things */
+
+    /**
+     * @return An empty {@link BufferedImage} with the given width and height.
+     */
+    public static BufferedImage createBufferedImage(int width, int height) {
+        return config.createCompatibleImage(width, height, Transparency.BITMASK);
+    }
+
+    /**
+     * @return A {@link BufferedImage} representation of {@code image}.
+     */
+    public static BufferedImage createBufferedImage(Image image) {
+        BufferedImage b = GameGraphics.createBufferedImage(image.getWidth(null), image.getHeight(null));
+        Graphics2D g = b.createGraphics();
+        g.drawImage(image, 0, 0, null);
+        g.dispose();
+        return b;
+    }
 
     /**
      * Draws a point at {@code (x, y)}.
@@ -326,8 +344,8 @@ public class GameGraphics extends GameObject {
     /* Private GameGraphics game object */
 
     /**
-     * Instantiable GameGraphics class: should not be created by the user. Is instantiated by
-     * {@link #initWindow(String, int, int, int)} and calls {@link #updateGraphics()} at the end of each draw loop.
+     * Instantiable GameGraphics class: should not be created by the user. Is instantiated by {@link #initWindow} and
+     * calls {@link #updateGraphics()} at the end of each draw loop.
      */
     private GameGraphics() {
         super(0, Integer.MAX_VALUE); // Put this object at the very bottom of the draw queue
@@ -341,5 +359,10 @@ public class GameGraphics extends GameObject {
     @Override
     public void draw() {
         GameGraphics.updateGraphics();
+    }
+
+    @Override
+    public void delete() {
+
     }
 }

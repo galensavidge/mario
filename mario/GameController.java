@@ -52,7 +52,7 @@ public class GameController extends GameObject {
 
     public static void switchToLevel(String file_name) {
         current_level = file_name;
-        WorldLoader.loadFromFile(file_name);
+        WorldLoader.loadFromFile(Mario.level_path, file_name);
         _spawnPlayer();
         animationFinishAction = ()->Game.setSuspendTier(0);
         new Transition(1, Transition.Type.PIXEL_IN);
