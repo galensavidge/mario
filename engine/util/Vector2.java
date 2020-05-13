@@ -128,6 +128,17 @@ public class Vector2 {
         return this.difference(this.projection(v));
     }
 
+    /**
+     * @return The clockwise rotation, in radians, between {@code this} and the horizontal (the x+ unit vector).
+     */
+    public double clockwiseAngle() {
+        double angle = Math.atan2(this.y, this.x);
+        if(angle < 0) {
+            angle += Math.PI*2;
+        }
+        return angle;
+    }
+
     public String toString() {
         return "<"+this.x+","+this.y+">";
     }
