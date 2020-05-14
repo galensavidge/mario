@@ -6,7 +6,7 @@ import engine.objects.PhysicsObject;
 import engine.util.Vector2;
 import mario.Mario;
 
-import java.util.Dictionary;
+import java.util.HashMap;
 
 public class Ground extends PhysicsObject {
     public static final String type_name = "Ground";
@@ -20,7 +20,7 @@ public class Ground extends PhysicsObject {
         //this.visible = false;
     }
 
-    public Ground(Dictionary<String, Object> args) {
+    public Ground(HashMap<String, Object> args) {
         super(Mario.block_priority, Mario.block_layer, args);
         this.type = Ground.type_name;
         this.type_group = Types.block_type_group;
@@ -39,7 +39,7 @@ public class Ground extends PhysicsObject {
     }
 
     @Override
-    protected void parseArgs(Dictionary<String, Object> args) {
+    protected void parseArgs(HashMap<String, Object> args) {
         super.parseArgs(args);
 
         try {

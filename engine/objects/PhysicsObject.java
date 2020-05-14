@@ -5,7 +5,7 @@ import engine.objects.Collider.Collision;
 import engine.util.Vector2;
 
 import java.util.ArrayList;
-import java.util.Dictionary;
+import java.util.HashMap;
 
 /**
  * The parent class for all objects that inhabit physical space in the game world.
@@ -33,7 +33,7 @@ public abstract class PhysicsObject extends GameObject {
         velocity = Vector2.zero();
     }
 
-    public PhysicsObject(int priority, int layer, Dictionary<String, Object> args) {
+    public PhysicsObject(int priority, int layer, HashMap<String, Object> args) {
         super(priority, layer);
         position = Vector2.zero();
         velocity = Vector2.zero();
@@ -225,12 +225,8 @@ public abstract class PhysicsObject extends GameObject {
     /**
      * Parses properties from a list of JSON style name/value property pairs.
      */
-    protected void parseArgs(Dictionary<String, Object> args) {
+    protected void parseArgs(HashMap<String, Object> args) {
         try {
-            Object priority = args.get("priority");
-            if(priority != null) this.priority = (int)priority;
-            Object layer = args.get("layer");
-            if(layer != null) this.layer = (int)layer;
             Object suspend_tier = args.get("suspend_tier");
             if(suspend_tier != null) this.suspend_tier = (int)suspend_tier;
             Object persistent = args.get("persistent");

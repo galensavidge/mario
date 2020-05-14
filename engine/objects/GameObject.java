@@ -10,8 +10,8 @@ import engine.Game;
  */
 public abstract class GameObject {
 
-    protected int priority;
-    protected int layer;
+    protected final int priority;
+    protected final int layer;
     public boolean visible = true;
     private boolean deleted = false;
 

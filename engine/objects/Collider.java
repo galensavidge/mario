@@ -20,8 +20,9 @@ public class Collider extends GameObject {
 
     /* Class constants */
 
-    private static int zone_size; // In pixels
-    protected static ArrayList<Collider>[][] colliders; // A list of all colliders that exist
+    private static final int zone_size_in_grid = 2; // Zone size in grid squares
+    private static int zone_size; // Zone size in pixels
+    protected static ArrayList<Collider>[][] colliders; // A list of all colliders that exist as a 2D array of zones
 
     public static final double edge_separation = 10*Misc.delta;
     public static final double reject_separation = 2*Misc.delta;
@@ -32,16 +33,14 @@ public class Collider extends GameObject {
     /**
      * Initializes the data structure used to check which {@link Collider} instances lie within a specific area. Should
      * be called before any {@link Collider} objects are created.
-     * @param zone_size The size, in units of {@link engine.World}.{@code getGridScale()}.
      * @throws ExceptionInInitializerError Throws if {@link engine.World} has not yet been initialized.
      */
-    public static void initColliders(int zone_size) throws ExceptionInInitializerError {
+    public static void initColliders() throws ExceptionInInitializerError {
         if(World.getGridSize() == 0) {
             throw new ExceptionInInitializerError("World not initialized!");
         }
 
-        Collider.zone_size = zone_size;
-
+        Collider.zone_size = zone_size_in_grid*World.getGridSize();
         int grid_width = World.getWidth()/zone_size + 1;
         int grid_height = World.getHeight()/zone_size + 1;
         colliders = new ArrayList[grid_width][grid_height];

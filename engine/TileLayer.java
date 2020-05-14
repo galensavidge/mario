@@ -2,8 +2,8 @@ package engine;
 
 import engine.objects.GameObject;
 
-import static engine.LevelParser.getChildrenByName;
-import static engine.LevelParser.parseXML;
+import static engine.LevelParser.XMLGetChildrenByName;
+import static engine.LevelParser.XMLOpen;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -13,15 +13,15 @@ import java.awt.image.*;
 import java.util.ArrayList;
 
 /**
- * Caches a set of tiles in an image buffer and draws it in the world. Tile maps are parsed
+ * Caches a set of tiles in an image buffer and draws it in the world.
  *
  * @author Galen Savidge
- * @version 5/12/2020
+ * @version 5/13/2020
  */
 public class TileLayer extends GameObject {
 
     private final BufferedImage cache;
-    private final double parallax_factor;
+    private final double x, y, parallax_factor;
 
     /**
      * @param layer The layer on which to draw. See {@link GameObject}.
@@ -33,8 +33,10 @@ public class TileLayer extends GameObject {
      *                 top left to bottom right, wrapping after each row. Each ID represents a unique tile in a
      *                 {@link TileSet} in {@code tile_sets} if parsed correctly. Zero represents an empty space.
      */
-    public TileLayer(int layer, double parallax_factor, ArrayList<TileSet> tile_sets, int[] gid_list) {
+    public TileLayer(double x, double y, int layer, double parallax_factor, ArrayList<TileSet> tile_sets, int[] gid_list) {
         super(0, layer);
+        this.x = x;
+        this.y = y;
         this.parallax_factor = parallax_factor;
 
         // Create image cache
@@ -49,14 +51,14 @@ public class TileLayer extends GameObject {
             int gid = gid_list[i];
 
             // Calculate coordinates
-            int x = (i % grid_width)*grid_size;
-            int y = (i / grid_width)*grid_size;
+            int grid_x = (i % grid_width)*grid_size;
+            int grid_y = (i / grid_width)*grid_size;
 
             // Draw from correct tile set
             for(TileSet tile_set : tile_sets) {
                 Image tile = tile_set.getTile(gid);
                 if(tile != null) {
-                    g.drawImage(tile, x, y + grid_size - tile.getHeight(null), null);
+                    g.drawImage(tile, grid_x, grid_y + grid_size - tile.getHeight(null), null);
                     break;
                 }
             }
@@ -66,14 +68,9 @@ public class TileLayer extends GameObject {
     }
 
     @Override
-    public void update() {
-
-    }
-
-    @Override
     public void draw() {
-        GameGraphics.drawImage((int)(GameGraphics.camera_x*(parallax_factor - 1)),
-                (int)(GameGraphics.camera_y*(parallax_factor - 1)),
+        GameGraphics.drawImage((int)(x+GameGraphics.camera_x*(parallax_factor - 1)),
+                (int)(y+GameGraphics.camera_y*(parallax_factor - 1)),
                 false, cache);
     }
 
@@ -105,7 +102,7 @@ public class TileLayer extends GameObject {
          * @param first_gid The ID of the first (top-left) tile in this set, likely read from a Tiled map.
          */
         TileSet(String directory, String tsx_file, int first_gid) {
-            Document doc = parseXML(directory+tsx_file);
+            Document doc = XMLOpen(directory+tsx_file);
             this.source = tsx_file;
 
             this.tiles = new ArrayList<>();
@@ -115,7 +112,7 @@ public class TileLayer extends GameObject {
             Element tileset_element = (Element) tileset;
 
             // Single-tile files
-            for(Node tile_node : getChildrenByName(tileset, "tile")) {
+            for(Node tile_node : XMLGetChildrenByName(tileset, "tile")) {
                 Element tile_element = (Element) tile_node;
                 TileImage tile = new TileImage();
 
@@ -135,7 +132,7 @@ public class TileLayer extends GameObject {
             }
 
             // Multi-tile files
-            for(Node image_node : getChildrenByName(tileset, "image")) {
+            for(Node image_node : XMLGetChildrenByName(tileset, "image")) {
                 Element image_element = (Element) image_node;
                 TileImage tile = new TileImage();
 

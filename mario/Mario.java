@@ -60,7 +60,6 @@ public class Mario {
 
         NewPlayer player = new NewPlayer(64, 0);
         new Camera(player);
-        new Background();
 
         // Run game
         Game.run();

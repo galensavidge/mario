@@ -3,8 +3,7 @@ package mario;
 import engine.LevelParser;
 import mario.objects.*;
 
-import java.util.Dictionary;
-import java.util.Hashtable;
+import java.util.HashMap;
 
 /**
  * This class loads JSON files using {@link engine.LevelParser}.
@@ -14,7 +13,7 @@ import java.util.Hashtable;
  */
 public class WorldLoader {
 
-    private static Dictionary<String, LevelParser.TypeMap> type_table;
+    private static HashMap<String, LevelParser.TypeMap> type_table;
 
 
     public static void loadFromFile(String directory, String file_name) {
@@ -25,7 +24,7 @@ public class WorldLoader {
     }
 
     static private void buildTypeTable() {
-        type_table = new Hashtable<>();
+        type_table = new HashMap<>();
         type_table.put(Ground.type_name.toLowerCase(), Ground::new);
     }
 }
