@@ -225,7 +225,8 @@ public class LevelParser {
             Object o_y = args.get("y");
             if (o_x != null && o_y != null) {
                 double x = Double.parseDouble(o_x.toString()) * World.grid_scaling_factor + xoffset;
-                double y = Double.parseDouble(o_y.toString()) * World.grid_scaling_factor + yoffset;
+                double y = Double.parseDouble(o_y.toString()) * World.grid_scaling_factor + yoffset
+                        - (double)args.get("height")*World.grid_scaling_factor;
                 args.put("position", new Vector2(x, y));
             }
 
@@ -340,18 +341,27 @@ public class LevelParser {
      */
     private static HashMap<String, Object> XMLParseTemplate(String file_name) {
         HashMap<String, Object> data = new HashMap<>();
-        Document xml_template = XMLOpen(file_name);
-        if(xml_template == null) {
+        Document template = XMLOpen(file_name);
+        if(template == null) {
             return data;
         }
 
-        Node xml_object = xml_template.getElementsByTagName("object").item(0);
+        Node xml_object = template.getElementsByTagName("object").item(0);
         Element object_element = (Element) xml_object;
 
         // Type
-        String xml_type = object_element.getAttribute("type");
-        if(xml_type != null) {
-            data.put("type", xml_type.toLowerCase());
+        String type = object_element.getAttribute("type");
+        if(!type.equals("")) {
+            data.put("type", type.toLowerCase());
+        }
+
+        // Height
+        String height = object_element.getAttribute("height");
+        if(!height.equals("")) {
+            data.put("height", Double.parseDouble(height));
+        }
+        else {
+            data.put("height", 0.0);
         }
 
         // Properties
