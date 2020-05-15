@@ -203,7 +203,7 @@ public class LevelParser {
             JSONObject object = (JSONObject) o;
 
             // Make list of args
-            HashMap<String, Object> args = new HashMap<>(object);
+            HashMap<String, Object> args = new HashMap<String, Object>(object);
 
             // Parse template
             String template_file = (String) object.get("template");
@@ -373,8 +373,16 @@ public class LevelParser {
                 String property_name = property.getAttribute("name");
                 String property_type = property.getAttribute("type");
                 Object property_value = property.getAttribute("value");
-                if (property_type.equals("bool")) {
-                    property_value = Boolean.parseBoolean((String) property_value);
+                switch (property_type) {
+                    case "bool":
+                        property_value = Boolean.parseBoolean((String) property_value);
+                        break;
+                    case "int":
+                        property_value = Long.parseLong((String) property_value);
+                        break;
+                    case "float":
+                        property_value = Double.parseDouble((String) property_value);
+                        break;
                 }
                 data.put(property_name, property_value);
             }
