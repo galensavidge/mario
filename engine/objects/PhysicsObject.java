@@ -11,7 +11,7 @@ import java.util.HashMap;
  * The parent class for all objects that inhabit physical space in the game world.
  *
  * @author Galen Savidge
- * @version 5/9/2020
+ * @version 5/14/2020
  */
 public abstract class PhysicsObject extends GameObject {
 
@@ -26,6 +26,9 @@ public abstract class PhysicsObject extends GameObject {
     public Collider collider;
     public Vector2 position;
     public Vector2 velocity;
+
+
+    /* Constructors */
 
     public PhysicsObject(int priority, int layer, double x, double y) {
         super(priority, layer);
@@ -80,6 +83,7 @@ public abstract class PhysicsObject extends GameObject {
                 && position.x >= GameGraphics.camera_x - width - margin
                 && position.y >= GameGraphics.camera_y - height - margin;
     }
+
 
     /* Physics functions */
 
@@ -227,8 +231,8 @@ public abstract class PhysicsObject extends GameObject {
      */
     protected void parseArgs(HashMap<String, Object> args) {
         try {
-            Object suspend_tier = args.get("suspend_tier");
-            if(suspend_tier != null) this.suspend_tier = (int)suspend_tier;
+            Object suspend_tier = args.get("suspend tier");
+            if(suspend_tier != null) this.suspend_tier = (int)(long)suspend_tier;
             Object persistent = args.get("persistent");
             if(persistent != null) this.persistent = (boolean)persistent;
             Object visible = args.get("visible");
