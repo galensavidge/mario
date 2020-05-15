@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<template>
+ <object type="Ground">
+  <properties>
+   <property name="semisolid" type="bool" value="false"/>
+  </properties>
+  <polygon points="0,0 16,0 16,16 0,16"/>
+ </object>
+</template>

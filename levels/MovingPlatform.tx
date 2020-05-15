@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<template>
+ <tileset firstgid="1" source="mm2-smw.tsx"/>
+ <object type="MovingPlatform" gid="7" width="16" height="16">
+  <properties>
+   <property name="move distance" type="int" value="6"/>
+   <property name="moves left" type="bool" value="false"/>
+   <property name="size" type="int" value="3"/>
+  </properties>
+ </object>
+</template>
