@@ -4,6 +4,14 @@ import engine.Sprite;
 import engine.objects.Collider;
 import engine.objects.Collider.Collision;
 
+import java.util.HashMap;
+
+/**
+ * A Galoomba, the Goomba equivalent from SMW.
+ *
+ * @author Galen Savidge
+ * @version 5/14/2020
+ */
 public class Galoomba extends Enemy {
 
     public static final String type_name = "Galoomba";
@@ -18,7 +26,16 @@ public class Galoomba extends Enemy {
     private final Sprite walk_sprite = new Sprite(walk_sprite_files);
 
     public Galoomba(double x, double y) {
-        super( x, y);
+        super(x, y);
+        init();
+    }
+
+    public Galoomba(HashMap<String, Object> args) {
+        super(args);
+        init();
+    }
+
+    private void init() {
         this.type = Galoomba.type_name;
 
         this.collider = Collider.newPolygon(this, 8, 0, 0, Mario.getGridScale()/2.0, 0);

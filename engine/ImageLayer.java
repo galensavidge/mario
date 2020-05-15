@@ -33,7 +33,7 @@ public class ImageLayer extends GameObject {
         super(0, layer);
         this.x = x;
         this.y = y;
-        this.scale = Math.min(1, scale);
+        this.scale = Math.max(1, scale);
         this.parallax_factor = parallax_factor;
         this.tile = tile;
 

@@ -223,7 +223,7 @@ public abstract class PhysicsObject extends GameObject {
     }
 
     /**
-     * Parses properties from a list of JSON style name/value property pairs.
+     * Parses properties from a list of JSON style name/value pairs.
      */
     protected void parseArgs(HashMap<String, Object> args) {
         try {

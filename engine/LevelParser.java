@@ -30,6 +30,8 @@ import java.util.*;
  */
 public class LevelParser {
 
+    /* JSON parsing */
+
     /**
      * An interface for creating the lambda functions used to spawn objects.
      *
@@ -61,12 +63,9 @@ public class LevelParser {
             JSONObject main = (JSONObject)parser.parse(file_text); // Top level node
 
             // Set up world
-            long width = (long)main.get("width");
-            long height = (long)main.get("height");
-            long grid_size = (long)main.get("tilewidth")*World.grid_scaling_factor;
-            World.grid_size = (int)grid_size;
-            World.width = (int)width*World.grid_size;
-            World.height = (int)height*World.grid_size;
+            World.grid_size = (int)(long)main.get("tilewidth")*World.grid_scaling_factor;
+            World.width = (int)(long)main.get("width")*World.grid_size;
+            World.height = (int)(long)main.get("height")*World.grid_size;
 
             // Need to do this between when the grid size is determined and when objects are instantiated
             Collider.initColliders();
@@ -81,21 +80,70 @@ public class LevelParser {
 
                 String layer_type = (String) layer.get("type");
 
+                // Get layer offset
+                Object x_object = layer.get("offsetx");
+                double x = 0;
+                if(x_object != null) {
+                    x = Double.parseDouble(x_object.toString())*World.grid_scaling_factor;
+                }
+                Object y_object = layer.get("offsety");
+                double y = 0;
+                if(y_object != null) {
+                    y = Double.parseDouble(y_object.toString())*World.grid_scaling_factor;
+                }
+
                 // Parse object group
                 if(layer_type.equals("objectgroup")) {
                     JSONArray objects = (JSONArray) layer.get("objects");
-                    parseObjects(objects, directory, constructors);
+                    parseObjects(directory, x, y, objects, constructors);
                 }
 
                 // Parse tile/image layers
                 if(layer_type.equals("tilelayer") || layer_type.equals("imagelayer")) {
-                    parseImageLayer(layer, directory, tile_sets);
+                    parseImageLayer(directory, x, y, layer, tile_sets);
                 }
             }
         }
         catch (ParseException e) {
             e.printStackTrace();
         }
+    }
+
+
+    /* XML parsing functions */
+
+    /**
+     * Opens an XML document and returns a parsable {@link Document}.
+     */
+    public static Document XMLOpen(String file_name) {
+        Document d = null;
+
+        try {
+            File f = new File(file_name);
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            d = builder.parse(f);
+            //d.getDocumentElement().normalize();
+        }
+        catch(ParserConfigurationException | SAXException | IOException e) {
+            e.printStackTrace();
+        }
+        return d;
+    }
+
+    /**
+     * Returns a list of all children of {@link Node} n that have the name {@code name}.
+     */
+    public static ArrayList<Node> XMLGetChildrenByName(Node n, String name) {
+        ArrayList<Node> r = new ArrayList<>();
+        NodeList n_children = n.getChildNodes();
+        for(int i = 0;i < n_children.getLength();i++) {
+            Node child = n_children.item(i);
+            if(child.getNodeName().equals(name)) {
+                r.add(child);
+            }
+        }
+        return r;
     }
 
 
@@ -147,66 +195,64 @@ public class LevelParser {
      * 
      * @see #loadFromJson
      */
-    private static void parseObjects(JSONArray objects, String directory, HashMap<String, TypeMap> constructors) {
+    private static void parseObjects(String directory, double xoffset, double yoffset, JSONArray objects, HashMap<String, TypeMap> constructors) {
         if (objects == null) {
             return;
         }
         for (Object o : objects) {
             JSONObject object = (JSONObject) o;
-            String type = "";
 
             // Make list of args
-            HashMap<String, Object> args = new HashMap<>();
-
-            // Put position vector in the list of args
-            Object o_x = object.get("x");
-            Object o_y = object.get("y");
-            if (o_x != null && o_y != null) {
-                long x = (long) object.get("x") * World.grid_scaling_factor;
-                long y = (long) object.get("y") * World.grid_scaling_factor;
-                args.put("position", new Vector2((double) x, (double) y));
-            }
+            HashMap<String, Object> args = new HashMap<>(object);
 
             // Parse template
             String template_file = (String) object.get("template");
             if (template_file != null) {
                 HashMap<String, Object> template_data = XMLParseTemplate(directory+template_file);
-                String template_type = (String) template_data.get("type");
-                if (template_type != null) {
-                    type = template_type;
-                    template_data.remove("type");
-                }
                 args.putAll(template_data);
             }
 
             // Parse type
-            Object type_obj = object.get("type");
+            Object type_obj = args.get("type");
+            String type;
             if (type_obj != null) {
                 type = ((String) type_obj).toLowerCase();
+                args.put("type", type);
             }
 
+            // Get position vector
+            Object o_x = args.get("x");
+            Object o_y = args.get("y");
+            if (o_x != null && o_y != null) {
+                double x = Double.parseDouble(o_x.toString()) * World.grid_scaling_factor + xoffset;
+                double y = Double.parseDouble(o_y.toString()) * World.grid_scaling_factor + yoffset;
+                args.put("position", new Vector2(x, y));
+            }
+
+
             // Get vertices
-            JSONArray o_vertices = (JSONArray) object.get("polygon");
+            JSONArray o_vertices = (JSONArray) args.get("polygon");
             if (o_vertices != null) {
                 Vector2[] vertices = new Vector2[o_vertices.size()];
                 int i = 0;
                 for (Object v : o_vertices) {
                     JSONObject vertex = (JSONObject) v;
-                    long x = (long) vertex.get("x") * World.grid_scaling_factor;
-                    long y = (long) vertex.get("y") * World.grid_scaling_factor;
-                    vertices[i++] = new Vector2((double) x, (double) y);
+                    double x = Double.parseDouble(vertex.get("x").toString()) * World.grid_scaling_factor;
+                    double y = Double.parseDouble(vertex.get("y").toString()) * World.grid_scaling_factor;
+                    vertices[i++] = new Vector2(x, y);
                 }
                 args.put("vertices", vertices);
             }
 
             // Parse properties
-            JSONArray properties = (JSONArray) object.get("properties");
+            JSONArray properties = (JSONArray) args.get("properties");
             args.putAll(parseProperties(properties));
 
             // Make instance
-            TypeMap constructor = constructors.get(type);
+            String instance_type = (String) args.get("type");
+            TypeMap constructor = constructors.get(instance_type);
             if (constructor != null) {
-                constructors.get(type).spawn(args);
+                constructor.spawn(args);
             }
         }
     }
@@ -218,20 +264,8 @@ public class LevelParser {
      * @param directory The path to the folder containing the JSON file.
      * @param tile_sets The list of tilesets, likely returned by {@link #parseTilesets}.
      */
-    private static void parseImageLayer(JSONObject layer, String directory, ArrayList<TileSet> tile_sets) {
+    private static void parseImageLayer(String directory, double xoffset, double yoffset, JSONObject layer, ArrayList<TileSet> tile_sets) {
         String layer_type = (String) layer.get("type");
-
-        // Get layer offset
-        Object x_object = layer.get("offsetx");
-        double x = 0;
-        if(x_object != null) {
-            x = Double.parseDouble(x_object.toString())*World.grid_scaling_factor;
-        }
-        Object y_object = layer.get("offsety");
-        double y = 0;
-        if(y_object != null) {
-            y = Double.parseDouble(y_object.toString())*World.grid_scaling_factor;
-        }
 
         // Get layer custom properties
         JSONArray properties = (JSONArray) layer.get("properties");
@@ -256,7 +290,7 @@ public class LevelParser {
                 for (int i = 0; i < tile_data.length; i++) {
                     tile_data[i] = (int)(long) raw_tile_data[i];
                 }
-                new TileLayer(x, y, tile_layer, parallax, tile_sets, tile_data);
+                new TileLayer(xoffset, yoffset, tile_layer, parallax, tile_sets, tile_data);
             }
         }
 
@@ -273,7 +307,7 @@ public class LevelParser {
                 scale = (int)(long)scale_object;
             }
             String image_file_name = (String) layer.get("image");
-            new ImageLayer(x, y, tile_layer, scale, parallax, tile, directory+image_file_name);
+            new ImageLayer(xoffset, yoffset, tile_layer, scale, parallax, tile, directory+image_file_name);
         }
     }
 
@@ -294,43 +328,6 @@ public class LevelParser {
             }
         }
         return data;
-    }
-
-
-    /* XML parsing functions */
-
-    /**
-     * Opens an XML document and returns a parsable {@link Document}.
-     */
-    public static Document XMLOpen(String file_name) {
-        Document d = null;
-
-        try {
-            File f = new File(file_name);
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            d = builder.parse(f);
-            //d.getDocumentElement().normalize();
-        }
-        catch(ParserConfigurationException | SAXException | IOException e) {
-            e.printStackTrace();
-        }
-        return d;
-    }
-
-    /**
-     * Returns a list of all children of {@link Node} n that have the name {@code name}.
-     */
-    public static ArrayList<Node> XMLGetChildrenByName(Node n, String name) {
-        ArrayList<Node> r = new ArrayList<>();
-        NodeList n_children = n.getChildNodes();
-        for(int i = 0;i < n_children.getLength();i++) {
-            Node child = n_children.item(i);
-            if(child.getNodeName().equals(name)) {
-                r.add(child);
-            }
-        }
-        return r;
     }
 
     /**
@@ -358,16 +355,19 @@ public class LevelParser {
         }
 
         // Properties
-        NodeList properties = ((Element)object_element.getElementsByTagName("properties").item(0)).getElementsByTagName("property");
-        for(int i = 0;i < properties.getLength();i++) {
-            Element property = (Element) properties.item(i);
-            String property_name = property.getAttribute("name");
-            String property_type = property.getAttribute("type");
-            Object property_value = property.getAttribute("value");
-            if(property_type.equals("bool")) {
-                property_value = Boolean.parseBoolean((String)property_value);
+        Node properties_node = object_element.getElementsByTagName("properties").item(0);
+        if(properties_node != null) {
+            NodeList properties = ((Element) properties_node).getElementsByTagName("property");
+            for (int i = 0; i < properties.getLength(); i++) {
+                Element property = (Element) properties.item(i);
+                String property_name = property.getAttribute("name");
+                String property_type = property.getAttribute("type");
+                Object property_value = property.getAttribute("value");
+                if (property_type.equals("bool")) {
+                    property_value = Boolean.parseBoolean((String) property_value);
+                }
+                data.put(property_name, property_value);
             }
-            data.put(property_name, property_value);
         }
 
         // Vertices

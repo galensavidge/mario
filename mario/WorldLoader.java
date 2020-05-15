@@ -26,5 +26,8 @@ public class WorldLoader {
     static private void buildTypeTable() {
         type_table = new HashMap<>();
         type_table.put(Ground.type_name.toLowerCase(), Ground::new);
+        type_table.put(HardBlock.type_name.toLowerCase(), HardBlock::new);
+        type_table.put(Coin.type_name.toLowerCase(), Coin::new);
+        type_table.put(Galoomba.type_name.toLowerCase(), Galoomba::new);
     }
 }

@@ -2,16 +2,23 @@ package mario;
 
 import mario.objects.Types;
 
+import java.util.HashMap;
+
 /**
  * The parent class for enemies and moving obstacles.
  *
  * @author Galen Savidge
- * @version 5/9/2020
+ * @version 5/14/2020
  */
 public class Enemy extends PlatformingObject {
 
     public Enemy(double x, double y) {
         super(Mario.enemy_priority, Mario.enemy_layer, x, y);
+        this.type_group = Types.enemy_type_group;
+    }
+
+    public Enemy(HashMap<String, Object> args) {
+        super(Mario.enemy_priority, Mario.enemy_layer, args);
         this.type_group = Types.enemy_type_group;
     }
 

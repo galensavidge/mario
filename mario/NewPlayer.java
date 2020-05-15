@@ -11,6 +11,7 @@ import mario.objects.Pickup;
 import mario.objects.Types;
 
 import java.awt.*;
+import java.util.HashMap;
 
 /**
  * The physical object that the player controls.
@@ -64,6 +65,15 @@ public class NewPlayer extends PlatformingObject {
 
     public NewPlayer(double x, double y) {
         super(Mario.player_priority, Mario.player_layer, x, y);
+        init();
+    }
+
+    public NewPlayer(HashMap<String, Object> args) {
+        super(Mario.player_priority, Mario.player_layer, args);
+        init();
+    }
+
+    private void init() {
         this.suspend_tier = Mario.hitpause_suspend_tier;
         collider = Collider.newBox(this,0,
                 Mario.getGridScale()/2.0, Mario.getGridScale(), Mario.getGridScale());

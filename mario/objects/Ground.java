@@ -14,17 +14,19 @@ public class Ground extends PhysicsObject {
     public Ground(Vector2[] vertices, boolean semisolid) {
         super(Mario.block_priority, Mario.block_layer, 0, 0);
         this.collider = new Collider(this, vertices);
-        this.type = Ground.type_name;
-        this.type_group = Types.block_type_group;
         this.solid = !semisolid;
-        //this.visible = false;
+        init();
     }
 
     public Ground(HashMap<String, Object> args) {
         super(Mario.block_priority, Mario.block_layer, args);
+        init();
+    }
+
+    private void init() {
         this.type = Ground.type_name;
         this.type_group = Types.block_type_group;
-        //this.visible = false;
+        this.visible = false;
     }
 
     @Override

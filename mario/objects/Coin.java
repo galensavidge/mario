@@ -6,18 +6,29 @@ import engine.objects.Collider;
 import mario.GameController;
 import mario.Mario;
 
+import java.util.HashMap;
+
 /**
  * A single coin.
  *
  * @author Galen Savidge
- * @version 5/12/2020
+ * @version 5/14/2020
  */
 public class Coin extends Pickup {
     public static final String type_name = "Coin";
-    private final Sprite sprite;
+    private Sprite sprite;
 
     public Coin(double x, double y) {
         super(x, y);
+        init();
+    }
+
+    public Coin(HashMap<String, Object> args) {
+        super(args);
+        init();
+    }
+
+    private void init() {
         this.type = Coin.type_name;
 
         collider = Collider.newPolygon(this, 8,

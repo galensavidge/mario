@@ -1,6 +1,7 @@
 package mario;
 
 import engine.*;
+import engine.util.Vector2;
 
 /**
  * Main game class that runs the program.
@@ -53,13 +54,10 @@ public class Mario {
         InputManager.init();
 
         // Game init
-        //GameController gc = new GameController();
+        GameController gc = new GameController();
 
-        String level = "test.json";
-        WorldLoader.loadFromFile(level_path, level);
-
-        NewPlayer player = new NewPlayer(64, 0);
-        new Camera(player);
+        GameController.setPlayerSpawn(new Vector2(3*Mario.getGridScale(), 10.5*Mario.getGridScale()));
+        GameController.switchToLevel("test.json");
 
         // Run game
         Game.run();

@@ -18,16 +18,22 @@ public class Transition extends GameObject {
         PIXEL_OUT
     }
 
+    public interface EventPointer {
+        void call();
+    }
+
     private int timer;
     private final int transition_frames;
     private final Type transition_type;
+    private final EventPointer event;
 
-    public Transition(double transition_time, Type transition_type) {
+    public Transition(double transition_time, Type transition_type, EventPointer animation_finish_event) {
         super(0, Mario.transition_layer);
         this.suspend_tier = Mario.transition_suspend_tier;
         this.transition_frames = (int)(transition_time*Mario.fps);
         this.transition_type = transition_type;
         this.timer = transition_frames;
+        this.event = animation_finish_event;
         Game.setSuspendTier(Mario.transition_suspend_tier);
     }
 
@@ -39,7 +45,7 @@ public class Transition extends GameObject {
     public void update() {
         timer--;
         if(timer == 0) {
-            GameController.animationFinishedEvent();
+            event.call();
             this.delete();
         }
     }

@@ -9,6 +9,7 @@ import engine.util.Vector2;
 import mario.objects.Types;
 
 import java.awt.*;
+import java.util.HashMap;
 
 /**
  * Base class for objects that use platforming physics.
@@ -33,6 +34,10 @@ public abstract class PlatformingObject extends PhysicsObject {
     /* Constructor */
     public PlatformingObject(int priority, int layer, double x, double y) {
         super(priority, layer, x, y);
+    }
+
+    public PlatformingObject(int priority, int layer, HashMap<String, Object> args) {
+        super(priority, layer, args);
     }
 
 

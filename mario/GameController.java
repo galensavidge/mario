@@ -25,20 +25,14 @@ public class GameController extends GameObject {
 
     public static int coins = 0;
 
-    private static ActionQueue animationFinishAction;
-
-    private interface ActionQueue {
-        void nextAction();
-    }
-
     public GameController() {
         super(0, 20);
         this.persistent = true;
     }
 
     public static void transitionToLevel(String file_name) {
-        animationFinishAction = ()->switchToLevel(file_name);
-        new Transition(1, Transition.Type.PIXEL_OUT);
+        Transition.EventPointer animation_finish_action = ()->switchToLevel(file_name);
+        new Transition(1, Transition.Type.PIXEL_OUT, animation_finish_action);
     }
 
     public static void respawnPlayer() {
@@ -54,8 +48,8 @@ public class GameController extends GameObject {
         current_level = file_name;
         WorldLoader.loadFromFile(Mario.level_path, file_name);
         _spawnPlayer();
-        animationFinishAction = ()->Game.setSuspendTier(0);
-        new Transition(1, Transition.Type.PIXEL_IN);
+        Transition.EventPointer animation_finish_action = ()->Game.setSuspendTier(0);
+        new Transition(1, Transition.Type.PIXEL_IN, animation_finish_action);
     }
 
     private static void _spawnPlayer() {
@@ -65,10 +59,6 @@ public class GameController extends GameObject {
 
     public static void releaseCamera() {
         camera.anchor = null;
-    }
-
-    public static void animationFinishedEvent() {
-        animationFinishAction.nextAction();
     }
 
     @Override

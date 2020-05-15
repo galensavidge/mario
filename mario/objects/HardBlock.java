@@ -3,7 +3,8 @@ package mario.objects;
 import engine.GameGraphics;
 import mario.Mario;
 
-import java.awt.*;
+import java.awt.Image;
+import java.util.HashMap;
 
 /**
  * The base class for ground and other types of blocks.
@@ -18,6 +19,11 @@ public class HardBlock extends Block {
 
     public HardBlock(double x, double y) {
         super(x, y);
+        this.type = HardBlock.type_name;
+    }
+
+    public HardBlock(HashMap<String, Object> args) {
+        super(args);
         this.type = HardBlock.type_name;
     }
 
