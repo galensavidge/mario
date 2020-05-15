@@ -25,6 +25,7 @@ public class WorldLoader {
 
     static private void buildTypeTable() {
         type_table = new HashMap<>();
+        type_table.put(GameController.spawn_point_type_name.toLowerCase(), GameController::createSpawn);
         type_table.put(Ground.type_name.toLowerCase(), Ground::new);
         type_table.put(HardBlock.type_name.toLowerCase(), HardBlock::new);
         type_table.put(MovingPlatform.type_name.toLowerCase(), MovingPlatform::new);

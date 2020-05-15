@@ -56,8 +56,7 @@ public class Mario {
         // Game init
         GameController gc = new GameController();
 
-        GameController.setPlayerSpawn(new Vector2(3*Mario.getGridScale(), 10.5*Mario.getGridScale()));
-        GameController.switchToLevel("test.json");
+        GameController.switchLevel("test.json");
 
         // Run game
         Game.run();

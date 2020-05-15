@@ -223,10 +223,11 @@ public class LevelParser {
             // Get position vector
             Object o_x = args.get("x");
             Object o_y = args.get("y");
+            Object o_h = args.get("height");
             if (o_x != null && o_y != null) {
                 double x = Double.parseDouble(o_x.toString()) * World.grid_scaling_factor + xoffset;
                 double y = Double.parseDouble(o_y.toString()) * World.grid_scaling_factor + yoffset
-                        - (double)args.get("height")*World.grid_scaling_factor;
+                        - Double.parseDouble(o_h.toString()) * World.grid_scaling_factor;
                 args.put("position", new Vector2(x, y));
             }
 
