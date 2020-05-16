@@ -1,13 +1,12 @@
 package mario;
 
 import engine.*;
-import engine.util.Vector2;
 
 /**
  * Main game class that runs the program.
  *
  * @author Galen Savidge
- * @version 5/6/2020
+ * @version 5/16/2020
  */
 public class Mario {
 
@@ -54,7 +53,7 @@ public class Mario {
         InputManager.init();
 
         // Game init
-        GameController gc = new GameController();
+        new GameController();
 
         GameController.switchLevel("test.json");
 
