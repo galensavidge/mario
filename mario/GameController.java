@@ -13,7 +13,7 @@ import java.util.HashMap;
  * A persistent object that keeps track of game variables and controls the high level flow of the game.
  *
  * @author Galen Savidge
- * @version 5/14/2020
+ * @version 5/16/2020
  */
 public class GameController extends GameObject {
 
@@ -25,7 +25,7 @@ public class GameController extends GameObject {
 
     private static HashMap<Integer, Vector2> spawn_points;
 
-    private static NewPlayer player;
+    private static Player player;
     private static Camera camera;
 
     public static int coins = 0;
@@ -33,6 +33,10 @@ public class GameController extends GameObject {
     public GameController() {
         super(0, 20);
         this.persistent = true;
+    }
+
+    public static Player getPlayer() {
+        return player;
     }
 
     public static void switchLevel(String level_file_name) {
@@ -82,7 +86,7 @@ public class GameController extends GameObject {
 
     private static void _spawnPlayer(int spawn_id) {
         Vector2 position = spawn_points.get(spawn_id);
-        player = new NewPlayer(position.x, position.y);
+        player = new Player(position.x, position.y);
         camera = new Camera(player);
     }
 

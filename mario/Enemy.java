@@ -26,13 +26,13 @@ public class Enemy extends PlatformingObject {
      * Called when the player collides with this object.
      * @param player A reference to the player object.
      */
-    public void bounceEvent(NewPlayer player) {
+    public void bounceEvent(Player player) {
         ((EnemyState)this.state).handleBounceEvent(player);
     }
 
     protected abstract class EnemyState extends State {
 
-        void handleBounceEvent(NewPlayer player) {
+        void handleBounceEvent(Player player) {
 
         }
 
