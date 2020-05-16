@@ -4,6 +4,7 @@ import engine.Camera;
 import engine.Game;
 import engine.GameGraphics;
 import engine.objects.GameObject;
+import engine.objects.PhysicsObject;
 import engine.util.Vector2;
 
 import java.awt.*;
@@ -22,6 +23,8 @@ public class GameController extends GameObject {
     private static String current_level;
     private static int player_spawn;
     private static String player_spawn_level;
+
+    private static int spawning_player_at;
 
     private static HashMap<Integer, Vector2> spawn_points;
 
@@ -52,7 +55,7 @@ public class GameController extends GameObject {
         spawn_points.put(spawn_id, position);
     }
 
-    public static void createSpawn(HashMap<String, Object> args) {
+    public static PhysicsObject createSpawn(HashMap<String, Object> args) {
         int spawn_id = 0;
         Object spawn_id_object = args.get("spawn id");
         if(spawn_id_object != null) spawn_id = (int)(long)spawn_id_object;
@@ -61,8 +64,13 @@ public class GameController extends GameObject {
         if(position_object != null)
         {
             position = (Vector2)position_object;
+            System.out.println("Spawnpoint created at "+position);
             createSpawn(position, spawn_id);
+            if(spawning_player_at == spawn_id) {
+                _spawnPlayer(spawn_id);
+            }
         }
+        return player;
     }
 
     public static void setPlayerSpawn(String level_file_name, int spawn_id) {
@@ -78,8 +86,8 @@ public class GameController extends GameObject {
         current_level = level_file_name;
         spawn_points = new HashMap<>();
         Game.clearNonPersistentObjects();
+        spawning_player_at = spawn_id;
         WorldLoader.loadFromFile(Mario.level_path, level_file_name);
-        _spawnPlayer(spawn_id);
         Transition.EventPointer animation_finish_action = ()->Game.setSuspendTier(0);
         new Transition(1, Transition.Type.PIXEL_IN, animation_finish_action);
     }

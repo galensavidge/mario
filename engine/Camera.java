@@ -12,6 +12,7 @@ public class Camera extends GameObject {
         super(Game.camera_priority, 0);
         this.suspend_tier = Integer.MAX_VALUE;
         this.anchor = anchor;
+        this.update();
     }
 
     public void setPosition(Vector2 position) {
@@ -29,10 +30,5 @@ public class Camera extends GameObject {
         if(anchor != null) {
             setPosition(anchor.position);
         }
-    }
-
-    @Override
-    public void draw() {
-
     }
 }

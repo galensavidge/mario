@@ -11,7 +11,7 @@ import java.util.HashMap;
  * The parent class for all objects that inhabit physical space in the game world.
  *
  * @author Galen Savidge
- * @version 5/14/2020
+ * @version 5/16/2020
  */
 public abstract class PhysicsObject extends GameObject {
 
@@ -43,6 +43,36 @@ public abstract class PhysicsObject extends GameObject {
         parseArgs(args);
     }
 
+    /**
+     * Parses properties from a list of JSON style name/value pairs.
+     */
+    protected void parseArgs(HashMap<String, Object> args) {
+        try {
+            Object suspend_tier = args.get("suspend tier");
+            if(suspend_tier != null) this.suspend_tier = (int)(long)suspend_tier;
+            Object persistent = args.get("persistent");
+            if(persistent != null) this.persistent = (boolean)persistent;
+            Object visible = args.get("visible");
+            if(visible != null) this.visible = (boolean)visible;
+            Object position = args.get("position");
+            if(position != null) this.position = ((Vector2)position).copy();
+            Object solid = args.get("solid");
+            if(solid != null) this.solid = (boolean)solid;
+        }
+        catch(ClassCastException | NullPointerException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void delete() {
+        if(!this.isDeleted()) {
+            super.delete();
+            if(collider != null) {
+                collider.delete();
+            }
+        }
+    }
 
     /* Accessor functions */
 
@@ -77,7 +107,7 @@ public abstract class PhysicsObject extends GameObject {
      * @param margin Extra margin around the screen to include, in pixels.
      * @return True if the object is completely off the screen.
      */
-    protected boolean isOnScreen(double width, double height, double margin) {
+    public boolean isOnScreen(double width, double height, double margin) {
         return position.x <= GameGraphics.camera_x + GameGraphics.getWindowWidth() + margin
                 && position.y <= GameGraphics.camera_y + GameGraphics.getWindowHeight() + margin
                 && position.x >= GameGraphics.camera_x - width - margin
@@ -198,6 +228,9 @@ public abstract class PhysicsObject extends GameObject {
         return c.collided_with.solid;
     }
 
+
+    /* Events */
+
     /**
      * Override this method to respond to collisions with other objects. Events are generated when collision rejection
      * occurs when using {@link #collideWithObjects}.
@@ -213,38 +246,22 @@ public abstract class PhysicsObject extends GameObject {
      */
     public void intersectionEvent(Collision c) {}
 
-    @Override
-    public void delete() {
-        if(!this.isDeleted()) {
-            super.delete();
-            collider.delete();
-        }
-    }
+    /**
+     * Called after the world is finished loading and all object have been instantiated.
+     */
+    public void worldLoadedEvent() {}
 
     @Override
     public void deleteEvent() {
         collider = null;
     }
 
-    /**
-     * Parses properties from a list of JSON style name/value pairs.
-     */
-    protected void parseArgs(HashMap<String, Object> args) {
-        try {
-            Object suspend_tier = args.get("suspend tier");
-            if(suspend_tier != null) this.suspend_tier = (int)(long)suspend_tier;
-            Object persistent = args.get("persistent");
-            if(persistent != null) this.persistent = (boolean)persistent;
-            Object visible = args.get("visible");
-            if(visible != null) this.visible = (boolean)visible;
-            Object position = args.get("position");
-            if(position != null) this.position = (Vector2)position;
-            Object solid = args.get("solid");
-            if(solid != null) this.solid = (boolean)solid;
-        }
-        catch(ClassCastException | NullPointerException e) {
-            e.printStackTrace();
-        }
+
+    /* Misc */
+
+    @Override
+    public String toString() {
+        return "Object of type "+this.type+" of type-group "+this.type_group;
     }
 }
 

@@ -41,9 +41,10 @@ public class LevelParser {
      *      "position" : ({@link Vector2}) The starting position of the object in the game world.
      *      "vertices" : ({@link Vector2}{@code []}) A list of polygon collider vertices.
      *      "solid", "visible", "persistent" : (bool) See the corresponding attributes of {@link PhysicsObject}.
+     * Returns the {@link PhysicsObject} created, if applicable.
      */
     public interface TypeMap {
-        void spawn(HashMap<String, Object> args);
+        PhysicsObject spawn(HashMap<String, Object> args);
     }
 
 
@@ -53,7 +54,8 @@ public class LevelParser {
      * @param directory The path to the folder containing the file.
      * @param file_name The name of the JSON file.
      * @param constructors A map of object names to object constructor lambda functions. To call the correct constructor
-     *                     the {@link PhysicsObject}'s {@code type} should match the type set in Tiled.
+     *                     the {@link PhysicsObject}'s {@code type} should match the type set in Tiled. Type names
+     *                     should be lower case.
      */
     public static void loadFromJson(String directory, String file_name, HashMap<String, TypeMap> constructors) {
         JSONParser parser = new JSONParser();
@@ -69,6 +71,9 @@ public class LevelParser {
 
             // Need to do this between when the grid size is determined and when objects are instantiated
             Collider.initColliders();
+
+            // List of all PhysicsObjects instantiated
+            ArrayList<PhysicsObject> instances = new ArrayList<>();
 
             // Parse tile sets
             ArrayList<TileSet> tile_sets = parseTilesets(main, directory);
@@ -95,13 +100,18 @@ public class LevelParser {
                 // Parse object group
                 if(layer_type.equals("objectgroup")) {
                     JSONArray objects = (JSONArray) layer.get("objects");
-                    parseObjects(directory, x, y, objects, constructors);
+                    instances.addAll(parseObjects(directory, x, y, objects, constructors));
                 }
 
                 // Parse tile/image layers
                 if(layer_type.equals("tilelayer") || layer_type.equals("imagelayer")) {
                     parseImageLayer(directory, x, y, layer, tile_sets);
                 }
+            }
+
+            // Call world loaded events
+            for(PhysicsObject instance : instances) {
+                instance.worldLoadedEvent();
             }
         }
         catch (ParseException e) {
@@ -195,9 +205,10 @@ public class LevelParser {
      * 
      * @see #loadFromJson
      */
-    private static void parseObjects(String directory, double xoffset, double yoffset, JSONArray objects, HashMap<String, TypeMap> constructors) {
+    private static ArrayList<PhysicsObject> parseObjects(String directory, double xoffset, double yoffset, JSONArray objects, HashMap<String, TypeMap> constructors) {
+        ArrayList<PhysicsObject> instances = new ArrayList<>();
         if (objects == null) {
-            return;
+            return instances;
         }
         for (Object o : objects) {
             JSONObject object = (JSONObject) o;
@@ -249,14 +260,16 @@ public class LevelParser {
             // Parse properties
             JSONArray properties = (JSONArray) args.get("properties");
             args.putAll(parseProperties(properties));
+            args.remove("properties");
 
             // Make instance
             String instance_type = (String) args.get("type");
             TypeMap constructor = constructors.get(instance_type);
             if (constructor != null) {
-                constructor.spawn(args);
+                instances.add(constructor.spawn(args));
             }
         }
+        return instances;
     }
 
     /**
@@ -314,7 +327,8 @@ public class LevelParser {
     }
 
     /**
-     * Creates a set of all of the properties in any "properties" node of a Tiled JSON file.
+     * Creates a set of all of the properties in any "properties" node of a Tiled JSON file. Property names are
+     * converted to lower case.
      *
      * @param properties The list of objects under the "properties" node.
      * @return The set of all properties at the node in the format {@code name:value}.
