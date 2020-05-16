@@ -11,7 +11,7 @@ import java.util.Hashtable;
  * Checks for input from the keyboard and stores keybinds.
  *
  * @author Galen Savidge
- * @version 4/26/2020
+ * @version 5/16/2020
  */
 public class InputManager extends GameObject {
 
@@ -119,7 +119,7 @@ public class InputManager extends GameObject {
      * This object has high priority; it should go before all objects in the update queue that need to read key presses.
      */
     private InputManager() {
-        super(1000,0);
+        super(Game.inputmanager_priority,0);
         this.suspend_tier = Integer.MAX_VALUE;
         this.persistent = true;
     }

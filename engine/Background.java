@@ -7,14 +7,14 @@ import java.awt.*;
  * A class to draw a static background below the other objects in the draw queue.
  *
  * @author Galen Savidge
- * @version 4/25/2020
+ * @version 5/16/2020
  */
 public class Background extends GameObject {
 
     private Color color = Color.DARK_GRAY;
 
     public Background() {
-        super(0, -1000);
+        super(0, Game.background_layer);
         this.persistent = true;
     }
 

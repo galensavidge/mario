@@ -7,7 +7,7 @@ import java.util.*;
  * The object that handles the main update and draw loops in the game.
  *
  * @author Galen Savidge
- * @version 4/26/2020
+ * @version 5/16/2020
  */
 public class Game {
 
@@ -33,6 +33,11 @@ public class Game {
     private static boolean use_frame_time;
     private static long step_time = 0; // In nanoseconds
     private static int target_fps = 60;
+
+    public static final int inputmanager_priority = 1000;
+    public static final int camera_priority = 100;
+    public static final int gamegraphics_layer = Integer.MAX_VALUE;
+    public static final int background_layer = Integer.MIN_VALUE;
 
     /**
      * Sets which objects are suspended. Any objects with {@code suspend_tier} less than {@code tier} will not receive

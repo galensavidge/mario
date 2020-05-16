@@ -14,7 +14,7 @@ import java.awt.image.BufferStrategy;
  * Class with methods to set up the game window and draw things.
  *
  * @author Galen Savidge
- * @version 5/12/2020
+ * @version 5/16/2020
  */
 public class GameGraphics extends GameObject {
 
@@ -348,7 +348,7 @@ public class GameGraphics extends GameObject {
      * calls {@link #updateGraphics()} at the end of each draw loop.
      */
     private GameGraphics() {
-        super(0, Integer.MAX_VALUE); // Put this object at the very bottom of the draw queue
+        super(0, Game.gamegraphics_layer); // Put this object at the very bottom of the draw queue
         this.suspend_tier = Integer.MAX_VALUE;
         this.persistent = true;
     }

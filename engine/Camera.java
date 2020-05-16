@@ -9,7 +9,7 @@ public class Camera extends GameObject {
     public PhysicsObject anchor;
 
     public Camera(PhysicsObject anchor) {
-        super(0, 0);
+        super(Game.camera_priority, 0);
         this.suspend_tier = Integer.MAX_VALUE;
         this.anchor = anchor;
     }
