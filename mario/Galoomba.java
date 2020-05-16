@@ -41,6 +41,16 @@ public class Galoomba extends Enemy {
         this.collider = Collider.newPolygon(this, 8, 0, 0, Mario.getGridScale()/2.0, 0);
         this.height = Mario.getGridScale();
 
+        Player player = GameController.getPlayer();
+        if(player != null) {
+            if(player.position.x > position.x) {
+                direction_facing = Direction.RIGHT;
+            }
+            else {
+                direction_facing = Direction.LEFT;
+            }
+        }
+
         this.state = new WalkState();
         this.state.enter();
     }
@@ -106,7 +116,7 @@ public class Galoomba extends Enemy {
         }
 
         @Override
-        void handleBounceEvent(NewPlayer player) {
+        void handleBounceEvent(Player player) {
             if(player.position.y + player.height < Galoomba.this.position.y + Galoomba.this.height/2.0) {
                 player.bounce();
                 Galoomba.this.stun();
