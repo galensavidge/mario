@@ -47,6 +47,10 @@ public class Player extends PlatformingObject {
 
     private static final Vector2 short_down = new Vector2(0, 2*Collider.reject_separation);
 
+    private final Collider default_collider = Collider.newBox(this,0, Mario.getGridScale()*0.5, Mario.getGridScale(), Mario.getGridScale());
+    private final Collider duck_collider = Collider.newBox(this, 0, Mario.getGridScale()*0.75, Mario.getGridScale(), Mario.getGridScale()*0.75);
+    private static final double duck_collider_height_difference = Mario.getGridScale()*0.25;
+
     private static final String sprite_sub = "";
     private static final String[] walk_sprite_files = {Mario.sprite_path+sprite_sub+"mario-walk-1.png", Mario.sprite_path+sprite_sub+"mario-walk-2.png"};
     private static final Sprite walk_sprite = new Sprite(walk_sprite_files);
@@ -75,9 +79,8 @@ public class Player extends PlatformingObject {
 
     private void init() {
         this.suspend_tier = Mario.hitpause_suspend_tier;
-        collider = Collider.newBox(this,0,
-                Mario.getGridScale()/2.0, Mario.getGridScale(), Mario.getGridScale());
-        collider.active_check = true;
+        default_collider.active_check = true;
+        duck_collider.active_check = true;
         this.type = type_name;
         this.type_group = type_name;
         this.height = (int)(Mario.getGridScale()*1.5);
@@ -107,8 +110,8 @@ public class Player extends PlatformingObject {
     @Override
     public void draw() {
         super.draw();
-        /*collider.draw_self = true;
-        for(Collider c : collider.getCollidersInNeighboringZones()) {
+        collider.draw_self = true;
+        /*for(Collider c : collider.getCollidersInNeighboringZones()) {
             c.draw_self = true;
             c.draw();
             c.draw_self = false;
@@ -169,6 +172,24 @@ public class Player extends PlatformingObject {
             }
         }
 
+        void useDefaultCollider() {
+            if(collider != default_collider) {
+                collider = default_collider;
+                default_collider.enable();
+                duck_collider.disable();
+                position.y += duck_collider_height_difference;
+                collideWithObjects(new Vector2(0, -duck_collider_height_difference));
+            }
+        }
+
+        void useDuckCollider() {
+            if(collider != duck_collider) {
+                collider = duck_collider;
+                duck_collider.enable();
+                default_collider.disable();
+            }
+        }
+
         void dieInPits() {
             if(position.y - Mario.getGridScale() > World.getHeight()) {
                 die();
@@ -191,6 +212,8 @@ public class Player extends PlatformingObject {
 
         @Override
         void enter() {
+            useDefaultCollider();
+
             // Snap down to be touching ground
             Collision ground = snapToGround();
 
@@ -317,6 +340,13 @@ public class Player extends PlatformingObject {
         @Override
         void enter() {
             velocity.y = jump_speed;
+
+            if(!crouching) {
+                useDefaultCollider();
+            }
+            else {
+                useDuckCollider();
+            }
         }
 
         @Override
@@ -369,6 +399,11 @@ public class Player extends PlatformingObject {
         @Override
         String getState() {
             return name;
+        }
+
+        @Override
+        void enter() {
+            useDefaultCollider();
         }
 
         @Override
@@ -428,6 +463,16 @@ public class Player extends PlatformingObject {
             return name;
         }
 
+        @Override
+        void enter() {
+            useDuckCollider();
+        }
+
+        @Override
+        void exit() {
+            useDefaultCollider();
+        }
+
         protected GroundType slidePhysics() {
             Collision ground = sweepForCollision(short_down);
             GroundType ground_type = checkGroundType(ground.normal_reject);
@@ -451,6 +496,14 @@ public class Player extends PlatformingObject {
             else {
                 // Fall
                 velocity = applyGravity(velocity, gravity, max_fall_speed);
+
+                // Input checks
+                if(InputManager.getDown(InputManager.K_SPRINT)) {
+                    velocity = applyLateralMovement(velocity, null, walk_accel, max_run_speed);
+                }
+                else {
+                    velocity = applyLateralMovement(velocity, null, walk_accel, max_walk_speed);
+                }
             }
 
             return ground_type;
@@ -459,6 +512,13 @@ public class Player extends PlatformingObject {
         @Override
         void update() {
             GroundType ground_type = slidePhysics();
+
+            if(InputManager.getDown(InputManager.K_LEFT)) {
+                direction_facing = Direction.LEFT;
+            }
+            else if(InputManager.getDown(InputManager.K_RIGHT)) {
+                direction_facing = Direction.RIGHT;
+            }
 
             if(ground_type == GroundType.SLOPE) {
                 setNextState(new SlideState());

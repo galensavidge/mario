@@ -229,8 +229,10 @@ public class Collider extends GameObject {
      * by collision checks by other {@code Colliders}. {@code Colliders} are enabled by default.
      */
     public void disable() {
-        this.enabled = false;
-        Collider.removeFromCollidersArray(this);
+        if(this.enabled) {
+            this.enabled = false;
+            Collider.removeFromCollidersArray(this);
+        }
     }
 
     /**
@@ -238,8 +240,10 @@ public class Collider extends GameObject {
      * @see #disable()
      */
     public void enable() {
-        this.enabled = true;
-        Collider.addToCollidersArray(this);
+        if(!this.enabled) {
+            this.enabled = true;
+            Collider.addToCollidersArray(this);
+        }
     }
 
     /**
@@ -592,7 +596,7 @@ public class Collider extends GameObject {
      */
     @Override
     public void draw() {
-        if(draw_self) {
+        if(enabled && draw_self) {
             GameGraphics.drawPoint((int)this.getCenter().x,(int)this.getCenter().y, false, Color.black);
 
             ArrayList<Line> lines = getLines();
