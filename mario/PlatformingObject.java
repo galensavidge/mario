@@ -135,6 +135,10 @@ public abstract class PlatformingObject extends PhysicsObject {
         void handleIntersectionEvent(Collision c) {}
     }
 
+    public String getState() {
+        return state.getState();
+    }
+
 
     /* Physics */
 

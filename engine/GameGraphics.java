@@ -7,6 +7,8 @@ import javax.swing.WindowConstants;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.awt.image.BufferStrategy;
 
@@ -286,6 +288,30 @@ public class GameGraphics extends GameObject {
         }
 
         bufferGraphics.drawImage(image, _x, _y, w, h, null);
+    }
+
+    public static void drawImage(int x, int y, boolean absolute_position, boolean flip_horizontal, double rotation,
+                                 double scale, Image image) {
+        if(!absolute_position) {
+            x -= camera_x;
+            y -= camera_y;
+        }
+
+        AffineTransform transform = new AffineTransform();
+        transform.translate(x, y);
+
+        if(scale == 0) {
+            scale = draw_scale;
+        }
+        transform.scale(scale, scale);
+
+        if(flip_horizontal) {
+            transform.scale(-1, 1);
+            transform.translate(-image.getWidth(null), 0);
+        }
+
+        transform.rotate(rotation, image.getWidth(null)/2.0, image.getHeight(null)/2.0);
+        bufferGraphics.drawImage(image, transform, null);
     }
 
     public static void drawText(int x, int y, boolean absolute_position, String text, Color color) {

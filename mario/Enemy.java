@@ -1,5 +1,7 @@
 package mario;
 
+import engine.Game;
+import engine.World;
 import mario.objects.Types;
 
 import java.util.HashMap;
@@ -36,5 +38,52 @@ public class Enemy extends PlatformingObject {
 
         }
 
+    }
+
+    /**
+     * The common enemy death state in which the object spins and falls off the screen. Draw events will need to be
+     * overridden.
+     */
+    protected abstract class DieState extends EnemyState {
+        protected String name = "Die";
+
+        protected static final double hop_yspeed = -400;
+        protected static final double hop_xspeed = 200;
+        protected static final double gravity = 1500;
+        protected static final double max_fall_speed = 800;
+        protected static final double spin_speed = 9; // Rad/s
+
+        protected Direction direction;
+        protected double rotation;
+
+        public DieState(Direction direction) {
+            this.direction = direction;
+        }
+
+        @Override
+        String getState() {
+            return name;
+        }
+
+        @Override
+        void enter() {
+            collider.disable();
+            rotation = 0;
+            velocity.y = hop_yspeed;
+            velocity.x = hop_xspeed;
+            if(direction == Direction.LEFT) {
+                velocity.x *= -1;
+            }
+        }
+
+        @Override
+        void update() {
+            velocity = applyGravity(velocity, gravity, max_fall_speed);
+            rotation += spin_speed*Game.stepTimeSeconds();
+
+            if(position.y > World.getHeight()) {
+                Enemy.this.delete();
+            }
+        }
     }
 }

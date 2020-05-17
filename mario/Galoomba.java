@@ -1,5 +1,6 @@
 package mario;
 
+import engine.GameGraphics;
 import engine.Sprite;
 import engine.objects.Collider;
 import engine.objects.Collider.Collision;
@@ -117,7 +118,10 @@ public class Galoomba extends Enemy {
 
         @Override
         void handleBounceEvent(Player player) {
-            if(player.position.y + player.height < Galoomba.this.position.y + Galoomba.this.height/2.0) {
+            if(player.getState().equals("Slide")) {
+                state.setNextState(new DieState(player.position.x > position.x ? Direction.LEFT : Direction.RIGHT));
+            }
+            else if(player.position.y + player.height < Galoomba.this.position.y + Galoomba.this.height/2.0) {
                 player.bounce();
                 Galoomba.this.stun();
             }
@@ -188,6 +192,19 @@ public class Galoomba extends Enemy {
         @Override
         void draw() {
             drawSprite(walk_sprite.getCurrentFrame(), true);
+        }
+    }
+
+    private class DieState extends Enemy.DieState {
+
+        public DieState(Direction direction) {
+            super(direction);
+        }
+
+        @Override
+        void draw() {
+            GameGraphics.drawImage((int)position.x, (int)position.y, false,
+                    direction_facing == Direction.RIGHT, rotation, 0,  walk_sprite.getCurrentFrame());
         }
     }
 }
