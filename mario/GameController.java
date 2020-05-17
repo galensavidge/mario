@@ -44,11 +44,11 @@ public class GameController extends GameObject {
 
     public static void switchLevel(String level_file_name) {
         setPlayerSpawn(level_file_name, 0);
-        new Transition(1, Transition.Type.PIXEL_OUT, ()-> _loadArea(level_file_name, 0));
+        new Transition(1, Transition.Type.PIXEL_OUT, ()-> _loadArea(level_file_name, 0, Transition.Type.PIXEL_IN));
     }
 
     public static void switchArea(String level_file_name, int spawn_id) {
-        new Transition(1, Transition.Type.PIXEL_OUT, ()-> _loadArea(level_file_name, spawn_id));
+        new Transition(1, Transition.Type.FADE_OUT, ()-> _loadArea(level_file_name, spawn_id, Transition.Type.FADE_IN));
     }
 
     public static void createSpawn(Vector2 position, int spawn_id) {
@@ -82,7 +82,7 @@ public class GameController extends GameObject {
         switchArea(player_spawn_level, player_spawn);
     }
 
-    private static void _loadArea(String level_file_name, int spawn_id) {
+    private static void _loadArea(String level_file_name, int spawn_id, Transition.Type transition_type) {
         current_level = level_file_name;
         spawn_points = new HashMap<>();
         Game.clearNonPersistentObjects();
@@ -90,7 +90,7 @@ public class GameController extends GameObject {
         WorldLoader.loadFromFile(Mario.level_path, level_file_name);
         spawning_player_at = -1;
         Transition.EventPointer animation_finish_action = ()->Game.setSuspendTier(0);
-        new Transition(1, Transition.Type.PIXEL_IN, animation_finish_action);
+        new Transition(1, transition_type, animation_finish_action);
     }
 
     private static void _spawnPlayer(int spawn_id) {
