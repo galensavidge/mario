@@ -88,6 +88,7 @@ public class GameController extends GameObject {
         Game.clearNonPersistentObjects();
         spawning_player_at = spawn_id;
         WorldLoader.loadFromFile(Mario.level_path, level_file_name);
+        spawning_player_at = -1;
         Transition.EventPointer animation_finish_action = ()->Game.setSuspendTier(0);
         new Transition(1, Transition.Type.PIXEL_IN, animation_finish_action);
     }

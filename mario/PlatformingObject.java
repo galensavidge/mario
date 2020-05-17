@@ -225,6 +225,8 @@ public abstract class PlatformingObject extends PhysicsObject {
     public void update() {
         // Switch states
         state = state.switchToNextState();
+
+        // Run state update code
         state.update();
 
         // Integrate velocity
