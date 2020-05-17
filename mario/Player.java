@@ -28,13 +28,14 @@ public class Player extends PlatformingObject {
     private static final double slide_gravity = 1500;
     private static final double slide_friction = 400;
 
-    private static final double walk_max_speed = 300;
+    private static final double max_walk_speed = 300;
     private static final double walk_accel = 900;
     private static final double run_speed = 625;
-    private static final double run_max_speed = 650;
+    private static final double max_run_speed = 650;
     private static final double run_accel = 1200;
+    private static final double max_slide_speed = 700;
 
-    private static final double high_jump_xspeed = 200;
+    private static final double high_jump_xspeed_threshold = 200;
     private static final double jump_speed = -700;
     private static final int high_jump_time = Mario.fps/3;
     private static final int low_jump_time = Mario.fps/4;
@@ -43,6 +44,8 @@ public class Player extends PlatformingObject {
     private static final double die_jump_speed = -200;
     private static final double die_gravity = 500;
     private static final double die_max_fall_speed = 400;
+
+    private static final Vector2 short_down = new Vector2(0, 2*Collider.reject_separation);
 
     private static final String sprite_sub = "";
     private static final String[] walk_sprite_files = {Mario.sprite_path+sprite_sub+"mario-walk-1.png", Mario.sprite_path+sprite_sub+"mario-walk-2.png"};
@@ -188,7 +191,10 @@ public class Player extends PlatformingObject {
 
         @Override
         void enter() {
+            // Snap down to be touching ground
             Collision ground = snapToGround();
+
+            // Conserve horizontal velocity and change its direction to be parallel with the ground
             if(ground.collision_found) {
                 velocity.y = 0;
                 velocity = ground.normal_reject.RHNormal().normalize().multiply(velocity.x);
@@ -228,10 +234,10 @@ public class Player extends PlatformingObject {
                 // Left/right input and running check
                 running = false;
                 if(InputManager.getDown(InputManager.K_SPRINT)) {
-                    local_velocity = applyLateralMovement(local_velocity, ground.normal_reject, run_accel, run_max_speed);
+                    local_velocity = applyLateralMovement(local_velocity, ground.normal_reject, run_accel, max_run_speed);
                 }
                 else {
-                    local_velocity = applyLateralMovement(local_velocity, ground.normal_reject, walk_accel, walk_max_speed);
+                    local_velocity = applyLateralMovement(local_velocity, ground.normal_reject, walk_accel, max_walk_speed);
                 }
 
                 // Check for running
@@ -253,6 +259,11 @@ public class Player extends PlatformingObject {
                 setNextState(new JumpState(high_jump_time, running, false));
             }
 
+            // Slide
+            if(InputManager.getDown(InputManager.K_DOWN)) {
+                setNextState(new DuckState());
+            }
+
             // Update animation
             if (running) {
                 s = run_sprite;
@@ -260,8 +271,8 @@ public class Player extends PlatformingObject {
                 s = walk_sprite;
             }
             double speed = local_velocity.abs();
-            s.setFrameTime((int)(run_max_speed - speed/2)/100);
-            if(speed < walk_max_speed /20) {
+            s.setFrameTime((int)(max_run_speed - speed/2)/100);
+            if(speed < max_walk_speed /20) {
                 s.reset();
             }
             s.incrementFrame();
@@ -307,10 +318,10 @@ public class Player extends PlatformingObject {
         void update() {
             // Input checks
             if(InputManager.getDown(InputManager.K_SPRINT)) {
-                velocity = applyLateralMovement(velocity, null, walk_accel, run_max_speed);
+                velocity = applyLateralMovement(velocity, null, walk_accel, max_run_speed);
             }
             else {
-                velocity = applyLateralMovement(velocity, null, walk_accel, walk_max_speed);
+                velocity = applyLateralMovement(velocity, null, walk_accel, max_walk_speed);
             }
 
             timer--;
@@ -349,10 +360,10 @@ public class Player extends PlatformingObject {
 
             // Input checks
             if(InputManager.getDown(InputManager.K_SPRINT)) {
-                velocity = applyLateralMovement(velocity, null, walk_accel, run_max_speed);
+                velocity = applyLateralMovement(velocity, null, walk_accel, max_run_speed);
             }
             else {
-                velocity = applyLateralMovement(velocity, null, walk_accel, walk_max_speed);
+                velocity = applyLateralMovement(velocity, null, walk_accel, max_walk_speed);
             }
 
             dieInPits();
@@ -379,6 +390,62 @@ public class Player extends PlatformingObject {
             else {
                 drawSprite(jump_sprite);
             }
+        }
+    }
+
+    private class DuckState extends PlayerState {
+        public String name = "Duck";
+
+        @Override
+        String getState() {
+            return name;
+        }
+
+        @Override
+        void update() {
+            Collision ground = sweepForCollision(short_down);
+            GroundType ground_type = checkGroundType(ground.normal_reject);
+            if(ground_type != GroundType.NONE) {
+                Vector2 local_velocity = velocity.difference(ground.collided_with.velocity);
+
+                // Friction
+                local_velocity = applyFriction(local_velocity, friction);
+
+                // Gravity
+                local_velocity = applyGravity(local_velocity, slide_gravity, max_fall_speed);
+
+                // Cap speed
+                if(local_velocity.abs() > max_slide_speed) {
+                    local_velocity = local_velocity.normalize().multiply(max_slide_speed);
+                }
+
+                // Set global velocity
+                velocity = local_velocity.sum(ground.collided_with.velocity);
+            }
+            else {
+                velocity = applyGravity(velocity, gravity, max_fall_speed);
+            }
+
+            /*if(ground_type == GroundType.SLOPE) {
+                // Transition to slide
+            }*/
+
+            // Stand up
+            if(!InputManager.getDown(InputManager.K_DOWN)) {
+                if(ground_type != GroundType.NONE) {
+                    setNextState(new WalkState());
+                }
+                else {
+                    setNextState(new FallState(false));
+                }
+            }
+
+            dieInPits();
+        }
+
+        @Override
+        void draw() {
+            drawSprite(duck_sprite);
         }
     }
 
