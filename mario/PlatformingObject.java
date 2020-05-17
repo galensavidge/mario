@@ -15,7 +15,7 @@ import java.util.HashMap;
  * Base class for objects that use platforming physics.
  *
  * @author Galen Savidge
- * @version 5/9/2020
+ * @version 5/16/2020
  */
 public abstract class PlatformingObject extends PhysicsObject {
 
@@ -214,12 +214,8 @@ public abstract class PlatformingObject extends PhysicsObject {
     /* Misc */
 
     protected void drawSprite(Image image) {
-        drawSprite(image, false);
-    }
-
-    protected void drawSprite(Image image, boolean flip_vertical) {
         GameGraphics.drawImage((int)position.x, (int)position.y, false,
-                direction_facing == Direction.RIGHT, flip_vertical, 0, image);
+                direction_facing == Direction.RIGHT, false, 0, image);
     }
 
 

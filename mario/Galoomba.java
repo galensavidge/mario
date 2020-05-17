@@ -11,7 +11,7 @@ import java.util.HashMap;
  * A Galoomba, the Goomba equivalent from SMW.
  *
  * @author Galen Savidge
- * @version 5/14/2020
+ * @version 5/16/2020
  */
 public class Galoomba extends Enemy {
 
@@ -191,7 +191,8 @@ public class Galoomba extends Enemy {
 
         @Override
         void draw() {
-            drawSprite(walk_sprite.getCurrentFrame(), true);
+            GameGraphics.drawImage((int)position.x, (int)position.y, false,
+                    direction_facing == Direction.RIGHT, Math.PI, 0,  walk_sprite.getCurrentFrame());
         }
     }
 
