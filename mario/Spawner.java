@@ -9,7 +9,7 @@ import java.util.HashMap;
 
 /**
  * @author Galen Savidge
- * @version 5/15/2020
+ * @version 5/17/2020
  */
 public class Spawner extends PhysicsObject {
 
@@ -89,9 +89,6 @@ public class Spawner extends PhysicsObject {
     public void update() {
         boolean spawn_condition = globally_loaded || (!this.isOnScreen(object_width, Mario.getGridScale(), 0)
                         && this.isOnScreen(object_width, Mario.getGridScale(), spawn_distance));
-        if(spawn_condition && !in_spawn_box_last_frame) {
-            System.out.println("Spawn condition triggered!");
-        }
         if(spawn_condition && !in_spawn_box_last_frame && instance == null) {
             spawnInstance();
         }
