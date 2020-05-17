@@ -14,7 +14,7 @@ import java.util.HashMap;
  * The physical object that the player controls.
  *
  * @author Galen Savidge
- * @version 5/16/2020
+ * @version 5/17/2020
  */
 public class Player extends PlatformingObject {
 
@@ -41,9 +41,9 @@ public class Player extends PlatformingObject {
     private static final int low_jump_time = Mario.fps/4;
 
     private static final double die_pause_time = 1; // In seconds
-    private static final double die_jump_speed = -200;
-    private static final double die_gravity = 500;
-    private static final double die_max_fall_speed = 400;
+    private static final double die_jump_speed = -600;
+    private static final double die_gravity = 1000;
+    private static final double die_max_fall_speed = 600;
 
     private static final Vector2 short_down = new Vector2(0, 2*Collider.reject_separation);
 
@@ -153,6 +153,14 @@ public class Player extends PlatformingObject {
         return new_vx.sum(v.projection(ground_normal));
     }
 
+    private static int jumpTime(double horizontal_speed) {
+        if(Math.abs(horizontal_speed) >= high_jump_xspeed_threshold) {
+            return high_jump_time;
+        }
+        else {
+            return low_jump_time;
+        }
+    }
 
     /* State machine */
 
@@ -277,9 +285,11 @@ public class Player extends PlatformingObject {
                 setNextState(new FallState(running));
             }
 
+            double speed = local_velocity.abs();
+
             // Jump
             if(InputManager.getPressed(InputManager.K_JUMP)) {
-                setNextState(new JumpState(high_jump_time, running, false));
+                setNextState(new JumpState(jumpTime(speed), running, false));
             }
 
             // Slide
@@ -298,7 +308,6 @@ public class Player extends PlatformingObject {
             } else {
                 s = walk_sprite;
             }
-            double speed = local_velocity.abs();
             s.setFrameTime((int)(max_run_speed - speed/2)/100);
             if(speed < max_walk_speed /20) {
                 s.reset();
@@ -428,6 +437,7 @@ public class Player extends PlatformingObject {
                     setNextState(new WalkState());
                 }
                 else {
+                    super.handleCollisionEvent(c, c_ground_type);
                     if(c_ground_type == GroundType.FLAT) {
                         setNextState(new DuckState());
                     }
@@ -457,6 +467,7 @@ public class Player extends PlatformingObject {
 
     private class DuckState extends PlayerState {
         public String name = "Duck";
+        private Vector2 local_velocity;
 
         @Override
         String getState() {
@@ -466,6 +477,8 @@ public class Player extends PlatformingObject {
         @Override
         void enter() {
             useDuckCollider();
+            Collision ground = sweepForCollision(short_down);
+            local_velocity = velocity.difference(ground.collided_with.velocity);
         }
 
         @Override
@@ -473,12 +486,16 @@ public class Player extends PlatformingObject {
             useDefaultCollider();
         }
 
+        @Override
+        void handleCollisionEvent(Collision c, GroundType c_ground_type) {
+            local_velocity = local_velocity.difference(local_velocity.projection(c.normal_reject));
+            super.handleCollisionEvent(c, c_ground_type);
+        }
+
         protected GroundType slidePhysics() {
             Collision ground = sweepForCollision(short_down);
             GroundType ground_type = checkGroundType(ground.normal_reject);
             if(ground_type != GroundType.NONE) {
-                Vector2 local_velocity = velocity.difference(ground.collided_with.velocity);
-
                 // Friction
                 local_velocity = applyFriction(local_velocity, slide_friction);
 
@@ -537,10 +554,10 @@ public class Player extends PlatformingObject {
             // Jump
             if(InputManager.getPressed(InputManager.K_JUMP)) {
                 if(ground_type == GroundType.FLAT) {
-                    setNextState(new JumpState(high_jump_time, false, true));
+                    setNextState(new JumpState(jumpTime(local_velocity.abs()), false, true));
                 }
                 else if(ground_type == GroundType.SLOPE) {
-                    setNextState(new JumpState(high_jump_time, false, false));
+                    setNextState(new JumpState(jumpTime(local_velocity.abs()), false, false));
                 }
             }
 
@@ -582,7 +599,7 @@ public class Player extends PlatformingObject {
 
             // Jump
             if(InputManager.getPressed(InputManager.K_JUMP) && ground_type != GroundType.NONE) {
-                setNextState(new JumpState(high_jump_time, false, false));
+                setNextState(new JumpState(jumpTime(velocity.x), false, false));
             }
 
             dieInPits();
