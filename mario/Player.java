@@ -209,8 +209,6 @@ public class Player extends PlatformingObject {
 
         @Override
         void update() {
-            dieInPits();
-
             // Ground check
             Collision ground = snapToGround();
             GroundType ground_type = checkGroundType(ground.normal_reject);
@@ -247,7 +245,7 @@ public class Player extends PlatformingObject {
                 velocity = local_velocity.sum(ground.collided_with.velocity);
             }
             else {
-                setNextState(new FallState());
+                setNextState(new FallState(running));
             }
 
             // Jump
@@ -267,6 +265,8 @@ public class Player extends PlatformingObject {
                 s.reset();
             }
             s.incrementFrame();
+
+            dieInPits();
         }
 
         @Override
@@ -315,18 +315,28 @@ public class Player extends PlatformingObject {
 
             timer--;
             if(timer == 0 || !InputManager.getDown(InputManager.K_JUMP) || velocity.y >= jump_speed/2) {
-                state.setNextState(new FallState());
+                state.setNextState(new FallState(running));
             }
         }
 
         @Override
         void draw() {
-            drawSprite(jump_sprite);
+            if(running) {
+                drawSprite(run_jump_sprite);
+            }
+            else {
+                drawSprite(jump_sprite);
+            }
         }
     }
 
     private class FallState extends PlayerState {
         public String name = "Fall";
+        boolean running;
+
+        public FallState(boolean running) {
+            this.running = running;
+        }
 
         @Override
         String getState() {
@@ -335,8 +345,6 @@ public class Player extends PlatformingObject {
 
         @Override
         void update() {
-            dieInPits();
-
             velocity = applyGravity(velocity, gravity, max_fall_speed);
 
             // Input checks
@@ -346,6 +354,8 @@ public class Player extends PlatformingObject {
             else {
                 velocity = applyLateralMovement(velocity, null, walk_accel, walk_max_speed);
             }
+
+            dieInPits();
         }
 
         @Override
@@ -360,7 +370,10 @@ public class Player extends PlatformingObject {
 
         @Override
         void draw() {
-            if(velocity.y > 0) {
+            if(running) {
+                drawSprite(run_jump_sprite);
+            }
+            else if(velocity.y > 0) {
                 drawSprite(fall_sprite);
             }
             else {
