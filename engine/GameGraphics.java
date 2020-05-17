@@ -249,49 +249,21 @@ public class GameGraphics extends GameObject {
      * @param image An {@code Image} object, e.g. returned by a call to {@code GameGraphics.getImage}.
      */
     public static void drawImage(int x, int y, boolean absolute_position, Image image) {
-        drawImage(x, y, absolute_position, false, false, draw_scale, image);
+        drawImage(x, y, absolute_position, false, false, 0, draw_scale, image);
     }
 
     /**
      * @param x X position of top left corner.
      * @param y Y position of top left corner.
      * @param absolute_position True to draw in the window coordinate space rather than the game coordinate space.
-     * @param image An {@code Image} object, e.g. returned by a call to {@code GameGraphics.getImage}.
-     * @param flip_horizontal True to flip the image horizontally around its center axis.
      * @param flip_vertical True to flip the image horizontally around its center axis.
+     * @param flip_horizontal True to flip the image horizontally around its center axis.
+     * @param rotation Clockwise rotation around the center of the image in radians.
      * @param scale Scaling factor for drawing. 1: no scaling. 0: use default scaling as set by {@code setDrawScale}.
+     * @param image An {@code Image} object, e.g. returned by a call to {@code GameGraphics.getImage}.
      */
-    public static void drawImage(int x, int y, boolean absolute_position, boolean flip_horizontal,
-                                 boolean flip_vertical, double scale, Image image) {
-        if(!absolute_position) {
-            x -= camera_x;
-            y -= camera_y;
-        }
-
-        if(scale == 0) {
-            scale = draw_scale;
-        }
-
-        int w = (int)(image.getWidth(null)*scale);
-        int h = (int)(image.getHeight(null)*scale);
-
-        int _x = x;
-        int _y = y;
-
-        if(flip_horizontal) {
-            _x = _x + w;
-            w = -w;
-        }
-        if(flip_vertical) {
-            _y = _y + h;
-            h = -h;
-        }
-
-        bufferGraphics.drawImage(image, _x, _y, w, h, null);
-    }
-
-    public static void drawImage(int x, int y, boolean absolute_position, boolean flip_horizontal, double rotation,
-                                 double scale, Image image) {
+    public static void drawImage(int x, int y, boolean absolute_position, boolean flip_vertical, boolean flip_horizontal,
+                                 double rotation, double scale, Image image) {
         if(!absolute_position) {
             x -= camera_x;
             y -= camera_y;
@@ -303,14 +275,25 @@ public class GameGraphics extends GameObject {
         if(scale == 0) {
             scale = draw_scale;
         }
-        transform.scale(scale, scale);
+
+        if(scale != 1) {
+            transform.scale(scale, scale);
+        }
+
+        if(flip_vertical) {
+            transform.scale(1, -1);
+            transform.translate(0, -image.getHeight(null));
+        }
 
         if(flip_horizontal) {
             transform.scale(-1, 1);
             transform.translate(-image.getWidth(null), 0);
         }
 
-        transform.rotate(rotation, image.getWidth(null)/2.0, image.getHeight(null)/2.0);
+        if(rotation != 0) {
+            transform.rotate(rotation, image.getWidth(null) / 2.0, image.getHeight(null) / 2.0);
+        }
+
         bufferGraphics.drawImage(image, transform, null);
     }
 

@@ -51,7 +51,7 @@ public class ImageLayer extends GameObject {
         do {
             double y = this.y - GameGraphics.camera_y*parallax_factor;
             do {
-                GameGraphics.drawImage((int)x, (int)y, true, false, false, scale, image);
+                GameGraphics.drawImage((int)x, (int)y, true, false, false, 0, scale, image);
                 y += height;
             }
             while(y < GameGraphics.getWindowHeight() && tile);

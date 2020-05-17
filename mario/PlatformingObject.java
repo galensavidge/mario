@@ -214,8 +214,8 @@ public abstract class PlatformingObject extends PhysicsObject {
     /* Misc */
 
     protected void drawSprite(Image image) {
-        GameGraphics.drawImage((int)position.x, (int)position.y, false,
-                direction_facing == Direction.RIGHT, false, 0, image);
+        GameGraphics.drawImage((int)position.x, (int)position.y, false, false,
+                direction_facing == Direction.RIGHT, 0, 0, image);
     }
 
 

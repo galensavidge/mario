@@ -192,7 +192,7 @@ public class Galoomba extends Enemy {
         @Override
         void draw() {
             GameGraphics.drawImage((int)position.x, (int)position.y, false,
-                    direction_facing == Direction.RIGHT, Math.PI, 0,  walk_sprite.getCurrentFrame());
+                    direction_facing == Direction.RIGHT, false, Math.PI, 0,  walk_sprite.getCurrentFrame());
         }
     }
 
@@ -205,7 +205,7 @@ public class Galoomba extends Enemy {
         @Override
         void draw() {
             GameGraphics.drawImage((int)position.x, (int)position.y, false,
-                    direction_facing == Direction.RIGHT, rotation, 0,  walk_sprite.getCurrentFrame());
+                    direction_facing == Direction.RIGHT, false, rotation, 0,  walk_sprite.getCurrentFrame());
         }
     }
 }
