@@ -261,7 +261,12 @@ public class Player extends PlatformingObject {
 
             // Slide
             if(InputManager.getDown(InputManager.K_DOWN)) {
-                setNextState(new DuckState());
+                if(ground_type == GroundType.FLAT) {
+                    setNextState(new DuckState());
+                }
+                else if(ground_type == GroundType.SLOPE) {
+                    setNextState(new SlideState());
+                }
             }
 
             // Update animation
@@ -326,7 +331,7 @@ public class Player extends PlatformingObject {
 
             timer--;
             if(timer == 0 || !InputManager.getDown(InputManager.K_JUMP) || velocity.y >= jump_speed/2) {
-                state.setNextState(new FallState(running));
+                setNextState(new FallState(running));
             }
         }
 
@@ -372,7 +377,17 @@ public class Player extends PlatformingObject {
         @Override
         void handleCollisionEvent(Collision c, GroundType c_ground_type) {
             if(c_ground_type != GroundType.NONE) {
-                state.setNextState(new WalkState());
+                if(!InputManager.getDown(InputManager.K_DOWN)) {
+                    setNextState(new WalkState());
+                }
+                else {
+                    if(c_ground_type == GroundType.FLAT) {
+                        setNextState(new DuckState());
+                    }
+                    else {
+                        setNextState(new SlideState());
+                    }
+                }
             }
             else {
                 super.handleCollisionEvent(c, c_ground_type);
@@ -426,9 +441,9 @@ public class Player extends PlatformingObject {
                 velocity = applyGravity(velocity, gravity, max_fall_speed);
             }
 
-            /*if(ground_type == GroundType.SLOPE) {
-                // Transition to slide
-            }*/
+            if(ground_type == GroundType.SLOPE) {
+                setNextState(new SlideState());
+            }
 
             // Stand up
             if(!InputManager.getDown(InputManager.K_DOWN)) {
@@ -446,6 +461,29 @@ public class Player extends PlatformingObject {
         @Override
         void draw() {
             drawSprite(duck_sprite);
+        }
+    }
+
+    private class SlideState extends DuckState {
+        public String name = "Slide";
+
+        @Override
+        String getState() {
+            return name;
+        }
+
+        @Override
+        void update() {
+            super.update();
+
+            if(InputManager.getDown(InputManager.K_DOWN) && velocity.x == 0) {
+                setNextState(new DuckState());
+            }
+        }
+
+        @Override
+        void draw() {
+            drawSprite(slide_sprite);
         }
     }
 
