@@ -329,9 +329,18 @@ public class Player extends PlatformingObject {
                 velocity = applyLateralMovement(velocity, null, walk_accel, max_walk_speed);
             }
 
+            if(crouching && !InputManager.getDown(InputManager.K_DOWN)) {
+                crouching = false;
+            }
+
             timer--;
             if(timer == 0 || !InputManager.getDown(InputManager.K_JUMP) || velocity.y >= jump_speed/2) {
-                setNextState(new FallState(running));
+                if(crouching) {
+                    setNextState(new DuckState());
+                }
+                else {
+                    setNextState(new FallState(running));
+                }
             }
         }
 
@@ -339,6 +348,9 @@ public class Player extends PlatformingObject {
         void draw() {
             if(running) {
                 drawSprite(run_jump_sprite);
+            }
+            else if(crouching) {
+                drawSprite(duck_sprite);
             }
             else {
                 drawSprite(jump_sprite);
@@ -416,15 +428,14 @@ public class Player extends PlatformingObject {
             return name;
         }
 
-        @Override
-        void update() {
+        protected GroundType slidePhysics() {
             Collision ground = sweepForCollision(short_down);
             GroundType ground_type = checkGroundType(ground.normal_reject);
             if(ground_type != GroundType.NONE) {
                 Vector2 local_velocity = velocity.difference(ground.collided_with.velocity);
 
                 // Friction
-                local_velocity = applyFriction(local_velocity, friction);
+                local_velocity = applyFriction(local_velocity, slide_friction);
 
                 // Gravity
                 local_velocity = applyGravity(local_velocity, slide_gravity, max_fall_speed);
@@ -438,8 +449,16 @@ public class Player extends PlatformingObject {
                 velocity = local_velocity.sum(ground.collided_with.velocity);
             }
             else {
+                // Fall
                 velocity = applyGravity(velocity, gravity, max_fall_speed);
             }
+
+            return ground_type;
+        }
+
+        @Override
+        void update() {
+            GroundType ground_type = slidePhysics();
 
             if(ground_type == GroundType.SLOPE) {
                 setNextState(new SlideState());
@@ -455,6 +474,16 @@ public class Player extends PlatformingObject {
                 }
             }
 
+            // Jump
+            if(InputManager.getPressed(InputManager.K_JUMP)) {
+                if(ground_type == GroundType.FLAT) {
+                    setNextState(new JumpState(high_jump_time, false, true));
+                }
+                else if(ground_type == GroundType.SLOPE) {
+                    setNextState(new JumpState(high_jump_time, false, false));
+                }
+            }
+
             dieInPits();
         }
 
@@ -464,7 +493,7 @@ public class Player extends PlatformingObject {
         }
     }
 
-    private class SlideState extends DuckState {
+    public class SlideState extends DuckState {
         public String name = "Slide";
 
         @Override
@@ -474,11 +503,29 @@ public class Player extends PlatformingObject {
 
         @Override
         void update() {
-            super.update();
+            GroundType ground_type = slidePhysics();
 
+            // Switch to duck when stopped
             if(InputManager.getDown(InputManager.K_DOWN) && velocity.x == 0) {
                 setNextState(new DuckState());
             }
+
+            // Stand up
+            if(!InputManager.getDown(InputManager.K_DOWN)) {
+                if(ground_type != GroundType.NONE) {
+                    setNextState(new WalkState());
+                }
+                else {
+                    setNextState(new FallState(false));
+                }
+            }
+
+            // Jump
+            if(InputManager.getPressed(InputManager.K_JUMP) && ground_type != GroundType.NONE) {
+                setNextState(new JumpState(high_jump_time, false, false));
+            }
+
+            dieInPits();
         }
 
         @Override
