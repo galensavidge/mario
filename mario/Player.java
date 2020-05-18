@@ -478,7 +478,12 @@ public class Player extends PlatformingObject {
         void enter() {
             useDuckCollider();
             Collision ground = sweepForCollision(short_down);
-            local_velocity = velocity.difference(ground.collided_with.velocity);
+            if(ground.collision_found) {
+                local_velocity = velocity.difference(ground.collided_with.velocity);
+            }
+            else {
+                local_velocity = velocity.copy();
+            }
         }
 
         @Override
@@ -488,7 +493,12 @@ public class Player extends PlatformingObject {
 
         @Override
         void handleCollisionEvent(Collision c, GroundType c_ground_type) {
-            local_velocity = local_velocity.difference(local_velocity.projection(c.normal_reject));
+            if(c_ground_type == GroundType.NONE) {
+                local_velocity = local_velocity.difference(local_velocity.projection(c.normal_reject));
+            }
+            else {
+                local_velocity = velocity.difference(c.collided_with.velocity);
+            }
             super.handleCollisionEvent(c, c_ground_type);
         }
 
