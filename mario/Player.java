@@ -14,7 +14,7 @@ import java.util.HashMap;
  * The physical object that the player controls.
  *
  * @author Galen Savidge
- * @version 5/17/2020
+ * @version 5/18/2020
  */
 public class Player extends PlatformingObject {
 
@@ -237,10 +237,10 @@ public class Player extends PlatformingObject {
         }
 
         @Override
-        void handleCollisionEvent(Collision c, GroundType c_ground_type) {
+        void handleCollisionEvent(Collision collision, GroundType c_ground_type) {
             if(c_ground_type == GroundType.NONE) {
-                super.handleCollisionEvent(c, c_ground_type);
-                local_velocity = local_velocity.difference(local_velocity.projection(c.normal_reject));
+                super.handleCollisionEvent(collision, c_ground_type);
+                local_velocity = inelasticCollision(local_velocity, collision);
             }
         }
 
@@ -431,13 +431,13 @@ public class Player extends PlatformingObject {
         }
 
         @Override
-        void handleCollisionEvent(Collision c, GroundType c_ground_type) {
+        void handleCollisionEvent(Collision collision, GroundType c_ground_type) {
             if(c_ground_type != GroundType.NONE) {
                 if(!InputManager.getDown(InputManager.K_DOWN)) {
                     setNextState(new WalkState());
                 }
                 else {
-                    super.handleCollisionEvent(c, c_ground_type);
+                    super.handleCollisionEvent(collision, c_ground_type);
                     if(c_ground_type == GroundType.FLAT) {
                         setNextState(new DuckState());
                     }
@@ -447,7 +447,7 @@ public class Player extends PlatformingObject {
                 }
             }
             else {
-                super.handleCollisionEvent(c, c_ground_type);
+                super.handleCollisionEvent(collision, c_ground_type);
             }
         }
 
@@ -492,12 +492,13 @@ public class Player extends PlatformingObject {
         }
 
         @Override
-        void handleCollisionEvent(Collision c, GroundType c_ground_type) {
+        void handleCollisionEvent(Collision collision, GroundType c_ground_type) {
+            super.handleCollisionEvent(collision, c_ground_type);
             if(c_ground_type == GroundType.NONE) {
-                local_velocity = local_velocity.difference(local_velocity.projection(c.normal_reject));
+                local_velocity = inelasticCollision(local_velocity, collision);
             }
             else {
-                local_velocity = velocity.difference(c.collided_with.velocity);
+                local_velocity = velocity.difference(collision.collided_with.velocity);
             }
             super.handleCollisionEvent(c, c_ground_type);
         }

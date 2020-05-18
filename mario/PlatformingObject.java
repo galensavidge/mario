@@ -15,7 +15,7 @@ import java.util.HashMap;
  * Base class for objects that use platforming physics.
  *
  * @author Galen Savidge
- * @version 5/16/2020
+ * @version 5/18/2020
  */
 public abstract class PlatformingObject extends PhysicsObject {
 
@@ -121,11 +121,11 @@ public abstract class PlatformingObject extends PhysicsObject {
 
         /**
          * Called when this object attempts to move into, and is rejected by, the {@link Collider} of another object.
-         * @param c A detailed {@link Collision} object.
+         * @param collision A detailed {@link Collision} object.
          * @param c_ground_type The {@link GroundType} of the object encountered.
          */
-        void handleCollisionEvent(Collision c, GroundType c_ground_type) {
-            velocity = velocity.difference(velocity.projection(c.normal_reject));
+        void handleCollisionEvent(Collision collision, GroundType c_ground_type) {
+            velocity = inelasticCollision(velocity, collision);
         }
 
         /**
@@ -172,6 +172,17 @@ public abstract class PlatformingObject extends PhysicsObject {
         }
     }
 
+    /**
+     * Finds the net velocity after an inelastic collision described by {@code c}. No friction is calculated.
+     * @param v The current velocity vector.
+     * @param c The {@link Collision} object describing the collision.
+     * @return A new velocity vector.
+     */
+    protected Vector2 inelasticCollision(Vector2 v, Collision c) {
+        Vector2 v_parallel_to_collision = v.difference(v.projection(c.normal_reject));
+        Vector2 object_v_normal_to_collision = c.collided_with.velocity.projection(c.normal_reject);
+        return v_parallel_to_collision.sum(object_v_normal_to_collision);
+    }
 
     /* Ground checks */
 
