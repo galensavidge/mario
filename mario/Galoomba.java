@@ -181,7 +181,12 @@ public class Galoomba extends Enemy {
         @Override
         void update() {
             Collision ground = snapToGround();
-            velocity = ground.collided_with.velocity;
+            if(ground.collision_found) {
+                velocity = ground.collided_with.velocity;
+            }
+            else {
+                velocity = applyGravity(velocity, gravity, fall_speed);
+            }
             walk_sprite.incrementFrame();
             timer--;
             if(timer == 0) {
