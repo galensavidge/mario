@@ -39,7 +39,7 @@ public class Coin extends Pickup {
 
         // Coin animation
         String[] sprite_files = {Mario.sprite_path + "coin-1.png", Mario.sprite_path + "coin-2.png",
-                Mario.sprite_path + "coin-3.png"};
+                Mario.sprite_path + "coin-3.png", Mario.sprite_path + "coin-4.png"};
         sprite = new AnimatedSprite(sprite_files);
         sprite.setFrameTime(10);
     }
