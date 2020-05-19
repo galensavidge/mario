@@ -9,7 +9,7 @@ import java.util.ArrayList;
  * @author Galen Savidge
  * @version 5/17/2020
  */
-public class Sprite {
+public class AnimatedSprite {
     ArrayList<Image> frames = new ArrayList<>();
     private int current_frame;
     private int frame_time = 1;
@@ -18,7 +18,7 @@ public class Sprite {
     /**
      * @param filenames The names of the image files for the frames of the animation.
      */
-    public Sprite(String[] filenames) {
+    public AnimatedSprite(String[] filenames) {
         for(String filename : filenames) {
             frames.add(GameGraphics.getImage(filename));
         }

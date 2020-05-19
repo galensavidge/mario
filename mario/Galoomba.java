@@ -1,7 +1,7 @@
 package mario;
 
 import engine.GameGraphics;
-import engine.Sprite;
+import engine.AnimatedSprite;
 import engine.objects.Collider;
 import engine.objects.Collider.Collision;
 
@@ -25,7 +25,7 @@ public class Galoomba extends Enemy {
 
     private static final String[] walk_sprite_files = {Mario.sprite_path + "galoomba-walk-1.png",
             Mario.sprite_path + "galoomba-walk-2.png"};
-    private final Sprite walk_sprite = new Sprite(walk_sprite_files);
+    private final AnimatedSprite walk_sprite = new AnimatedSprite(walk_sprite_files);
 
     public Galoomba(double x, double y) {
         super(x, y);

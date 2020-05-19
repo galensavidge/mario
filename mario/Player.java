@@ -57,10 +57,10 @@ public class Player extends PlatformingObject {
     private static final String sprite_sub = "";
     private static final String[] walk_sprite_files = {Mario.sprite_path + sprite_sub + "mario-walk-1.png",
             Mario.sprite_path + sprite_sub + "mario-walk-2.png"};
-    private static final Sprite walk_sprite = new Sprite(walk_sprite_files);
+    private static final AnimatedSprite walk_sprite = new AnimatedSprite(walk_sprite_files);
     private static final String[] run_sprite_files = {Mario.sprite_path + sprite_sub + "mario-run-1.png",
             Mario.sprite_path + sprite_sub + "mario-run-2.png"};
-    private static final Sprite run_sprite = new Sprite(run_sprite_files);
+    private static final AnimatedSprite run_sprite = new AnimatedSprite(run_sprite_files);
     private static final Image skid_sprite = GameGraphics.getImage(Mario.sprite_path + sprite_sub + "mario-skid.png");
     private static final Image jump_sprite = GameGraphics.getImage(Mario.sprite_path + sprite_sub + "mario-jump.png");
     private static final Image fall_sprite = GameGraphics.getImage(Mario.sprite_path + sprite_sub + "mario-fall.png");
@@ -70,7 +70,7 @@ public class Player extends PlatformingObject {
     private static final Image slide_sprite = GameGraphics.getImage(Mario.sprite_path + sprite_sub + "mario-slide.png");
     private static final String[] die_sprite_files = {Mario.sprite_path + sprite_sub + "mario-die-1.png",
             Mario.sprite_path + sprite_sub + "mario-die-2.png"};
-    private static final Sprite die_sprite = new Sprite(die_sprite_files);
+    private static final AnimatedSprite die_sprite = new AnimatedSprite(die_sprite_files);
 
 
     /* Constructors */
@@ -269,7 +269,7 @@ public class Player extends PlatformingObject {
         Vector2 local_velocity; // Velocity relative to ground
         boolean skidding;
         boolean running;
-        Sprite s = walk_sprite;
+        AnimatedSprite s = walk_sprite;
 
         @Override
         String getState() {

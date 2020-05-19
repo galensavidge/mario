@@ -1,7 +1,7 @@
 package mario.objects;
 
 import engine.GameGraphics;
-import engine.Sprite;
+import engine.AnimatedSprite;
 import engine.objects.Collider;
 import mario.GameController;
 import mario.Mario;
@@ -16,7 +16,7 @@ import java.util.HashMap;
  */
 public class Coin extends Pickup {
     public static final String type_name = "Coin";
-    private Sprite sprite;
+    private AnimatedSprite sprite;
 
     public Coin(double x, double y) {
         super(x, y);
@@ -40,7 +40,7 @@ public class Coin extends Pickup {
         // Coin animation
         String[] sprite_files = {Mario.sprite_path + "coin-1.png", Mario.sprite_path + "coin-2.png",
                 Mario.sprite_path + "coin-3.png"};
-        sprite = new Sprite(sprite_files);
+        sprite = new AnimatedSprite(sprite_files);
         sprite.setFrameTime(10);
     }
 

@@ -406,7 +406,7 @@
                         {
                          "name":"globally loaded",
                          "type":"bool",
-                         "value":true
+                         "value":false
                         }, 
                         {
                          "name":"move distance",
@@ -468,6 +468,12 @@
                  "template":"Coin.tx",
                  "x":672,
                  "y":144
+                }, 
+                {
+                 "id":178,
+                 "template":"Galoomba.tx",
+                 "x":1136,
+                 "y":176
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -505,7 +511,7 @@
          "y":0
         }],
  "nextlayerid":9,
- "nextobjectid":178,
+ "nextobjectid":179,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.3.4",
