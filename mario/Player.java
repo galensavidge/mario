@@ -3,6 +3,7 @@ package mario;
 import engine.*;
 import engine.objects.Collider;
 import engine.objects.Collider.Collision;
+import engine.objects.PhysicsObject;
 import engine.util.Vector2;
 import mario.objects.Pickup;
 import mario.objects.Types;
@@ -30,7 +31,7 @@ public class Player extends PlatformingObject {
 
     private static final double max_walk_speed = 300;
     private static final double walk_accel = 900;
-    private static final double run_speed = 625;
+    private static final double run_speed = 550;
     private static final double max_run_speed = 650;
     private static final double run_accel = 1200;
     private static final double max_slide_speed = 700;
@@ -47,25 +48,32 @@ public class Player extends PlatformingObject {
 
     private static final Vector2 short_down = new Vector2(0, 2*Collider.reject_separation);
 
-    private final Collider default_collider = Collider.newBox(this,0, Mario.getGridScale()*0.5, Mario.getGridScale(), Mario.getGridScale());
-    private final Collider duck_collider = Collider.newBox(this, 0, Mario.getGridScale()*0.75, Mario.getGridScale(), Mario.getGridScale()*0.75);
+    private final Collider default_collider = Collider.newBox(this, 0, Mario.getGridScale()*0.5, Mario.getGridScale()
+            , Mario.getGridScale());
+    private final Collider duck_collider = Collider.newBox(this, 0, Mario.getGridScale()*0.75, Mario.getGridScale(),
+            Mario.getGridScale()*0.75);
     private static final double duck_collider_height_difference = Mario.getGridScale()*0.25;
 
     private static final String sprite_sub = "";
-    private static final String[] walk_sprite_files = {Mario.sprite_path+sprite_sub+"mario-walk-1.png", Mario.sprite_path+sprite_sub+"mario-walk-2.png"};
+    private static final String[] walk_sprite_files = {Mario.sprite_path + sprite_sub + "mario-walk-1.png",
+            Mario.sprite_path + sprite_sub + "mario-walk-2.png"};
     private static final Sprite walk_sprite = new Sprite(walk_sprite_files);
-    private static final String[] run_sprite_files = {Mario.sprite_path+sprite_sub+"mario-run-1.png", Mario.sprite_path+sprite_sub+"mario-run-2.png"};
+    private static final String[] run_sprite_files = {Mario.sprite_path + sprite_sub + "mario-run-1.png",
+            Mario.sprite_path + sprite_sub + "mario-run-2.png"};
     private static final Sprite run_sprite = new Sprite(run_sprite_files);
-    private static final Image skid_sprite = GameGraphics.getImage(Mario.sprite_path+sprite_sub+"mario-skid.png");
-    private static final Image jump_sprite = GameGraphics.getImage(Mario.sprite_path+sprite_sub+"mario-jump.png");
-    private static final Image fall_sprite = GameGraphics.getImage(Mario.sprite_path+sprite_sub+"mario-fall.png");
-    private static final Image run_jump_sprite = GameGraphics.getImage(Mario.sprite_path+sprite_sub+"mario-run-jump.png");
-    private static final Image duck_sprite = GameGraphics.getImage(Mario.sprite_path+sprite_sub+"mario-duck.png");
-    private static final Image slide_sprite = GameGraphics.getImage(Mario.sprite_path+sprite_sub+"mario-slide.png");
-    private static final String[] die_sprite_files = {Mario.sprite_path+sprite_sub+"mario-die-1.png", Mario.sprite_path+sprite_sub+"mario-die-2.png"};
+    private static final Image skid_sprite = GameGraphics.getImage(Mario.sprite_path + sprite_sub + "mario-skid.png");
+    private static final Image jump_sprite = GameGraphics.getImage(Mario.sprite_path + sprite_sub + "mario-jump.png");
+    private static final Image fall_sprite = GameGraphics.getImage(Mario.sprite_path + sprite_sub + "mario-fall.png");
+    private static final Image run_jump_sprite = GameGraphics.getImage(Mario.sprite_path + sprite_sub + "mario-run" +
+            "-jump.png");
+    private static final Image duck_sprite = GameGraphics.getImage(Mario.sprite_path + sprite_sub + "mario-duck.png");
+    private static final Image slide_sprite = GameGraphics.getImage(Mario.sprite_path + sprite_sub + "mario-slide.png");
+    private static final String[] die_sprite_files = {Mario.sprite_path + sprite_sub + "mario-die-1.png",
+            Mario.sprite_path + sprite_sub + "mario-die-2.png"};
     private static final Sprite die_sprite = new Sprite(die_sprite_files);
 
-    /* Instance variables */
+
+    /* Constructors */
 
     public Player(double x, double y) {
         super(Mario.player_priority, Mario.player_layer, x, y);
@@ -110,7 +118,13 @@ public class Player extends PlatformingObject {
     @Override
     public void draw() {
         super.draw();
-        collider.draw_self = true;
+        PhysicsObject raycast_obj = getObjectInDirection(new Vector2(0, 10));
+        if(raycast_obj != null) {
+            raycast_obj.collider.draw_self = true;
+            raycast_obj.collider.draw();
+            raycast_obj.collider.draw_self = false;
+        }
+        //collider.draw_self = true;
         /*for(Collider c : collider.getCollidersInNeighboringZones()) {
             c.draw_self = true;
             c.draw();
@@ -118,49 +132,6 @@ public class Player extends PlatformingObject {
         }*/
     }
 
-
-    /* Helper functions */
-
-    protected Vector2 applyLateralMovement(Vector2 v, Vector2 ground_normal, double accel, double max_speed) {
-        if(ground_normal == null) {
-            ground_normal = up;
-        }
-
-        Vector2 axis = ground_normal.RHNormal().normalize();
-        Vector2 vx = v.projection(axis);
-        double vx_abs = vx.abs();
-        Vector2 new_vx = vx.copy();
-
-        if (InputManager.getDown(InputManager.K_LEFT)) {
-            if(vx_abs < max_speed || vx.x > 0) {
-                new_vx = new_vx.difference(axis.multiply(accel * Game.stepTimeSeconds()));
-                if (vx_abs <= max_speed && new_vx.abs() > max_speed) {
-                    new_vx = axis.multiply(-max_speed);
-                }
-                direction_facing = Direction.LEFT;
-            }
-        }
-        else if (InputManager.getDown(InputManager.K_RIGHT)) {
-            if(vx_abs < max_speed || vx.x < 0) {
-                new_vx = new_vx.sum(axis.multiply(accel * Game.stepTimeSeconds()));
-                if (vx_abs <= max_speed && new_vx.abs() > max_speed) {
-                    new_vx = axis.multiply(max_speed);
-                }
-                direction_facing = Direction.RIGHT;
-            }
-        }
-
-        return new_vx.sum(v.projection(ground_normal));
-    }
-
-    private static int jumpTime(double horizontal_speed) {
-        if(Math.abs(horizontal_speed) >= high_jump_xspeed_threshold) {
-            return high_jump_time;
-        }
-        else {
-            return low_jump_time;
-        }
-    }
 
     /* State machine */
 
@@ -180,17 +151,19 @@ public class Player extends PlatformingObject {
             }
         }
 
-        void useDefaultCollider() {
+        /* Helper functions */
+
+        protected void useDefaultCollider() {
             if(collider != default_collider) {
                 collider = default_collider;
                 default_collider.enable();
                 duck_collider.disable();
                 position.y += duck_collider_height_difference;
-                collideWithObjects(new Vector2(0, -duck_collider_height_difference));
+                moveAndCollide(new Vector2(0, -duck_collider_height_difference));
             }
         }
 
-        void useDuckCollider() {
+        protected void useDuckCollider() {
             if(collider != duck_collider) {
                 collider = duck_collider;
                 duck_collider.enable();
@@ -198,9 +171,94 @@ public class Player extends PlatformingObject {
             }
         }
 
-        void dieInPits() {
+        protected void checkPitDeath() {
             if(position.y - Mario.getGridScale() > World.getHeight()) {
                 die();
+            }
+        }
+
+        protected GroundType groundPhysics(Vector2 local_velocity, double friction, double gravity,
+                                           double max_fall_speed,
+                                           double walk_accel, double run_accel, double max_walk_speed,
+                                           double max_run_speed) {
+            // Ground check
+            Collision ground = snapToGround();
+            GroundType ground_type = checkGroundType(ground.normal_reject);
+
+            if(ground_type != GroundType.NONE) {
+                // Left/right input and running check
+                Vector2 new_lv = applyLateralMovement(local_velocity, ground.normal_reject, walk_accel, run_accel,
+                        max_walk_speed, max_run_speed);
+
+                // Stick to slope corners
+                if(new_lv.x <= 0) {
+                    new_lv = ground.normal_reject.LHNormal().normalize().multiply(new_lv.abs());
+                }
+                else {
+                    new_lv = ground.normal_reject.RHNormal().normalize().multiply(new_lv.abs());
+                }
+
+                // Friction and gravity
+                new_lv = applyFriction(new_lv, friction);
+                new_lv = applyGravity(new_lv, gravity, max_fall_speed);
+
+                // Set global velocity
+                velocity = new_lv.sum(ground.collided_with.velocity);
+
+                // Set local_velocity to new_lv
+                new_lv.copyTo(local_velocity);
+            }
+            return ground_type;
+        }
+
+        protected Vector2 applyLateralMovement(Vector2 v, Vector2 ground_normal, double no_sprint_accel,
+                                               double with_sprint_accel,
+                                               double no_sprint_max_speed, double with_sprint_max_speed) {
+            if(ground_normal == null) {
+                ground_normal = up;
+            }
+
+            double accel = no_sprint_accel;
+            double max_speed = no_sprint_max_speed;
+            if(InputManager.getDown(InputManager.K_SPRINT)) {
+                accel = with_sprint_accel;
+                max_speed = with_sprint_max_speed;
+            }
+
+
+            Vector2 axis = ground_normal.RHNormal().normalize();
+            Vector2 vx = v.projection(axis);
+            double vx_abs = vx.abs();
+            Vector2 new_vx = vx.copy();
+
+            if(InputManager.getDown(InputManager.K_LEFT)) {
+                if(vx_abs < max_speed || vx.x > 0) {
+                    new_vx = new_vx.difference(axis.multiply(accel*Game.stepTimeSeconds()));
+                    if(vx_abs <= max_speed && new_vx.abs() > max_speed) {
+                        new_vx = axis.multiply(-max_speed);
+                    }
+                    direction_facing = Direction.LEFT;
+                }
+            }
+            else if(InputManager.getDown(InputManager.K_RIGHT)) {
+                if(vx_abs < max_speed || vx.x < 0) {
+                    new_vx = new_vx.sum(axis.multiply(accel*Game.stepTimeSeconds()));
+                    if(vx_abs <= max_speed && new_vx.abs() > max_speed) {
+                        new_vx = axis.multiply(max_speed);
+                    }
+                    direction_facing = Direction.RIGHT;
+                }
+            }
+
+            return new_vx.sum(v.projection(ground_normal));
+        }
+
+        protected int jumpTime(double horizontal_speed) {
+            if(Math.abs(horizontal_speed) >= high_jump_xspeed_threshold) {
+                return high_jump_time;
+            }
+            else {
+                return low_jump_time;
             }
         }
     }
@@ -246,46 +304,28 @@ public class Player extends PlatformingObject {
 
         @Override
         void update() {
-            // Ground check
-            Collision ground = snapToGround();
-            GroundType ground_type = checkGroundType(ground.normal_reject);
+            GroundType ground_type = groundPhysics(local_velocity, friction, 0, 0, walk_accel, run_accel,
+                    max_walk_speed, max_run_speed);
 
-            if(ground_type != GroundType.NONE) {
-                // Stick to slope corners
-                if(local_velocity.x <= 0) {
-                    local_velocity = ground.normal_reject.LHNormal().normalize().multiply(local_velocity.abs());
-                }
-                else {
-                    local_velocity = ground.normal_reject.RHNormal().normalize().multiply(local_velocity.abs());
-                }
 
-                // Friction
-                local_velocity = applyFriction(local_velocity, friction);
+            // Check for running
+            running = local_velocity.abs() >= run_speed;
 
-                // Left/right input and running check
-                running = false;
-                if(InputManager.getDown(InputManager.K_SPRINT)) {
-                    local_velocity = applyLateralMovement(local_velocity, ground.normal_reject, run_accel, max_run_speed);
-                }
-                else {
-                    local_velocity = applyLateralMovement(local_velocity, ground.normal_reject, walk_accel, max_walk_speed);
-                }
-
-                // Check for running
-                running = local_velocity.abs() >= run_speed;
-
-                // Check for skidding
-                skidding = (InputManager.getDown(InputManager.K_RIGHT) && local_velocity.x < 0) ||
-                        (InputManager.getDown(InputManager.K_LEFT) && local_velocity.x > 0);
-
-                // Set global velocity
-                velocity = local_velocity.sum(ground.collided_with.velocity);
-            }
-            else {
-                setNextState(new FallState(running));
+            // Check for skidding
+            if(running && ((InputManager.getDown(InputManager.K_RIGHT) && local_velocity.x < 0) ||
+                    (InputManager.getDown(InputManager.K_LEFT) && local_velocity.x > 0))) {
+                skidding = true;
             }
 
             double speed = local_velocity.abs();
+            if(skidding && Math.abs(speed) < high_jump_xspeed_threshold) {
+                skidding = false;
+            }
+
+            if(ground_type == GroundType.NONE) {
+                setNextState(new FallState(running, false));
+            }
+
 
             // Jump
             if(InputManager.getPressed(InputManager.K_JUMP)) {
@@ -303,18 +343,19 @@ public class Player extends PlatformingObject {
             }
 
             // Update animation
-            if (running) {
+            if(running) {
                 s = run_sprite;
-            } else {
+            }
+            else {
                 s = walk_sprite;
             }
             s.setFrameTime((int)(max_run_speed - speed/2)/100);
-            if(speed < max_walk_speed /20) {
+            if(speed < max_walk_speed/20) {
                 s.reset();
             }
             s.incrementFrame();
 
-            dieInPits();
+            checkPitDeath();
         }
 
         @Override
@@ -350,36 +391,26 @@ public class Player extends PlatformingObject {
         void enter() {
             velocity.y = jump_speed;
 
-            if(!crouching) {
-                useDefaultCollider();
+            if(crouching) {
+                useDuckCollider();
             }
             else {
-                useDuckCollider();
+                useDefaultCollider();
             }
         }
 
         @Override
         void update() {
-            // Input checks
-            if(InputManager.getDown(InputManager.K_SPRINT)) {
-                velocity = applyLateralMovement(velocity, null, walk_accel, max_run_speed);
-            }
-            else {
-                velocity = applyLateralMovement(velocity, null, walk_accel, max_walk_speed);
-            }
+            velocity = applyLateralMovement(velocity, null, walk_accel, run_accel, max_walk_speed, max_run_speed);
 
             if(crouching && !InputManager.getDown(InputManager.K_DOWN)) {
                 crouching = false;
+                useDefaultCollider();
             }
 
             timer--;
             if(timer == 0 || !InputManager.getDown(InputManager.K_JUMP) || velocity.y >= jump_speed/2) {
-                if(crouching) {
-                    setNextState(new DuckState());
-                }
-                else {
-                    setNextState(new FallState(running));
-                }
+                setNextState(new FallState(running, crouching));
             }
         }
 
@@ -399,10 +430,11 @@ public class Player extends PlatformingObject {
 
     private class FallState extends PlayerState {
         public String name = "Fall";
-        boolean running;
+        boolean running, crouching;
 
-        public FallState(boolean running) {
+        public FallState(boolean running, boolean crouching) {
             this.running = running;
+            this.crouching = crouching;
         }
 
         @Override
@@ -412,22 +444,25 @@ public class Player extends PlatformingObject {
 
         @Override
         void enter() {
-            useDefaultCollider();
+            if(crouching) {
+                useDuckCollider();
+            }
+            else {
+                useDefaultCollider();
+            }
         }
 
         @Override
         void update() {
             velocity = applyGravity(velocity, gravity, max_fall_speed);
+            velocity = applyLateralMovement(velocity, null, walk_accel, walk_accel, max_walk_speed, max_run_speed);
 
-            // Input checks
-            if(InputManager.getDown(InputManager.K_SPRINT)) {
-                velocity = applyLateralMovement(velocity, null, walk_accel, max_run_speed);
-            }
-            else {
-                velocity = applyLateralMovement(velocity, null, walk_accel, max_walk_speed);
+            if(crouching && !InputManager.getDown(InputManager.K_DOWN)) {
+                crouching = false;
+                useDefaultCollider();
             }
 
-            dieInPits();
+            checkPitDeath();
         }
 
         @Override
@@ -456,6 +491,9 @@ public class Player extends PlatformingObject {
             if(running) {
                 drawSprite(run_jump_sprite);
             }
+            else if(crouching) {
+                drawSprite(duck_sprite);
+            }
             else if(velocity.y > 0) {
                 drawSprite(fall_sprite);
             }
@@ -477,7 +515,7 @@ public class Player extends PlatformingObject {
         @Override
         void enter() {
             useDuckCollider();
-            Collision ground = sweepForCollision(short_down);
+            Collision ground = snapToGround();
             if(ground.collision_found) {
                 local_velocity = velocity.difference(ground.collided_with.velocity);
             }
@@ -487,51 +525,19 @@ public class Player extends PlatformingObject {
         }
 
         @Override
-        void exit() {
-            useDefaultCollider();
-        }
-
-        @Override
         void handleCollisionEvent(Collision collision, GroundType c_ground_type) {
-            super.handleCollisionEvent(collision, c_ground_type);
             if(c_ground_type == GroundType.NONE) {
+                super.handleCollisionEvent(collision, c_ground_type);
                 local_velocity = inelasticCollision(local_velocity, collision);
             }
-            else {
-                local_velocity = velocity.difference(collision.collided_with.velocity);
-            }
-            super.handleCollisionEvent(c, c_ground_type);
         }
 
         protected GroundType slidePhysics() {
-            Collision ground = sweepForCollision(short_down);
-            GroundType ground_type = checkGroundType(ground.normal_reject);
-            if(ground_type != GroundType.NONE) {
-                // Friction
-                local_velocity = applyFriction(local_velocity, slide_friction);
+            GroundType ground_type = groundPhysics(local_velocity, slide_friction, slide_gravity, max_slide_speed, 0,
+                    0, max_slide_speed, max_slide_speed);
 
-                // Gravity
-                local_velocity = applyGravity(local_velocity, slide_gravity, max_fall_speed);
-
-                // Cap speed
-                if(local_velocity.abs() > max_slide_speed) {
-                    local_velocity = local_velocity.normalize().multiply(max_slide_speed);
-                }
-
-                // Set global velocity
-                velocity = local_velocity.sum(ground.collided_with.velocity);
-            }
-            else {
-                // Fall
-                velocity = applyGravity(velocity, gravity, max_fall_speed);
-
-                // Input checks
-                if(InputManager.getDown(InputManager.K_SPRINT)) {
-                    velocity = applyLateralMovement(velocity, null, walk_accel, max_run_speed);
-                }
-                else {
-                    velocity = applyLateralMovement(velocity, null, walk_accel, max_walk_speed);
-                }
+            if(ground_type == GroundType.NONE) {
+                setNextState(new FallState(false, true));
             }
 
             return ground_type;
@@ -558,7 +564,7 @@ public class Player extends PlatformingObject {
                     setNextState(new WalkState());
                 }
                 else {
-                    setNextState(new FallState(false));
+                    setNextState(new FallState(false, false));
                 }
             }
 
@@ -572,7 +578,7 @@ public class Player extends PlatformingObject {
                 }
             }
 
-            dieInPits();
+            checkPitDeath();
         }
 
         @Override
@@ -581,7 +587,7 @@ public class Player extends PlatformingObject {
         }
     }
 
-    public class SlideState extends DuckState {
+    private class SlideState extends DuckState {
         public String name = "Slide";
 
         @Override
@@ -604,7 +610,7 @@ public class Player extends PlatformingObject {
                     setNextState(new WalkState());
                 }
                 else {
-                    setNextState(new FallState(false));
+                    setNextState(new FallState(false, false));
                 }
             }
 
@@ -613,7 +619,7 @@ public class Player extends PlatformingObject {
                 setNextState(new JumpState(jumpTime(velocity.x), false, false));
             }
 
-            dieInPits();
+            checkPitDeath();
         }
 
         @Override

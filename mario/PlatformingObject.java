@@ -21,7 +21,7 @@ public abstract class PlatformingObject extends PhysicsObject {
 
     /* Constants */
     protected static final Vector2 up = new Vector2(0, -1);
-    protected static final Vector2 down = new Vector2(0, Mario.getGridScale()/4.0);
+    protected static final Vector2 down = new Vector2(0, Mario.getGridScale()/8.0);
 
 
     /* Instance variables */
@@ -31,7 +31,7 @@ public abstract class PlatformingObject extends PhysicsObject {
     protected Direction direction_facing = Direction.LEFT;
 
 
-    /* Constructor */
+    /* Constructors */
     public PlatformingObject(int priority, int layer, double x, double y) {
         super(priority, layer, x, y);
     }
@@ -149,6 +149,7 @@ public abstract class PlatformingObject extends PhysicsObject {
      * @return A new velocity vector.
      */
     protected Vector2 applyGravity(Vector2 v, double gravity_acceleration, double max_speed) {
+        if(gravity_acceleration == 0) return v;
         Vector2 new_v = v.copy();
         new_v.y += gravity_acceleration*Game.stepTimeSeconds();
         if(new_v.y > max_speed) {
@@ -163,6 +164,7 @@ public abstract class PlatformingObject extends PhysicsObject {
      * @return A new velocity vector (parallel to the ground) with friction applied.
      */
     protected Vector2 applyFriction(Vector2 v_parallel_to_ground, double friction_acceleration) {
+        if(friction_acceleration == 0) return v_parallel_to_ground;
         double friction_delta = friction_acceleration*Game.stepTimeSeconds();
         if(v_parallel_to_ground.abs() > friction_delta) {
             return v_parallel_to_ground.multiply(1.0 - friction_delta/v_parallel_to_ground.abs());
@@ -245,7 +247,7 @@ public abstract class PlatformingObject extends PhysicsObject {
 
         // Move, colliding with objects
         ground_found = GroundType.NONE;
-        collideWithObjects(delta_position);
+        moveAndCollide(delta_position);
     }
 
     @Override
