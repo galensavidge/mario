@@ -7,8 +7,18 @@ import engine.objects.GameObject;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
+/**
+ * Plays a transition effect and calls a passed lambda function when transition is complete.
+ *
+ * @author Galen Savidge
+ * @version 5/18/2020
+ */
+
 public class Transition extends GameObject {
 
+    /**
+     * Used by the pixel type transitions to determine the highest level of pixelation.
+     */
     private static final int max_pixel_size = Mario.getGridScale();
 
     public enum Type {
@@ -18,6 +28,9 @@ public class Transition extends GameObject {
         PIXEL_OUT
     }
 
+    /**
+     * Generic lambda interface for animation finish event calls.
+     */
     public interface EventPointer {
         void call();
     }
@@ -27,6 +40,11 @@ public class Transition extends GameObject {
     private final Type transition_type;
     private final EventPointer event;
 
+    /**
+     * @param transition_time        Time to complete the transition in seconds.
+     * @param transition_type        A value from {@link Transition.Type}.
+     * @param animation_finish_event A lambda function that will be called when the animation completes.
+     */
     public Transition(double transition_time, Type transition_type, EventPointer animation_finish_event) {
         super(0, Mario.transition_layer);
         this.suspend_tier = Mario.transition_suspend_tier;
@@ -37,9 +55,15 @@ public class Transition extends GameObject {
         Game.setSuspendTier(Mario.transition_suspend_tier);
     }
 
+    /**
+     * Resets the transition to the beginning.
+     */
     public void reset() {
         timer = transition_frames;
     }
+
+
+    /* Events */
 
     @Override
     public void update() {
@@ -79,6 +103,9 @@ public class Transition extends GameObject {
                 break;
         }
     }
+
+
+    /* Helper functions */
 
     private static int averagePixels(int[] pixels) {
         int sum = 0;
