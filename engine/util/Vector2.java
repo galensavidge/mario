@@ -4,7 +4,7 @@ package engine.util;
  * A simple class to represent a 2D vector with double precision.
  *
  * @author Galen Savidge
- * @version 5/13/2020
+ * @version 5/18/2020
  */
 public class Vector2 {
     /**
@@ -28,6 +28,14 @@ public class Vector2 {
      */
     public Vector2 copy() {
         return new Vector2(this.x, this.y);
+    }
+
+    /**
+     * Copies this vector to {@code v}.
+     */
+    public void copyTo(Vector2 v) {
+        v.x = this.x;
+        v.y = this.y;
     }
 
     /**
