@@ -1,6 +1,7 @@
 package engine;
 
 import engine.objects.GameObject;
+
 import java.awt.*;
 
 /**
@@ -23,7 +24,7 @@ public class Background extends GameObject {
 
     @Override
     public void draw() {
-        GameGraphics.drawRectangle(0,0, GameGraphics.getWindowWidth(), GameGraphics.getWindowHeight(),
+        GameGraphics.drawRectangle(0, 0, GameGraphics.getWindowWidth(), GameGraphics.getWindowHeight(),
                 true, color);
     }
 }

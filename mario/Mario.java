@@ -47,7 +47,7 @@ public class Mario {
         // Engine init
         Game.setTargetFPS(fps);
         Game.setUseFrameTime(true);
-        GameGraphics.initWindow("Mario",24* getGridScale(),14* getGridScale(), window_scale);
+        GameGraphics.initWindow("Mario", 24*getGridScale(), 14*getGridScale(), window_scale);
         GameGraphics.setDrawScale(scaling_ratio);
         World.setGridScale(scaling_ratio);
         InputManager.init();

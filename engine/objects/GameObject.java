@@ -26,13 +26,12 @@ public abstract class GameObject {
     protected boolean persistent;
 
     /**
-     * @param priority The execution priority for this object's {@link #update()}. Higher priority means this object
-     *                 is handled earlier in the update queue.
-     * @param layer The layer on which this object's {@link #draw()} method takes place. Higher layer means this object
-     *              is drawn later, on top of objects with lower layer.
+     * @param priority The execution priority for this object's {@link #update()}. Higher priority means this object is
+     *                 handled earlier in the update queue.
+     * @param layer    The layer on which this object's {@link #draw()} method takes place. Higher layer means this
+     *                 object is drawn later, on top of objects with lower layer.
      */
-    public GameObject(int priority, int layer)
-    {
+    public GameObject(int priority, int layer) {
         // initialise instance variables
         this.priority = priority;
         this.layer = layer;
@@ -54,7 +53,7 @@ public abstract class GameObject {
     public int getPriority() {
         return priority;
     }
-    
+
     public int getLayer() {
         return layer;
     }
@@ -82,8 +81,8 @@ public abstract class GameObject {
     }
 
     /**
-     * This method is called by {@link Game} every step while {@code this.visible == true}. Order depends on
-     * {@code layer}.
+     * This method is called by {@link Game} every step while {@code this.visible == true}. Order depends on {@code
+     * layer}.
      */
     public void draw() {
 

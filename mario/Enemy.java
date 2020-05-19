@@ -26,6 +26,7 @@ public class Enemy extends PlatformingObject {
 
     /**
      * Called when the player collides with this object.
+     *
      * @param player A reference to the player object.
      */
     public void bounceEvent(Player player) {

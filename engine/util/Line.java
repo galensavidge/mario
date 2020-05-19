@@ -18,6 +18,7 @@ public class Line {
 
     /**
      * Creates a {@code Line} between points {@code p1} and {@code p2}. This line is a line segment.
+     *
      * @param p1 The beginning of the line segment.
      * @param p2 The end of the line segment.
      */
@@ -32,6 +33,7 @@ public class Line {
     /**
      * Creates a {@code Line} between points {@code p1} and {@code p2}. This line can be a line segment, ray, or line
      * depending on the values of {@code p1_endpoint} and {@code p2_endpoint}.
+     *
      * @param p1_endpoint If true, {@code p1} is an endpoint. If false, the line extends infinitely past {@code p1}.
      * @param p2_endpoint If true, {@code p2} is an endpoint. If false, the line extends infinitely past {@code p2}.
      */
@@ -53,8 +55,8 @@ public class Line {
     }
 
     /**
-     * @return The vector pointing from the beginning of the line segment to the end, i.e. from {@code p1} to
-     * {@code p2}.
+     * @return The vector pointing from the beginning of the line segment to the end, i.e. from {@code p1} to {@code
+     * p2}.
      */
     public Vector2 vector() {
         return new Vector2(p2.x - p1.x, p2.y - p1.y);
@@ -92,7 +94,7 @@ public class Line {
         }
 
         // Point of intersection
-        Vector2 p = new Vector2((l.B*this.C - this.B*l.C)/det,(this.A*l.C - l.A*this.C)/det);
+        Vector2 p = new Vector2((l.B*this.C - this.B*l.C)/det, (this.A*l.C - l.A*this.C)/det);
 
         // Check that the intersection lies on both lines
         if(betweenBounds(p1.x, p2.x, p.x, p1_endpoint, p2_endpoint)
@@ -106,8 +108,8 @@ public class Line {
 
     /**
      * Returns whether c lies in [a, b]; however, if {@code a_is_bound} or {@code b_is_bound} is {@code false}, that
-     * bound is ignored. For example, assuming a < b and {@code a_is_bound = false}, the function will return
-     * {@code true} when c <= b. If both bounds are ignored the function will always return {@code true}.
+     * bound is ignored. For example, assuming a < b and {@code a_is_bound = false}, the function will return {@code
+     * true} when c <= b. If both bounds are ignored the function will always return {@code true}.
      */
     private boolean betweenBounds(double a, double b, double c, boolean a_is_bound, boolean b_is_bound) {
         boolean a_check, b_check;
@@ -128,10 +130,10 @@ public class Line {
     }
 
     public void draw() {
-        GameGraphics.drawLine((int)p1.x, (int)p1.y, (int)p2.x, (int)p2.y,false, Color.green);
+        GameGraphics.drawLine((int)p1.x, (int)p1.y, (int)p2.x, (int)p2.y, false, Color.green);
     }
 
     public String toString() {
-        return p1.toString()+" "+p2.toString();
+        return p1.toString() + " " + p2.toString();
     }
 }

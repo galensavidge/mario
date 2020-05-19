@@ -62,7 +62,7 @@ public class Spawner extends PhysicsObject {
     @Override
     public void worldLoadedEvent() {
         System.out.println("Spawner world loaded event");
-        System.out.println("Camera is at: ("+ GameGraphics.camera_x+","+GameGraphics.camera_y+")");
+        System.out.println("Camera is at: (" + GameGraphics.camera_x + "," + GameGraphics.camera_y + ")");
         if(this.isOnScreen(Mario.getGridScale(), Mario.getGridScale(), 0)) {
             spawnInstance();
         }
@@ -70,16 +70,16 @@ public class Spawner extends PhysicsObject {
 
     private void spawnInstance() {
         Object type_object = args.get("type");
-        if (type_object != null) {
-            instance = type_table.get((String) type_object).spawn(args);
-            System.out.println("Spawned "+type_object+" with args:");
+        if(type_object != null) {
+            instance = type_table.get((String)type_object).spawn(args);
+            System.out.println("Spawned " + type_object + " with args:");
             System.out.println(args);
         }
     }
 
     private void despawnIfOffscreen() {
         if(!globally_loaded && despawns && !instance.isOnScreen(object_width, Mario.getGridScale(), despawn_distance)) {
-            System.out.println("Despawned instance of "+instance.getType());
+            System.out.println("Despawned instance of " + instance.getType());
             instance.delete();
             instance = null;
         }
@@ -88,7 +88,7 @@ public class Spawner extends PhysicsObject {
     @Override
     public void update() {
         boolean spawn_condition = globally_loaded || (!this.isOnScreen(object_width, Mario.getGridScale(), 0)
-                        && this.isOnScreen(object_width, Mario.getGridScale(), spawn_distance));
+                && this.isOnScreen(object_width, Mario.getGridScale(), spawn_distance));
         if(spawn_condition && !in_spawn_box_last_frame && instance == null) {
             spawnInstance();
         }

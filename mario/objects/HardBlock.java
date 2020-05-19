@@ -15,7 +15,7 @@ import java.util.HashMap;
 public class HardBlock extends Block {
     public static final String type_name = "HardBlock";
 
-    private static final Image sprite = GameGraphics.getImage(Mario.sprite_path+"hardblock.png");
+    private static final Image sprite = GameGraphics.getImage(Mario.sprite_path + "hardblock.png");
 
     public HardBlock(double x, double y) {
         super(x, y);
@@ -29,7 +29,7 @@ public class HardBlock extends Block {
 
     public void draw() {
         if(isOnScreen(Mario.getGridScale(), Mario.getGridScale(), 0)) {
-            GameGraphics.drawImage((int) Math.round(position.x), (int) Math.round(position.y), false, sprite);
+            GameGraphics.drawImage((int)Math.round(position.x), (int)Math.round(position.y), false, sprite);
         }
     }
 }

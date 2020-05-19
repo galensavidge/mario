@@ -26,7 +26,7 @@ public abstract class Block extends PhysicsObject {
 
     private void init() {
         this.type_group = Types.block_type_group;
-        this.collider = Collider.newBox(this,0,0, Mario.getGridScale(),Mario.getGridScale());
+        this.collider = Collider.newBox(this, 0, 0, Mario.getGridScale(), Mario.getGridScale());
         this.solid = true;
     }
 }

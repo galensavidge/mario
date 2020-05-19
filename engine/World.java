@@ -55,7 +55,7 @@ public class World {
                 return false;
             }
         }
-        catch (ArrayIndexOutOfBoundsException e) {
+        catch(ArrayIndexOutOfBoundsException e) {
             return false;
         }
     }

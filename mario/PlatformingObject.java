@@ -57,14 +57,13 @@ public abstract class PlatformingObject extends PhysicsObject {
     /* State machine template */
 
     /**
-     * States made from this base class will have their functions executed in the following order every frame:
-     * 1. The state will be switched to {@link #next_state} as set by {@link #setNextState}. At this point, {@link #exit}
-     * will be called for the last state and {@link #enter} will be called for the new state.
-     * 2. The current state's {@link #update} is called.
-     * 3. Physics updates. The parent's {@link #position} is updated based on {@link #velocity} and the state's
-     * {@link #handleCollisionEvent} is called for each object collided with while moving.
-     * 4. The current ground type {@link #ground_found} is updated based on the collisions encountered.
-     * 5. The current state's {@link #draw} is called.
+     * States made from this base class will have their functions executed in the following order every frame: 1. The
+     * state will be switched to {@link #next_state} as set by {@link #setNextState}. At this point, {@link #exit} will
+     * be called for the last state and {@link #enter} will be called for the new state. 2. The current state's {@link
+     * #update} is called. 3. Physics updates. The parent's {@link #position} is updated based on {@link #velocity} and
+     * the state's {@link #handleCollisionEvent} is called for each object collided with while moving. 4. The current
+     * ground type {@link #ground_found} is updated based on the collisions encountered. 5. The current state's {@link
+     * #draw} is called.
      */
     protected abstract class State {
         State next_state = null;
@@ -76,6 +75,7 @@ public abstract class PlatformingObject extends PhysicsObject {
 
         /**
          * Flags the state machine to change states at the end of this step.
+         *
          * @param next_state The {@link State} to switch to.
          */
         void setNextState(State next_state) {
@@ -84,6 +84,7 @@ public abstract class PlatformingObject extends PhysicsObject {
 
         /**
          * Switches states.
+         *
          * @return The {@link State} switched to.
          */
         State switchToNextState() {
@@ -109,19 +110,22 @@ public abstract class PlatformingObject extends PhysicsObject {
 
         /**
          * Called every step during this object's update.
+         *
          * @see State
          */
         void update() {}
 
         /**
          * Called every step during this object's draw.
+         *
          * @see State
          */
         void draw() {}
 
         /**
          * Called when this object attempts to move into, and is rejected by, the {@link Collider} of another object.
-         * @param collision A detailed {@link Collision} object.
+         *
+         * @param collision     A detailed {@link Collision} object.
          * @param c_ground_type The {@link GroundType} of the object encountered.
          */
         void handleCollisionEvent(Collision collision, GroundType c_ground_type) {
@@ -130,6 +134,7 @@ public abstract class PlatformingObject extends PhysicsObject {
 
         /**
          * Called when this object's {@link Collider} detects that it is intersecting another {@link Collider}.
+         *
          * @param c A non-detailed {@link Collision} object.
          */
         void handleIntersectionEvent(Collision c) {}
@@ -143,9 +148,9 @@ public abstract class PlatformingObject extends PhysicsObject {
     /* Physics */
 
     /**
-     * @param v The current velocity vector.
+     * @param v                    The current velocity vector.
      * @param gravity_acceleration The downwards acceleration due to gravity.
-     * @param max_speed The maximum downwards speed allowed.
+     * @param max_speed            The maximum downwards speed allowed.
      * @return A new velocity vector.
      */
     protected Vector2 applyGravity(Vector2 v, double gravity_acceleration, double max_speed) {
@@ -159,7 +164,7 @@ public abstract class PlatformingObject extends PhysicsObject {
     }
 
     /**
-     * @param v_parallel_to_ground Velocity component parallel to the ground.
+     * @param v_parallel_to_ground  Velocity component parallel to the ground.
      * @param friction_acceleration The acceleration due to friction.
      * @return A new velocity vector (parallel to the ground) with friction applied.
      */
@@ -176,6 +181,7 @@ public abstract class PlatformingObject extends PhysicsObject {
 
     /**
      * Finds the net velocity after an inelastic collision described by {@code c}. No friction is calculated.
+     *
      * @param v The current velocity vector.
      * @param c The {@link Collision} object describing the collision.
      * @return A new velocity vector.
@@ -191,6 +197,7 @@ public abstract class PlatformingObject extends PhysicsObject {
     /**
      * Checks up to 1/2 grid square down for ground. If it is found, moves this object straight down to the point of
      * contact with the ground.
+     *
      * @return A detailed {@link Collision} object.
      */
     protected Collision snapToGround() {
@@ -258,7 +265,7 @@ public abstract class PlatformingObject extends PhysicsObject {
 
         // Semisolid collision check
         else if(c.collided_with.hasTag(Types.semisolid_tag)) {
-            return position.y+height-Mario.getGridScale()/2.0-Collider.edge_separation < c.collided_with.position.y
+            return position.y + height - Mario.getGridScale()/2.0 - Collider.edge_separation < c.collided_with.position.y
                     && c.normal_reject.x == 0;
         }
         else {

@@ -23,7 +23,8 @@ public class Galoomba extends Enemy {
 
     private static final int stun_time = 10*Mario.fps;
 
-    private static final String[] walk_sprite_files = {Mario.sprite_path+"galoomba-walk-1.png", Mario.sprite_path+"galoomba-walk-2.png"};
+    private static final String[] walk_sprite_files = {Mario.sprite_path + "galoomba-walk-1.png",
+            Mario.sprite_path + "galoomba-walk-2.png"};
     private final Sprite walk_sprite = new Sprite(walk_sprite_files);
 
     public Galoomba(double x, double y) {
@@ -75,7 +76,7 @@ public class Galoomba extends Enemy {
         void enter() {
             walk_sprite.setFrameTime(20);
             if(direction_facing == Direction.LEFT) {
-                 speed = -walk_speed;
+                speed = -walk_speed;
             }
             else {
                 speed = walk_speed;
@@ -197,7 +198,7 @@ public class Galoomba extends Enemy {
         @Override
         void draw() {
             GameGraphics.drawImage((int)position.x, (int)position.y, false, false,
-                    direction_facing == Direction.RIGHT, Math.PI, 0,  walk_sprite.getCurrentFrame());
+                    direction_facing == Direction.RIGHT, Math.PI, 0, walk_sprite.getCurrentFrame());
         }
     }
 
@@ -210,7 +211,7 @@ public class Galoomba extends Enemy {
         @Override
         void draw() {
             GameGraphics.drawImage((int)position.x, (int)position.y, false, false,
-                    direction_facing == Direction.RIGHT, rotation, 0,  walk_sprite.getCurrentFrame());
+                    direction_facing == Direction.RIGHT, rotation, 0, walk_sprite.getCurrentFrame());
         }
     }
 }

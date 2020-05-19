@@ -55,16 +55,18 @@ public class Transition extends GameObject {
         int alpha;
         Color c;
         int pixel_size;
-        switch (transition_type) {
+        switch(transition_type) {
             case FADE_IN:
                 alpha = 0xFF*timer/transition_frames;
                 c = new Color(alpha<<24, true);
-                GameGraphics.drawRectangle(0, 0, GameGraphics.getWindowWidth(), GameGraphics.getWindowHeight(), true, c);
+                GameGraphics.drawRectangle(0, 0, GameGraphics.getWindowWidth(), GameGraphics.getWindowHeight(), true,
+                        c);
                 break;
             case FADE_OUT:
                 alpha = 0xFF - 0xFF*timer/transition_frames;
                 c = new Color(alpha<<24, true);
-                GameGraphics.drawRectangle(0, 0, GameGraphics.getWindowWidth(), GameGraphics.getWindowHeight(), true, c);
+                GameGraphics.drawRectangle(0, 0, GameGraphics.getWindowWidth(), GameGraphics.getWindowHeight(), true,
+                        c);
                 break;
             case PIXEL_IN:
                 pixel_size = max_pixel_size*timer/transition_frames + 1;
@@ -83,7 +85,7 @@ public class Transition extends GameObject {
         for(int p : pixels) {
             sum += p;
         }
-        return sum / pixels.length;
+        return sum/pixels.length;
     }
 
     private static void drawPixelGrid(int pixel_size) {
@@ -93,8 +95,8 @@ public class Transition extends GameObject {
             int x;
             Color c;
             for(x = 0;x < buffer.getWidth();x += pixel_size) {
-                int x_pixel = Math.min(x + pixel_size/2, (x+buffer.getWidth())/2-1);
-                int y_pixel = Math.min(y + pixel_size/2, (y+buffer.getHeight())/2-1);
+                int x_pixel = Math.min(x + pixel_size/2, (x + buffer.getWidth())/2 - 1);
+                int y_pixel = Math.min(y + pixel_size/2, (y + buffer.getHeight())/2 - 1);
                 c = new Color(buffer.getRGB(x_pixel, y_pixel));
                 GameGraphics.drawRectangle(x, y, pixel_size, pixel_size, true, c);
             }

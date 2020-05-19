@@ -13,6 +13,7 @@ public class Vector2 {
     public static Vector2 zero() {
         return z.copy();
     }
+
     private static final Vector2 z = new Vector2(0, 0);
 
     public double x;
@@ -148,6 +149,6 @@ public class Vector2 {
     }
 
     public String toString() {
-        return "<"+this.x+","+this.y+">";
+        return "<" + this.x + "," + this.y + ">";
     }
 }

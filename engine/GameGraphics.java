@@ -52,10 +52,10 @@ public class GameGraphics extends GameObject {
     /* GameGraphics configuration methods */
 
     /**
-     * @param title The name of the window.
-     * @param width Width of the interior draw area in pixels.
+     * @param title  The name of the window.
+     * @param width  Width of the interior draw area in pixels.
      * @param height Height of the interior draw area in pixels.
-     * @param scale Scaling factor between the interior draw area and how it is rendered on the monitor.
+     * @param scale  Scaling factor between the interior draw area and how it is rendered on the monitor.
      */
     public static void initWindow(String title, int width, int height, int scale) {
         // Set window class variables
@@ -73,7 +73,7 @@ public class GameGraphics extends GameObject {
 
         // Set up Canvas
         canvas = new Canvas(config);
-        canvas.setSize(width * scale, height * scale);
+        canvas.setSize(width*scale, height*scale);
         frame.add(canvas, 0);
         frame.pack();
 
@@ -82,8 +82,8 @@ public class GameGraphics extends GameObject {
         canvas.createBufferStrategy(2);
         do {
             strategy = canvas.getBufferStrategy();
-        } while (strategy == null);
-        bufferGraphics = (Graphics2D) buffer.getGraphics();
+        } while(strategy == null);
+        bufferGraphics = (Graphics2D)buffer.getGraphics();
 
         // Media tracker
         mediaTracker = new MediaTracker(canvas);
@@ -173,6 +173,7 @@ public class GameGraphics extends GameObject {
 
     /**
      * Draws a point at {@code (x, y)}.
+     *
      * @param absolute_position True to draw in the window coordinate space rather than the game coordinate space.
      */
     public static void drawPoint(int x, int y, boolean absolute_position, Color color) {
@@ -186,6 +187,7 @@ public class GameGraphics extends GameObject {
 
     /**
      * Draws a line from {@code (x1, y1)} to {@code (x2, y2)}.
+     *
      * @param absolute_position True to draw in the window coordinate space rather than the game coordinate space.
      */
     public static void drawLine(int x1, int y1, int x2, int y2, boolean absolute_position, Color color) {
@@ -200,8 +202,8 @@ public class GameGraphics extends GameObject {
     }
 
     /**
-     * @param x X position of top left corner.
-     * @param y Y position of top left corner.
+     * @param x                 X position of top left corner.
+     * @param y                 Y position of top left corner.
      * @param absolute_position True to draw in the window coordinate space rather than the game coordinate space.
      */
     public static void drawRectangle(int x, int y, int width, int height, boolean absolute_position, Color color) {
@@ -214,8 +216,8 @@ public class GameGraphics extends GameObject {
     }
 
     /**
-     * @param x X position of top left corner.
-     * @param y Y position of top left corner.
+     * @param x                 X position of top left corner.
+     * @param y                 Y position of top left corner.
      * @param absolute_position True to draw in the window coordinate space rather than the game coordinate space.
      */
     public static void drawCircle(int x, int y, int radius, boolean absolute_position, Color color) {
@@ -224,7 +226,7 @@ public class GameGraphics extends GameObject {
             y -= camera_y;
         }
         bufferGraphics.setColor(color);
-        bufferGraphics.fillOval(x, y, radius*2,radius*2);
+        bufferGraphics.fillOval(x, y, radius*2, radius*2);
     }
 
     /**
@@ -236,33 +238,35 @@ public class GameGraphics extends GameObject {
         try {
             mediaTracker.waitForID(0);
         }
-        catch (InterruptedException me) {
+        catch(InterruptedException me) {
             System.out.println("error");
         }
         return i;
     }
 
     /**
-     * @param x X position of top left corner.
-     * @param y Y position of top left corner.
+     * @param x                 X position of top left corner.
+     * @param y                 Y position of top left corner.
      * @param absolute_position True to draw in the window coordinate space rather than the game coordinate space.
-     * @param image An {@code Image} object, e.g. returned by a call to {@code GameGraphics.getImage}.
+     * @param image             An {@code Image} object, e.g. returned by a call to {@code GameGraphics.getImage}.
      */
     public static void drawImage(int x, int y, boolean absolute_position, Image image) {
         drawImage(x, y, absolute_position, false, false, 0, draw_scale, image);
     }
 
     /**
-     * @param x X position of top left corner.
-     * @param y Y position of top left corner.
+     * @param x                 X position of top left corner.
+     * @param y                 Y position of top left corner.
      * @param absolute_position True to draw in the window coordinate space rather than the game coordinate space.
-     * @param flip_vertical True to flip the image horizontally around its center axis.
-     * @param flip_horizontal True to flip the image horizontally around its center axis.
-     * @param rotation Clockwise rotation around the center of the image in radians.
-     * @param scale Scaling factor for drawing. 1: no scaling. 0: use default scaling as set by {@code setDrawScale}.
-     * @param image An {@code Image} object, e.g. returned by a call to {@code GameGraphics.getImage}.
+     * @param flip_vertical     True to flip the image horizontally around its center axis.
+     * @param flip_horizontal   True to flip the image horizontally around its center axis.
+     * @param rotation          Clockwise rotation around the center of the image in radians.
+     * @param scale             Scaling factor for drawing. 1: no scaling. 0: use default scaling as set by {@code
+     *                          setDrawScale}.
+     * @param image             An {@code Image} object, e.g. returned by a call to {@code GameGraphics.getImage}.
      */
-    public static void drawImage(int x, int y, boolean absolute_position, boolean flip_vertical, boolean flip_horizontal,
+    public static void drawImage(int x, int y, boolean absolute_position, boolean flip_vertical,
+                                 boolean flip_horizontal,
                                  double rotation, double scale, Image image) {
         if(!absolute_position) {
             x -= camera_x;
@@ -291,7 +295,7 @@ public class GameGraphics extends GameObject {
         }
 
         if(rotation != 0) {
-            transform.rotate(rotation, image.getWidth(null) / 2.0, image.getHeight(null) / 2.0);
+            transform.rotate(rotation, image.getWidth(null)/2.0, image.getHeight(null)/2.0);
         }
 
         bufferGraphics.drawImage(image, transform, null);
@@ -316,8 +320,9 @@ public class GameGraphics extends GameObject {
     private static void updateGraphics() {
         Graphics2D graphics;
         try {
-            graphics = (Graphics2D) strategy.getDrawGraphics();
-        } catch (IllegalStateException e) {
+            graphics = (Graphics2D)strategy.getDrawGraphics();
+        }
+        catch(IllegalStateException e) {
             graphics = null;
             e.printStackTrace();
         }
@@ -329,7 +334,8 @@ public class GameGraphics extends GameObject {
                     0, 0, window_width, window_height, null);
 
             graphics.dispose();
-        } catch (NullPointerException e) {
+        }
+        catch(NullPointerException e) {
             e.printStackTrace();
         }
 
@@ -337,7 +343,8 @@ public class GameGraphics extends GameObject {
             strategy.show();
             Toolkit.getDefaultToolkit().sync();
 
-        } catch (NullPointerException | IllegalStateException e) {
+        }
+        catch(NullPointerException | IllegalStateException e) {
             e.printStackTrace();
         }
     }

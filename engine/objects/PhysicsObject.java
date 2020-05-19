@@ -103,7 +103,7 @@ public abstract class PhysicsObject extends GameObject {
     }
 
     /**
-     * @param width This object's width.
+     * @param width  This object's width.
      * @param height This object's height.
      * @param margin Extra margin around the screen to include, in pixels.
      * @return True if the object is completely off the screen.
@@ -120,6 +120,7 @@ public abstract class PhysicsObject extends GameObject {
 
     /**
      * Used to determine which objects to collide with and which to pass through.
+     *
      * @return True to collide with this object, false to pass through.
      */
     protected boolean collidesWith(Collision c) {
@@ -131,9 +132,9 @@ public abstract class PhysicsObject extends GameObject {
      * without intersecting an object and returns the collisions that it encountered. Note: calling this function with a
      * {@code delta_position} of {@code <0, 0>} will always return an empty list. Pushing should be handled in the
      * pushing object's movement code.
-     *
-     * Override {@link #collidesWith} to change which objects are passed through and which are not. Defaults to colliding
-     * with only objects marked solid.
+     * <p>
+     * Override {@link #collidesWith} to change which objects are passed through and which are not. Defaults to
+     * colliding with only objects marked solid.
      *
      * @param delta_position The change in position this step.
      * @return A list of {@link Collision} objects corresponding to the surfaces collided with.
@@ -182,8 +183,8 @@ public abstract class PhysicsObject extends GameObject {
     }
 
     /**
-     * Returns the {@link Collision} first encountered when moving from {@code position} to
-     * {@code position + delta_position}.
+     * Returns the {@link Collision} first encountered when moving from {@code position} to {@code position +
+     * delta_position}.
      *
      * @param check_all If true, will check all colliders in the game world. If false, ignores collisions based on
      *                  {@link #collidesWith}. Defaults to false.
@@ -197,8 +198,8 @@ public abstract class PhysicsObject extends GameObject {
 
         // Make a list of the objects that should be collided with rather than passed through
         ArrayList<Collider> other_colliders = new ArrayList<>();
-        for (Collision c : collisions_here) {
-            if (c.collision_found) {
+        for(Collision c : collisions_here) {
+            if(c.collision_found) {
                 other_colliders.add(c.collided_with.collider);
             }
         }
@@ -220,8 +221,8 @@ public abstract class PhysicsObject extends GameObject {
     }
 
     /**
-     * Returns the {@link Collision} first encountered when moving from {@code position} to
-     * {@code position + delta_position}.
+     * Returns the {@link Collision} first encountered when moving from {@code position} to {@code position +
+     * delta_position}.
      *
      * @return A {@link Collision} if a collision was found, otherwise null.
      */
@@ -230,7 +231,8 @@ public abstract class PhysicsObject extends GameObject {
     }
 
     /**
-     * Returns the closest object in a given direction. 
+     * Returns the closest object in a given direction.
+     *
      * @param direction A vector representing the direction to check.
      * @return The closest object touching or intersecting with this object in the given direction.
      */
@@ -283,14 +285,16 @@ public abstract class PhysicsObject extends GameObject {
     /**
      * Override this method to respond to collisions with other objects. Events are generated when collision rejection
      * occurs when using {@link #moveAndCollide}.
+     *
      * @param c A collision event with details populated (e.g. {@code c.isDetailed()} returns {@code true}).
      */
     public void collisionEvent(Collision c) {}
 
     /**
-     * Override this method to respond to collider intersections with other objects. Events are generated if
-     * {@code collider.active_check} is {@code true} and this object intersects other objects, or when another object
-     * with active checking enabled intersects this object.
+     * Override this method to respond to collider intersections with other objects. Events are generated if {@code
+     * collider.active_check} is {@code true} and this object intersects other objects, or when another object with
+     * active checking enabled intersects this object.
+     *
      * @param c A collision event without details (e.g. {@code c.isDetailed()} returns {@code false}).
      */
     public void intersectionEvent(Collision c) {}
@@ -310,7 +314,7 @@ public abstract class PhysicsObject extends GameObject {
 
     @Override
     public String toString() {
-        return "Object of type "+this.type+" of type-group "+this.type_group;
+        return "Object of type " + this.type + " of type-group " + this.type_group;
     }
 }
 

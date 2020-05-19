@@ -1,6 +1,7 @@
 package engine;
 
 import engine.objects.GameObject;
+
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.Dictionary;
@@ -116,10 +117,11 @@ public class InputManager extends GameObject {
     /* Private InputManager object */
 
     /**
-     * This object has high priority; it should go before all objects in the update queue that need to read key presses.
+     * This object has high priority; it should go before all objects in the update queue that need to read key
+     * presses.
      */
     private InputManager() {
-        super(Game.inputmanager_priority,0);
+        super(Game.inputmanager_priority, 0);
         this.suspend_tier = Integer.MAX_VALUE;
         this.persistent = true;
     }

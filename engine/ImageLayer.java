@@ -21,15 +21,17 @@ public class ImageLayer extends GameObject {
 
     /**
      * Creates an image layer at position {@code (x, y)} in the world.
-     * @param layer See {@link GameObject}.
-     * @param scale Integer scaling factor.
+     *
+     * @param layer           See {@link GameObject}.
+     * @param scale           Integer scaling factor.
      * @param parallax_factor A scaling factor to apply to this layer's movement relative to the camera. A higher value
      *                        (> 1) will make the layer appear closer to the camera while a smaller value (0-1) will
      *                        make it appear farther in the background. Use 1 for no parallax scrolling.
-     * @param tile True to tile the image to fill the window; false to render only one copy of the image.
-     * @param file_name Path and name of the image file.
+     * @param tile            True to tile the image to fill the window; false to render only one copy of the image.
+     * @param file_name       Path and name of the image file.
      */
-    public ImageLayer(double x, double y, int layer, int scale, double parallax_factor, boolean tile, String file_name) {
+    public ImageLayer(double x, double y, int layer, int scale, double parallax_factor, boolean tile,
+                      String file_name) {
         super(0, layer);
         this.x = x;
         this.y = y;
