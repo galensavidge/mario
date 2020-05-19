@@ -21,7 +21,7 @@ public abstract class PlatformingObject extends PhysicsObject {
 
     /* Constants */
     protected static final Vector2 up = new Vector2(0, -1);
-    protected static final Vector2 down = new Vector2(0, Mario.getGridScale()/8.0);
+    protected static final Vector2 down = new Vector2(0, Mario.getGridScale()/4.0);
 
 
     /* Instance variables */

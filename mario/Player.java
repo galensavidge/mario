@@ -181,9 +181,8 @@ public class Player extends PlatformingObject {
         }
 
         protected GroundType groundPhysics(Vector2 local_velocity, double friction, double gravity,
-                                           double max_fall_speed,
-                                           double walk_accel, double run_accel, double max_walk_speed,
-                                           double max_run_speed) {
+                                           double max_fall_speed, double walk_accel, double run_accel,
+                                           double max_walk_speed, double max_run_speed) {
             // Ground check
             Collision ground = snapToGround();
             GroundType ground_type = checkGroundType(ground.normal_reject);
@@ -201,9 +200,20 @@ public class Player extends PlatformingObject {
                     new_lv = ground.normal_reject.RHNormal().normalize().multiply(new_lv.abs());
                 }
 
-                // Friction and gravity
+                // Friction
                 new_lv = applyFriction(new_lv, friction);
-                new_lv = applyGravity(new_lv, gravity, max_fall_speed);
+
+                // Gravity
+                if(new_lv.abs() < max_fall_speed) {
+                    Vector2 gravity_vector = new Vector2(0, gravity*Game.stepTimeSeconds());
+                    Vector2 with_gravity = new_lv.sum(gravity_vector.normalComponent(ground.normal_reject));
+                    if(with_gravity.abs() > max_fall_speed) {
+                        new_lv = new_lv.normalize().multiply(max_fall_speed);
+                    }
+                    else {
+                        new_lv = with_gravity;
+                    }
+                }
 
                 // Set global velocity
                 velocity = new_lv.sum(ground.collided_with.velocity);
