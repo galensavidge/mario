@@ -109,8 +109,8 @@ public class Galoomba extends Enemy {
         }
 
         @Override
-        void handleCollisionEvent(Collision c, GroundType c_ground_type) {
-            super.handleCollisionEvent(c, c_ground_type);
+        void handleCollisionEvent(Collision collision, GroundType c_ground_type) {
+            super.handleCollisionEvent(collision, c_ground_type);
             if(c_ground_type == GroundType.NONE) {
                 reverse_direction = true;
             }
@@ -156,8 +156,8 @@ public class Galoomba extends Enemy {
         }
 
         @Override
-        void handleCollisionEvent(Collision c, GroundType c_ground_type) {
-            super.handleCollisionEvent(c, c_ground_type);
+        void handleCollisionEvent(Collision collision, GroundType c_ground_type) {
+            super.handleCollisionEvent(collision, c_ground_type);
             if(c_ground_type != GroundType.NONE) {
                 setNextState(new WalkState());
             }
@@ -196,8 +196,8 @@ public class Galoomba extends Enemy {
 
         @Override
         void draw() {
-            GameGraphics.drawImage((int)position.x, (int)position.y, false,
-                    direction_facing == Direction.RIGHT, false, Math.PI, 0,  walk_sprite.getCurrentFrame());
+            GameGraphics.drawImage((int)position.x, (int)position.y, false, false,
+                    direction_facing == Direction.RIGHT, Math.PI, 0,  walk_sprite.getCurrentFrame());
         }
     }
 
@@ -209,8 +209,8 @@ public class Galoomba extends Enemy {
 
         @Override
         void draw() {
-            GameGraphics.drawImage((int)position.x, (int)position.y, false,
-                    direction_facing == Direction.RIGHT, false, rotation, 0,  walk_sprite.getCurrentFrame());
+            GameGraphics.drawImage((int)position.x, (int)position.y, false, false,
+                    direction_facing == Direction.RIGHT, rotation, 0,  walk_sprite.getCurrentFrame());
         }
     }
 }
