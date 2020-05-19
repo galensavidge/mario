@@ -2,6 +2,7 @@ package engine.objects;
 
 import engine.GameGraphics;
 import engine.objects.Collider.Collision;
+import engine.util.Line;
 import engine.util.Vector2;
 
 import java.util.ArrayList;
@@ -118,6 +119,14 @@ public abstract class PhysicsObject extends GameObject {
     /* Physics functions */
 
     /**
+     * Used to determine which objects to collide with and which to pass through.
+     * @return True to collide with this object, false to pass through.
+     */
+    protected boolean collidesWith(Collision c) {
+        return c.collided_with.solid;
+    }
+
+    /**
      * Handles collision with other objects. Moves the {@link PhysicsObject} as far as possible in the desired direction
      * without intersecting an object and returns the collisions that it encountered. Note: calling this function with a
      * {@code delta_position} of {@code <0, 0>} will always return an empty list. Pushing should be handled in the
@@ -129,7 +138,7 @@ public abstract class PhysicsObject extends GameObject {
      * @param delta_position The change in position this step.
      * @return A list of {@link Collision} objects corresponding to the surfaces collided with.
      */
-    protected ArrayList<Collision> collideWithObjects(Vector2 delta_position) {
+    protected ArrayList<Collision> moveAndCollide(Vector2 delta_position) {
         ArrayList<Collision> collisions = new ArrayList<>();
         if(delta_position.equals(Vector2.zero())) {
             return new ArrayList<>();
@@ -207,7 +216,7 @@ public abstract class PhysicsObject extends GameObject {
             other_colliders.remove(c.collided_with.collider);
         }
 
-        return new Collision(this.collider);
+        return new Collision();
     }
 
     /**
@@ -221,11 +230,51 @@ public abstract class PhysicsObject extends GameObject {
     }
 
     /**
-     * Used by {@link #collideWithObjects} to determine which objects to collide with and which to pass through.
-     * @return True to collide with this object, false to pass through.
+     * Returns the closest object in a given direction. 
+     * @param direction A vector representing the direction to check.
+     * @return The closest object touching or intersecting with this object in the given direction.
      */
-    protected boolean collidesWith(Collision c) {
-        return c.collided_with.solid;
+    protected PhysicsObject getObjectInDirection(Vector2 direction) {
+        ArrayList<Collider> colliders = collider.getCollidersInNeighboringZones();
+
+        // Check what is collided with when moving in the given direction
+        collider.setPosition(position.sum(direction));
+        ArrayList<Collision> collisions = collider.getCollisions(colliders);
+        collider.setPosition(position);
+
+        if(collisions.size() == 0) {
+            return null;
+        }
+        else if(collisions.size() == 1) {
+            return collisions.get(0).collided_with; // If only one object is collided with, return that
+        }
+        else {
+            // Raycast from the center of the collider
+            Line ray = new Line(collider.getCenter(), collider.getCenter().sum(direction), true, false);
+            try {
+                // Position at the edge of collider on the raycast line
+                ArrayList<Vector2> start_positions = Collider.lineIntersectsCollider(ray, collider);
+
+                // Find the intersection farthest from the center
+                double longest_dist_from_center = 0;
+                Vector2 farthest_position = null;
+                for(Vector2 start_position : start_positions) {
+                    double dist_from_center = start_position.difference(collider.getCenter()).abs();
+                    if(dist_from_center > longest_dist_from_center) {
+                        longest_dist_from_center = dist_from_center;
+                        farthest_position = start_position;
+                    }
+                }
+
+                if(farthest_position != null) {
+                    return Collider.rayCast(farthest_position, direction, colliders).collided_with;
+                }
+                return null;
+            }
+            catch(ArrayIndexOutOfBoundsException e) {
+                return null;
+            }
+        }
     }
 
 
@@ -233,7 +282,7 @@ public abstract class PhysicsObject extends GameObject {
 
     /**
      * Override this method to respond to collisions with other objects. Events are generated when collision rejection
-     * occurs when using {@link #collideWithObjects}.
+     * occurs when using {@link #moveAndCollide}.
      * @param c A collision event with details populated (e.g. {@code c.isDetailed()} returns {@code true}).
      */
     public void collisionEvent(Collision c) {}
