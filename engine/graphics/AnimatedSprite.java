@@ -1,4 +1,6 @@
-package engine;
+package engine.graphics;
+
+import engine.graphics.GameGraphics;
 
 import java.awt.*;
 import java.util.ArrayList;

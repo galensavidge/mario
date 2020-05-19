@@ -1,6 +1,6 @@
 package engine.objects;
 
-import engine.GameGraphics;
+import engine.graphics.GameGraphics;
 import engine.objects.Collider.Collision;
 import engine.util.Line;
 import engine.util.Vector2;

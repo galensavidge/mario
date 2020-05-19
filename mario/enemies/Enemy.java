@@ -1,7 +1,10 @@
-package mario;
+package mario.enemies;
 
 import engine.Game;
 import engine.World;
+import mario.Mario;
+import mario.PlatformingObject;
+import mario.Player;
 import mario.objects.Types;
 
 import java.util.HashMap;
@@ -62,12 +65,12 @@ public class Enemy extends PlatformingObject {
         }
 
         @Override
-        String getState() {
+        public String getState() {
             return name;
         }
 
         @Override
-        void enter() {
+        public void enter() {
             collider.disable();
             rotation = 0;
             velocity.y = hop_yspeed;
@@ -78,7 +81,7 @@ public class Enemy extends PlatformingObject {
         }
 
         @Override
-        void update() {
+        public void update() {
             velocity = applyGravity(velocity, gravity, max_fall_speed);
             rotation += spin_speed*Game.stepTimeSeconds();
 

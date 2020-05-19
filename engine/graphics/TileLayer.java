@@ -1,5 +1,7 @@
-package engine;
+package engine.graphics;
 
+import engine.World;
+import engine.graphics.GameGraphics;
 import engine.objects.GameObject;
 
 import static engine.LevelParser.XMLGetChildrenByName;
@@ -103,7 +105,7 @@ public class TileLayer extends GameObject {
          * @param tsx_file  Tile file created by Tiled.
          * @param first_gid The ID of the first (top-left) tile in this set, likely read from a Tiled map.
          */
-        TileSet(String directory, String tsx_file, int first_gid) {
+        public TileSet(String directory, String tsx_file, int first_gid) {
             Document doc = XMLOpen(directory + tsx_file);
             this.source = tsx_file;
 

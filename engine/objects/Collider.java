@@ -1,6 +1,6 @@
 package engine.objects;
 
-import engine.GameGraphics;
+import engine.graphics.GameGraphics;
 import engine.World;
 import engine.util.*;
 

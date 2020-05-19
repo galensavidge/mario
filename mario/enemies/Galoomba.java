@@ -1,9 +1,12 @@
-package mario;
+package mario.enemies;
 
-import engine.GameGraphics;
-import engine.AnimatedSprite;
+import engine.graphics.GameGraphics;
+import engine.graphics.AnimatedSprite;
 import engine.objects.Collider;
 import engine.objects.Collider.Collision;
+import mario.GameController;
+import mario.Mario;
+import mario.Player;
 
 import java.util.HashMap;
 
@@ -68,12 +71,12 @@ public class Galoomba extends Enemy {
         boolean reverse_direction = false;
 
         @Override
-        String getState() {
+        public String getState() {
             return name;
         }
 
         @Override
-        void enter() {
+        public void enter() {
             walk_sprite.setFrameTime(20);
             if(direction_facing == Direction.LEFT) {
                 speed = -walk_speed;
@@ -84,7 +87,7 @@ public class Galoomba extends Enemy {
         }
 
         @Override
-        void update() {
+        public void update() {
             Collision ground = snapToGround();
             if(ground.collision_found) {
                 if(reverse_direction) {
@@ -110,7 +113,7 @@ public class Galoomba extends Enemy {
         }
 
         @Override
-        void handleCollisionEvent(Collision collision, GroundType c_ground_type) {
+        protected void handleCollisionEvent(Collision collision, GroundType c_ground_type) {
             super.handleCollisionEvent(collision, c_ground_type);
             if(c_ground_type == GroundType.NONE) {
                 reverse_direction = true;
@@ -122,7 +125,7 @@ public class Galoomba extends Enemy {
             if(player.getState().equals("Slide")) {
                 state.setNextState(new DieState(player.position.x > position.x ? Direction.LEFT : Direction.RIGHT));
             }
-            else if(player.position.y + player.height < Galoomba.this.position.y + Galoomba.this.height/2.0) {
+            else if(player.position.y + player.getHeight() < Galoomba.this.position.y + Galoomba.this.height/2.0) {
                 player.bounce();
                 Galoomba.this.stun();
             }
@@ -132,7 +135,7 @@ public class Galoomba extends Enemy {
         }
 
         @Override
-        void draw() {
+        public void draw() {
             drawSprite(walk_sprite.getCurrentFrame());
         }
     }
@@ -141,23 +144,23 @@ public class Galoomba extends Enemy {
         public String name = "Fall";
 
         @Override
-        String getState() {
+        public String getState() {
             return name;
         }
 
         @Override
-        void enter() {
+        public void enter() {
 
         }
 
         @Override
-        void update() {
+        public void update() {
             velocity = applyGravity(velocity, gravity, fall_speed);
             walk_sprite.incrementFrame();
         }
 
         @Override
-        void handleCollisionEvent(Collision collision, GroundType c_ground_type) {
+        protected void handleCollisionEvent(Collision collision, GroundType c_ground_type) {
             super.handleCollisionEvent(collision, c_ground_type);
             if(c_ground_type != GroundType.NONE) {
                 setNextState(new WalkState());
@@ -170,17 +173,17 @@ public class Galoomba extends Enemy {
         private int timer;
 
         @Override
-        String getState() {
+        public String getState() {
             return name;
         }
 
         @Override
-        void enter() {
+        public void enter() {
             timer = stun_time;
         }
 
         @Override
-        void update() {
+        public void update() {
             Collision ground = snapToGround();
             if(ground.collision_found) {
                 velocity = ground.collided_with.velocity;
@@ -196,7 +199,7 @@ public class Galoomba extends Enemy {
         }
 
         @Override
-        void draw() {
+        public void draw() {
             GameGraphics.drawImage((int)position.x, (int)position.y, false, false,
                     direction_facing == Direction.RIGHT, Math.PI, 0, walk_sprite.getCurrentFrame());
         }
@@ -209,7 +212,7 @@ public class Galoomba extends Enemy {
         }
 
         @Override
-        void draw() {
+        public void draw() {
             GameGraphics.drawImage((int)position.x, (int)position.y, false, false,
                     direction_facing == Direction.RIGHT, rotation, 0, walk_sprite.getCurrentFrame());
         }

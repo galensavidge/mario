@@ -2,6 +2,7 @@ package mario;
 
 import engine.LevelParser;
 import engine.objects.PhysicsObject;
+import mario.enemies.Galoomba;
 import mario.objects.MovingPlatform;
 
 import java.util.HashMap;

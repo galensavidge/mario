@@ -1,5 +1,6 @@
 package engine;
 
+import engine.graphics.GameGraphics;
 import engine.objects.GameObject;
 
 import java.awt.event.KeyEvent;

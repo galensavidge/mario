@@ -1,6 +1,7 @@
 package mario;
 
 import engine.LevelParser;
+import mario.enemies.Galoomba;
 import mario.objects.*;
 
 import java.util.HashMap;

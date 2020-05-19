@@ -1,5 +1,6 @@
-package engine;
+package engine.graphics;
 
+import engine.Game;
 import engine.objects.GameObject;
 
 import javax.swing.JFrame;
@@ -8,7 +9,6 @@ import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.geom.AffineTransform;
-import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.awt.image.BufferStrategy;
 

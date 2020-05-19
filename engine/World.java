@@ -15,13 +15,9 @@ public class World {
     static int grid_size;
 
     // Ratio between world coordinates and map coordinates (e.g. when using LevelParser)
-    static int grid_scaling_factor = 1;
+    public static int grid_scaling_factor = 1;
 
     private static PhysicsObject[][] grid;
-
-    public static void setGridScale(int grid_scaling_factor) {
-        World.grid_scaling_factor = grid_scaling_factor;
-    }
 
 
     /* Accessor functions */

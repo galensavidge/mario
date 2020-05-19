@@ -1,5 +1,8 @@
-package engine;
+package engine.graphics;
 
+import engine.Game;
+import engine.World;
+import engine.graphics.GameGraphics;
 import engine.objects.GameObject;
 import engine.objects.PhysicsObject;
 import engine.util.Vector2;

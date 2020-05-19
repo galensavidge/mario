@@ -1,6 +1,7 @@
 package mario;
 
 import engine.*;
+import engine.graphics.GameGraphics;
 
 /**
  * Main game class that runs the program.
@@ -49,7 +50,7 @@ public class Mario {
         Game.setUseFrameTime(true);
         GameGraphics.initWindow("Mario", 24*getGridScale(), 14*getGridScale(), window_scale);
         GameGraphics.setDrawScale(scaling_ratio);
-        World.setGridScale(scaling_ratio);
+        World.grid_scaling_factor = scaling_ratio;
         InputManager.init();
 
         // Game init

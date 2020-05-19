@@ -1,6 +1,6 @@
 package mario.objects;
 
-import engine.GameGraphics;
+import engine.graphics.GameGraphics;
 import mario.Mario;
 
 import java.awt.Image;

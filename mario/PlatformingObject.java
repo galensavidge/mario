@@ -1,7 +1,7 @@
 package mario;
 
 import engine.Game;
-import engine.GameGraphics;
+import engine.graphics.GameGraphics;
 import engine.objects.Collider;
 import engine.objects.Collider.Collision;
 import engine.objects.PhysicsObject;
@@ -53,6 +53,10 @@ public abstract class PlatformingObject extends PhysicsObject {
         SLOPE
     }
 
+    /* Accessors */
+    public double getHeight() {
+        return height;
+    }
 
     /* State machine template */
 
@@ -66,19 +70,19 @@ public abstract class PlatformingObject extends PhysicsObject {
      * #draw} is called.
      */
     protected abstract class State {
-        State next_state = null;
+        public State next_state = null;
 
         /**
          * @return An identifier string that can be used for state checks.
          */
-        abstract String getState();
+        public abstract String getState();
 
         /**
          * Flags the state machine to change states at the end of this step.
          *
          * @param next_state The {@link State} to switch to.
          */
-        void setNextState(State next_state) {
+        public void setNextState(State next_state) {
             this.next_state = next_state;
         }
 
@@ -87,7 +91,7 @@ public abstract class PlatformingObject extends PhysicsObject {
          *
          * @return The {@link State} switched to.
          */
-        State switchToNextState() {
+        protected State switchToNextState() {
             if(next_state != null) {
                 this.exit();
                 next_state.enter();
@@ -101,26 +105,26 @@ public abstract class PlatformingObject extends PhysicsObject {
         /**
          * Called automatically when this {@link State} is entered.
          */
-        void enter() {}
+        public void enter() {}
 
         /**
          * Called automatically when this {@link State} is left.
          */
-        void exit() {}
+        public void exit() {}
 
         /**
          * Called every step during this object's update.
          *
          * @see State
          */
-        void update() {}
+        public void update() {}
 
         /**
          * Called every step during this object's draw.
          *
          * @see State
          */
-        void draw() {}
+        public void draw() {}
 
         /**
          * Called when this object attempts to move into, and is rejected by, the {@link Collider} of another object.
@@ -128,7 +132,7 @@ public abstract class PlatformingObject extends PhysicsObject {
          * @param collision     A detailed {@link Collision} object.
          * @param c_ground_type The {@link GroundType} of the object encountered.
          */
-        void handleCollisionEvent(Collision collision, GroundType c_ground_type) {
+        protected void handleCollisionEvent(Collision collision, GroundType c_ground_type) {
             velocity = inelasticCollision(velocity, collision);
         }
 
@@ -137,7 +141,7 @@ public abstract class PlatformingObject extends PhysicsObject {
          *
          * @param c A non-detailed {@link Collision} object.
          */
-        void handleIntersectionEvent(Collision c) {}
+        protected void handleIntersectionEvent(Collision c) {}
     }
 
     public String getState() {

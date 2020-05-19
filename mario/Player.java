@@ -1,10 +1,13 @@
 package mario;
 
 import engine.*;
+import engine.graphics.AnimatedSprite;
+import engine.graphics.GameGraphics;
 import engine.objects.Collider;
 import engine.objects.Collider.Collision;
 import engine.objects.PhysicsObject;
 import engine.util.Vector2;
+import mario.enemies.Enemy;
 import mario.objects.Pickup;
 import mario.objects.Types;
 
@@ -23,8 +26,8 @@ public class Player extends PlatformingObject {
 
     public static final String type_name = "Player";
 
-    private static final double max_fall_speed = 700;
-    private static final double gravity = 2500;
+    private static final double max_fall_speed = 900;
+    private static final double gravity = 2700;
     private static final double friction = 600;
     private static final double slide_gravity = 1500;
     private static final double slide_friction = 400;
@@ -38,7 +41,7 @@ public class Player extends PlatformingObject {
 
     private static final double high_jump_xspeed_threshold = 200;
     private static final double jump_speed = -700;
-    private static final int high_jump_time = Mario.fps/3;
+    private static final int high_jump_time = (int)(Mario.fps*0.4);
     private static final int low_jump_time = Mario.fps/4;
 
     private static final double die_pause_time = 1; // In seconds
@@ -138,7 +141,7 @@ public class Player extends PlatformingObject {
     private abstract class PlayerState extends State {
 
         @Override
-        void handleIntersectionEvent(Collision c) {
+        protected void handleIntersectionEvent(Collision c) {
             switch(c.collided_with.getTypeGroup()) {
                 case Types.pickup_type_group:
                     ((Pickup)c.collided_with).collect();
@@ -272,12 +275,12 @@ public class Player extends PlatformingObject {
         AnimatedSprite s = walk_sprite;
 
         @Override
-        String getState() {
+        public String getState() {
             return name;
         }
 
         @Override
-        void enter() {
+        public void enter() {
             useDefaultCollider();
 
             // Snap down to be touching ground
@@ -295,7 +298,7 @@ public class Player extends PlatformingObject {
         }
 
         @Override
-        void handleCollisionEvent(Collision collision, GroundType c_ground_type) {
+        protected void handleCollisionEvent(Collision collision, GroundType c_ground_type) {
             if(c_ground_type == GroundType.NONE) {
                 super.handleCollisionEvent(collision, c_ground_type);
                 local_velocity = inelasticCollision(local_velocity, collision);
@@ -303,7 +306,7 @@ public class Player extends PlatformingObject {
         }
 
         @Override
-        void update() {
+        public void update() {
             GroundType ground_type = groundPhysics(local_velocity, friction, 0, 0, walk_accel, run_accel,
                     max_walk_speed, max_run_speed);
 
@@ -359,7 +362,7 @@ public class Player extends PlatformingObject {
         }
 
         @Override
-        void draw() {
+        public void draw() {
             if(skidding) {
                 drawSprite(skid_sprite);
             }
@@ -383,12 +386,12 @@ public class Player extends PlatformingObject {
         }
 
         @Override
-        String getState() {
+        public String getState() {
             return name;
         }
 
         @Override
-        void enter() {
+        public void enter() {
             velocity.y = jump_speed;
 
             if(crouching) {
@@ -400,7 +403,7 @@ public class Player extends PlatformingObject {
         }
 
         @Override
-        void update() {
+        public void update() {
             velocity = applyLateralMovement(velocity, null, walk_accel, run_accel, max_walk_speed, max_run_speed);
 
             if(crouching && !InputManager.getDown(InputManager.K_DOWN)) {
@@ -415,7 +418,7 @@ public class Player extends PlatformingObject {
         }
 
         @Override
-        void draw() {
+        public void draw() {
             if(running) {
                 drawSprite(run_jump_sprite);
             }
@@ -438,12 +441,12 @@ public class Player extends PlatformingObject {
         }
 
         @Override
-        String getState() {
+        public String getState() {
             return name;
         }
 
         @Override
-        void enter() {
+        public void enter() {
             if(crouching) {
                 useDuckCollider();
             }
@@ -453,7 +456,7 @@ public class Player extends PlatformingObject {
         }
 
         @Override
-        void update() {
+        public void update() {
             velocity = applyGravity(velocity, gravity, max_fall_speed);
             velocity = applyLateralMovement(velocity, null, walk_accel, walk_accel, max_walk_speed, max_run_speed);
 
@@ -466,7 +469,7 @@ public class Player extends PlatformingObject {
         }
 
         @Override
-        void handleCollisionEvent(Collision collision, GroundType c_ground_type) {
+        public void handleCollisionEvent(Collision collision, GroundType c_ground_type) {
             if(c_ground_type != GroundType.NONE) {
                 if(!InputManager.getDown(InputManager.K_DOWN)) {
                     setNextState(new WalkState());
@@ -487,7 +490,7 @@ public class Player extends PlatformingObject {
         }
 
         @Override
-        void draw() {
+        public void draw() {
             if(running) {
                 drawSprite(run_jump_sprite);
             }
@@ -508,12 +511,12 @@ public class Player extends PlatformingObject {
         private Vector2 local_velocity;
 
         @Override
-        String getState() {
+        public String getState() {
             return name;
         }
 
         @Override
-        void enter() {
+        public void enter() {
             useDuckCollider();
             Collision ground = snapToGround();
             if(ground.collision_found) {
@@ -525,7 +528,7 @@ public class Player extends PlatformingObject {
         }
 
         @Override
-        void handleCollisionEvent(Collision collision, GroundType c_ground_type) {
+        protected void handleCollisionEvent(Collision collision, GroundType c_ground_type) {
             if(c_ground_type == GroundType.NONE) {
                 super.handleCollisionEvent(collision, c_ground_type);
                 local_velocity = inelasticCollision(local_velocity, collision);
@@ -544,7 +547,7 @@ public class Player extends PlatformingObject {
         }
 
         @Override
-        void update() {
+        public void update() {
             GroundType ground_type = slidePhysics();
 
             if(InputManager.getDown(InputManager.K_LEFT)) {
@@ -582,7 +585,7 @@ public class Player extends PlatformingObject {
         }
 
         @Override
-        void draw() {
+        public void draw() {
             drawSprite(duck_sprite);
         }
     }
@@ -591,12 +594,12 @@ public class Player extends PlatformingObject {
         public String name = "Slide";
 
         @Override
-        String getState() {
+        public String getState() {
             return name;
         }
 
         @Override
-        void update() {
+        public void update() {
             GroundType ground_type = slidePhysics();
 
             // Switch to duck when stopped
@@ -623,7 +626,7 @@ public class Player extends PlatformingObject {
         }
 
         @Override
-        void draw() {
+        public void draw() {
             drawSprite(slide_sprite);
         }
     }
@@ -634,12 +637,12 @@ public class Player extends PlatformingObject {
         private int timer;
 
         @Override
-        String getState() {
+        public String getState() {
             return name;
         }
 
         @Override
-        void enter() {
+        public void enter() {
             Game.setSuspendTier(Mario.hitpause_suspend_tier);
             GameController.releaseCamera();
             collider.disable();
@@ -649,7 +652,7 @@ public class Player extends PlatformingObject {
         }
 
         @Override
-        void update() {
+        public void update() {
             timer--;
             if(timer == 0) {
                 velocity.y = die_jump_speed;
@@ -664,7 +667,7 @@ public class Player extends PlatformingObject {
         }
 
         @Override
-        void draw() {
+        public void draw() {
             drawSprite(die_sprite.getCurrentFrame());
         }
     }

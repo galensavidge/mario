@@ -1,5 +1,6 @@
-package engine;
+package engine.graphics;
 
+import engine.graphics.GameGraphics;
 import engine.objects.GameObject;
 
 import java.awt.*;

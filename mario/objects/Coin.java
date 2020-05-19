@@ -1,7 +1,7 @@
 package mario.objects;
 
-import engine.GameGraphics;
-import engine.AnimatedSprite;
+import engine.graphics.GameGraphics;
+import engine.graphics.AnimatedSprite;
 import engine.objects.Collider;
 import mario.GameController;
 import mario.Mario;

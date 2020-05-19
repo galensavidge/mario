@@ -1,8 +1,8 @@
 package mario;
 
-import engine.Camera;
+import engine.graphics.Camera;
 import engine.Game;
-import engine.GameGraphics;
+import engine.graphics.GameGraphics;
 import engine.objects.GameObject;
 import engine.objects.PhysicsObject;
 import engine.util.Vector2;
