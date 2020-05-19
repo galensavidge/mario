@@ -27,13 +27,14 @@ public class Player extends PlatformingObject {
     public static final String type_name = "Player";
 
     private static final double max_fall_speed = 900;
-    private static final double gravity = 2700;
+    private static final double fall_gravity = 2700;
+    private static final double walk_gravity = 400;
     private static final double friction = 600;
     private static final double slide_gravity = 1500;
     private static final double slide_friction = 400;
 
     private static final double max_walk_speed = 300;
-    private static final double walk_accel = 900;
+    private static final double walk_accel = 1000;
     private static final double run_speed = 550;
     private static final double max_run_speed = 650;
     private static final double run_accel = 1200;
@@ -200,9 +201,6 @@ public class Player extends PlatformingObject {
                     new_lv = ground.normal_reject.RHNormal().normalize().multiply(new_lv.abs());
                 }
 
-                // Friction
-                new_lv = applyFriction(new_lv, friction);
-
                 // Gravity
                 if(new_lv.abs() < max_fall_speed) {
                     Vector2 gravity_vector = new Vector2(0, gravity*Game.stepTimeSeconds());
@@ -214,6 +212,9 @@ public class Player extends PlatformingObject {
                         new_lv = with_gravity;
                     }
                 }
+
+                // Friction
+                new_lv = applyFriction(new_lv, friction);
 
                 // Set global velocity
                 velocity = new_lv.sum(ground.collided_with.velocity);
@@ -317,7 +318,7 @@ public class Player extends PlatformingObject {
 
         @Override
         public void update() {
-            GroundType ground_type = groundPhysics(local_velocity, friction, 0, 0, walk_accel, run_accel,
+            GroundType ground_type = groundPhysics(local_velocity, friction, walk_gravity, max_run_speed, walk_accel, run_accel,
                     max_walk_speed, max_run_speed);
 
 
@@ -467,7 +468,7 @@ public class Player extends PlatformingObject {
 
         @Override
         public void update() {
-            velocity = applyGravity(velocity, gravity, max_fall_speed);
+            velocity = applyGravity(velocity, fall_gravity, max_fall_speed);
             velocity = applyLateralMovement(velocity, null, walk_accel, walk_accel, max_walk_speed, max_run_speed);
 
             if(crouching && !InputManager.getDown(InputManager.K_DOWN)) {
@@ -613,7 +614,7 @@ public class Player extends PlatformingObject {
             GroundType ground_type = slidePhysics();
 
             // Switch to duck when stopped
-            if(InputManager.getDown(InputManager.K_DOWN) && velocity.x == 0) {
+            if(InputManager.getDown(InputManager.K_DOWN) && velocity.x == 0 && ground_type == GroundType.FLAT) {
                 setNextState(new DuckState());
             }
 
