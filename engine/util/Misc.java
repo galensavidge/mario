@@ -13,11 +13,12 @@ public class Misc {
     // Error allowed before calling floating point values not equal in inclusive comparisons
     public static final double delta = 1e-9;
 
-    /**
-     * Returns true iff a is in (b, c).
-     */
-    public static boolean between(double a, double b, double c) {
-        return a > Math.min(b, c) && a < Math.max(b, c);
+    public static boolean largerIncl(double a, double b) {
+        return a >= b - delta;
+    }
+
+    public static boolean smallerIncl(double a, double b) {
+        return a <= b + delta;
     }
 
     /**
@@ -28,19 +29,21 @@ public class Misc {
     }
 
     /**
-     * Adds {@code element} to {@code array} iff {@code array} does not contain an element mathematically equal to
-     * {@code element}.
+     * Adds all elements of {@code array1} to {@code array2} if {@code array2} does not have an equal element as defined
+     * by {@code Vector2.equals()}.
      */
-    public static void addNoDuplicates(ArrayList<Vector2> array, Vector2 element) {
-        boolean contains_element = false;
-        for(Vector2 v : array) {
-            if(v.equals(element)) {
-                contains_element = true;
-                break;
+    public static void addNoDuplicates(ArrayList<Vector2> array1,  ArrayList<Vector2> array2) {
+        for(Vector2 o1 : array1) {
+            boolean contains_element = false;
+            for (Vector2 o2 : array2) {
+                if (o1.equals(o2)) {
+                    contains_element = true;
+                    break;
+                }
             }
-        }
-        if(!contains_element) {
-            array.add(element);
+            if (!contains_element) {
+                array2.add(o1);
+            }
         }
     }
 }
