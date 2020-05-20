@@ -318,9 +318,14 @@ public class Player extends PlatformingObject {
 
         @Override
         public void update() {
+            // Physics
             GroundType ground_type = groundPhysics(local_velocity, friction, walk_gravity, max_run_speed, walk_accel, run_accel,
                     max_walk_speed, max_run_speed);
 
+            if(ground_type == GroundType.NONE) {
+                setNextState(new FallState(running, false));
+                velocity = applyGravity(velocity, fall_gravity, max_fall_speed);
+            }
 
             // Check for running
             running = local_velocity.abs() >= run_speed;
