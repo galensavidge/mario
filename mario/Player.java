@@ -52,10 +52,10 @@ public class Player extends PlatformingObject {
 
     private static final Vector2 short_down = new Vector2(0, 2*Collider.reject_separation);
 
-    private final Collider default_collider = Collider.newBox(this, 0, Mario.getGridScale()*0.5, Mario.getGridScale()
-            , Mario.getGridScale());
-    private final Collider duck_collider = Collider.newBox(this, 0, Mario.getGridScale()*0.75, Mario.getGridScale(),
-            Mario.getGridScale()*0.75);
+    private final Collider default_collider = Collider.newBox(this, Mario.getPixelSize(), Mario.getPixelSize()*8,
+            Mario.getPixelSize()*14, Mario.getGridScale());
+    private final Collider duck_collider = Collider.newBox(this, Mario.getPixelSize(), Mario.getPixelSize()*12,
+            Mario.getPixelSize()*14, Mario.getPixelSize()*12);
     private static final double duck_collider_height_difference = Mario.getGridScale()*0.25;
 
     private static final String sprite_sub = "";

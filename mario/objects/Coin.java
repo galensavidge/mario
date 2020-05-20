@@ -31,9 +31,8 @@ public class Coin extends Pickup {
     private void init() {
         this.type = Coin.type_name;
 
-        collider = Collider.newPolygon(this, 8,
-                Mario.getGridScale()/6.0, Mario.getGridScale()/6.0,
-                Mario.getGridScale()/3.0, 0);
+        collider = Collider.newPolygon(this, 8, Mario.getPixelSize()*4,
+                Mario.getPixelSize()*4, Mario.getPixelSize()*4, 0);
 
         this.suspend_tier = Mario.hitpause_suspend_tier;
 
@@ -41,7 +40,7 @@ public class Coin extends Pickup {
         String[] sprite_files = {Mario.sprite_path + "coin-1.png", Mario.sprite_path + "coin-2.png",
                 Mario.sprite_path + "coin-3.png", Mario.sprite_path + "coin-4.png"};
         sprite = new AnimatedSprite(sprite_files);
-        sprite.setFrameTime(10);
+        sprite.setFrameTime(Mario.fps/6);
     }
 
     @Override

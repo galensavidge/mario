@@ -44,6 +44,13 @@ public class Mario {
         return grid_size*scaling_ratio;
     }
 
+    /**
+     * @return The size, in world pixels, of one pixel in a sprite.
+     */
+    public static int getPixelSize() {
+        return scaling_ratio;
+    }
+
     public static void main(String[] args) {
         // Engine init
         Game.setTargetFPS(fps);

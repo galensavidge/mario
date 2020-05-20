@@ -43,7 +43,7 @@ public class Galoomba extends Enemy {
     private void init() {
         this.type = Galoomba.type_name;
 
-        this.collider = Collider.newPolygon(this, 8, 0, 0, Mario.getGridScale()/2.0, 0);
+        this.collider = Collider.newPolygon(this, 8, 0, 0, Mario.getPixelSize()*8, 0);
         this.height = Mario.getGridScale();
 
         Player player = GameController.getPlayer();
