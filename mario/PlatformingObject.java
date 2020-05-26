@@ -15,7 +15,7 @@ import java.util.HashMap;
  * Base class for objects that use platforming physics.
  *
  * @author Galen Savidge
- * @version 5/18/2020
+ * @version 5/19/2020
  */
 public abstract class PlatformingObject extends PhysicsObject {
 
@@ -65,7 +65,7 @@ public abstract class PlatformingObject extends PhysicsObject {
      * state will be switched to {@link #next_state} as set by {@link #setNextState}. At this point, {@link #exit} will
      * be called for the last state and {@link #enter} will be called for the new state. 2. The current state's {@link
      * #update} is called. 3. Physics updates. The parent's {@link #position} is updated based on {@link #velocity} and
-     * the state's {@link #handleCollisionEvent} is called for each object collided with while moving. 4. The current
+     * the state's {@link #handlePhysicsCollisionEvent} is called for each object collided with while moving. 4. The current
      * ground type {@link #ground_found} is updated based on the collisions encountered. 5. The current state's {@link
      * #draw} is called.
      */
@@ -132,8 +132,11 @@ public abstract class PlatformingObject extends PhysicsObject {
          * @param collision     A detailed {@link Collision} object.
          * @param c_ground_type The {@link GroundType} of the object encountered.
          */
-        protected void handleCollisionEvent(Collision collision, GroundType c_ground_type) {
-            velocity = inelasticCollision(velocity, collision);
+        protected void handlePhysicsCollisionEvent(Collision collision, GroundType c_ground_type) {
+            // Check for sliding around corners
+            if(slideAroundCorners(collision)) {
+                velocity = inelasticCollision(velocity, collision);
+            }
         }
 
         /**
@@ -141,7 +144,7 @@ public abstract class PlatformingObject extends PhysicsObject {
          *
          * @param c A non-detailed {@link Collision} object.
          */
-        protected void handleIntersectionEvent(Collision c) {}
+        protected void handleCollisionEvent(Collision c) {}
     }
 
     public String getState() {
@@ -191,9 +194,26 @@ public abstract class PlatformingObject extends PhysicsObject {
      * @return A new velocity vector.
      */
     protected Vector2 inelasticCollision(Vector2 v, Collision c) {
+
         Vector2 v_parallel_to_collision = v.difference(v.projection(c.normal_reject));
         Vector2 object_v_normal_to_collision = c.collided_with.velocity.projection(c.normal_reject);
         return v_parallel_to_collision.sum(object_v_normal_to_collision);
+    }
+
+    protected boolean slideAroundCorners(Collision collision) {
+        Vector2 delta_p = velocity.multiply(Game.stepTimeSeconds());
+        Vector2 parallel_axis = collision.normal_reject.RHNormal().normalize().multiply(2*Mario.getPixelSize());
+        Vector2[] position_checks = {position.sum(parallel_axis), position.sum(parallel_axis.multiply(-1))};
+        Vector2 old_position = position.copy();
+        for(Vector2 p : position_checks) {
+            position = p;
+            if(!sweepForCollision(delta_p).collision_found) {
+                return true;
+            }
+        }
+
+        position = old_position;
+        return false;
     }
 
     /* Ground checks */
@@ -278,12 +298,12 @@ public abstract class PlatformingObject extends PhysicsObject {
     }
 
     @Override
-    public void collisionEvent(Collision c) {
+    public void physicsCollisionEvent(Collision c) {
         // Get ground type of this collision
         GroundType c_ground_type = checkGroundType(c.normal_reject);
 
         // Update velocity or do other things based on state behavior
-        state.handleCollisionEvent(c, c_ground_type);
+        state.handlePhysicsCollisionEvent(c, c_ground_type);
 
         // Record ground type in global variable
         if(c_ground_type == GroundType.FLAT ||
@@ -293,8 +313,8 @@ public abstract class PlatformingObject extends PhysicsObject {
     }
 
     @Override
-    public void intersectionEvent(Collision c) {
-        state.handleIntersectionEvent(c);
+    public void collisionEvent(Collision c) {
+        state.handleCollisionEvent(c);
     }
 
     @Override

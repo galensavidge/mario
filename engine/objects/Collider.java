@@ -605,10 +605,10 @@ public class Collider extends GameObject {
             ArrayList<Collision> collisions = getCollisions();
             for(Collision c : collisions) {
                 if(c.collision_found) {
-                    object.intersectionEvent(c);
+                    object.collisionEvent(c);
                     Collision other_c = c.copy();
                     other_c.collided_with = object;
-                    c.collided_with.intersectionEvent(other_c);
+                    c.collided_with.collisionEvent(other_c);
                 }
             }
         }

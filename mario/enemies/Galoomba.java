@@ -113,8 +113,8 @@ public class Galoomba extends Enemy {
         }
 
         @Override
-        protected void handleCollisionEvent(Collision collision, GroundType c_ground_type) {
-            super.handleCollisionEvent(collision, c_ground_type);
+        protected void handlePhysicsCollisionEvent(Collision collision, GroundType c_ground_type) {
+            super.handlePhysicsCollisionEvent(collision, c_ground_type);
             if(c_ground_type == GroundType.NONE) {
                 reverse_direction = true;
             }
@@ -160,8 +160,8 @@ public class Galoomba extends Enemy {
         }
 
         @Override
-        protected void handleCollisionEvent(Collision collision, GroundType c_ground_type) {
-            super.handleCollisionEvent(collision, c_ground_type);
+        protected void handlePhysicsCollisionEvent(Collision collision, GroundType c_ground_type) {
+            super.handlePhysicsCollisionEvent(collision, c_ground_type);
             if(c_ground_type != GroundType.NONE) {
                 setNextState(new WalkState());
             }

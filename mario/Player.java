@@ -18,7 +18,7 @@ import java.util.HashMap;
  * The physical object that the player controls.
  *
  * @author Galen Savidge
- * @version 5/18/2020
+ * @version 5/19/2020
  */
 public class Player extends PlatformingObject {
 
@@ -142,7 +142,12 @@ public class Player extends PlatformingObject {
     private abstract class PlayerState extends State {
 
         @Override
-        protected void handleIntersectionEvent(Collision c) {
+        protected void handlePhysicsCollisionEvent(Collision collision, GroundType c_ground_type) {
+            super.handlePhysicsCollisionEvent(collision, c_ground_type);
+        }
+
+        @Override
+        protected void handleCollisionEvent(Collision c) {
             switch(c.collided_with.getTypeGroup()) {
                 case Types.pickup_type_group:
                     ((Pickup)c.collided_with).collect();
@@ -309,9 +314,9 @@ public class Player extends PlatformingObject {
         }
 
         @Override
-        protected void handleCollisionEvent(Collision collision, GroundType c_ground_type) {
+        protected void handlePhysicsCollisionEvent(Collision collision, GroundType c_ground_type) {
             if(c_ground_type == GroundType.NONE) {
-                super.handleCollisionEvent(collision, c_ground_type);
+                super.handlePhysicsCollisionEvent(collision, c_ground_type);
                 local_velocity = inelasticCollision(local_velocity, collision);
             }
         }
@@ -340,11 +345,6 @@ public class Player extends PlatformingObject {
             if(skidding && Math.abs(speed) < high_jump_xspeed_threshold) {
                 skidding = false;
             }
-
-            if(ground_type == GroundType.NONE) {
-                setNextState(new FallState(running, false));
-            }
-
 
             // Jump
             if(InputManager.getPressed(InputManager.K_JUMP)) {
@@ -485,23 +485,25 @@ public class Player extends PlatformingObject {
         }
 
         @Override
-        public void handleCollisionEvent(Collision collision, GroundType c_ground_type) {
+        public void handlePhysicsCollisionEvent(Collision collision, GroundType c_ground_type) {
             if(c_ground_type != GroundType.NONE) {
-                if(!InputManager.getDown(InputManager.K_DOWN)) {
-                    setNextState(new WalkState());
-                }
-                else {
-                    super.handleCollisionEvent(collision, c_ground_type);
-                    if(c_ground_type == GroundType.FLAT) {
-                        setNextState(new DuckState());
+                if(!slideAroundCorners(collision)) {
+                    if(!InputManager.getDown(InputManager.K_DOWN)) {
+                        setNextState(new WalkState());
                     }
                     else {
-                        setNextState(new SlideState());
+                        super.handlePhysicsCollisionEvent(collision, c_ground_type);
+                        if(c_ground_type == GroundType.FLAT) {
+                            setNextState(new DuckState());
+                        }
+                        else {
+                            setNextState(new SlideState());
+                        }
                     }
                 }
             }
             else {
-                super.handleCollisionEvent(collision, c_ground_type);
+                super.handlePhysicsCollisionEvent(collision, c_ground_type);
             }
         }
 
@@ -544,9 +546,9 @@ public class Player extends PlatformingObject {
         }
 
         @Override
-        protected void handleCollisionEvent(Collision collision, GroundType c_ground_type) {
+        protected void handlePhysicsCollisionEvent(Collision collision, GroundType c_ground_type) {
             if(c_ground_type == GroundType.NONE) {
-                super.handleCollisionEvent(collision, c_ground_type);
+                super.handlePhysicsCollisionEvent(collision, c_ground_type);
                 local_velocity = inelasticCollision(local_velocity, collision);
             }
         }

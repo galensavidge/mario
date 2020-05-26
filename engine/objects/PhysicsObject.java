@@ -12,7 +12,7 @@ import java.util.HashMap;
  * The parent class for all objects that inhabit physical space in the game world.
  *
  * @author Galen Savidge
- * @version 5/16/2020
+ * @version 5/19/2020
  */
 public abstract class PhysicsObject extends GameObject {
 
@@ -171,12 +171,12 @@ public abstract class PhysicsObject extends GameObject {
 
         // Send collision events
         for(Collision c : collisions) {
-            if(collidesWith(c)) {
-                collisionEvent(c);
-                Collision other_c = c.copy();
-                c.collided_with = this;
-                c.collided_with.collisionEvent(other_c);
-            }
+            physicsCollisionEvent(c);
+            collisionEvent(c);
+            Collision other_c = c.copy();
+            other_c.collided_with = this;
+            c.collided_with.physicsCollisionEvent(other_c);
+            c.collided_with.collisionEvent(other_c);
         }
 
         return collisions;
@@ -288,16 +288,17 @@ public abstract class PhysicsObject extends GameObject {
      *
      * @param c A collision event with details populated (e.g. {@code c.isDetailed()} returns {@code true}).
      */
-    public void collisionEvent(Collision c) {}
+    public void physicsCollisionEvent(Collision c) {}
 
     /**
      * Override this method to respond to collider intersections with other objects. Events are generated if {@code
      * collider.active_check} is {@code true} and this object intersects other objects, or when another object with
-     * active checking enabled intersects this object.
+     * active checking enabled intersects this object, and after {@link #physicsCollisionEvent} is called.
      *
-     * @param c A collision event without details (e.g. {@code c.isDetailed()} returns {@code false}).
+     * @param c A collision event that may or may not be detailed (e.g. {@code c.isDetailed()} may return {@code
+     * false}).
      */
-    public void intersectionEvent(Collision c) {}
+    public void collisionEvent(Collision c) {}
 
     /**
      * Called after the world is finished loading and all object have been instantiated.
