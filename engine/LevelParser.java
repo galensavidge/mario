@@ -1,11 +1,12 @@
 package engine;
 
+import engine.collider.ColliderGrid;
 import engine.graphics.ImageLayer;
 import engine.graphics.TileLayer;
 import engine.objects.PhysicsObject;
-import engine.objects.Collider;
 import engine.util.Vector2;
 import engine.graphics.TileLayer.TileSet;
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -69,7 +70,7 @@ public class LevelParser {
             World.height = (int)(long)main.get("height")*World.grid_size;
 
             // Need to do this between when the grid size is determined and when objects are instantiated
-            Collider.initColliders();
+            ColliderGrid.init();
 
             // List of all PhysicsObjects instantiated
             ArrayList<PhysicsObject> instances = new ArrayList<>();

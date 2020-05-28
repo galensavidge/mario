@@ -1,6 +1,6 @@
 package mario.objects;
 
-import engine.objects.Collider;
+import engine.collider.Collider;
 import engine.objects.PhysicsObject;
 import mario.Mario;
 

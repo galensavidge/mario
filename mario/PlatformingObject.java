@@ -2,8 +2,8 @@ package mario;
 
 import engine.Game;
 import engine.graphics.GameGraphics;
-import engine.objects.Collider;
-import engine.objects.Collider.Collision;
+import engine.collider.Collider;
+import engine.collider.Collision;
 import engine.objects.PhysicsObject;
 import engine.util.Vector2;
 import mario.objects.Types;

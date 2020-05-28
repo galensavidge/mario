@@ -2,8 +2,8 @@ package mario.enemies;
 
 import engine.graphics.GameGraphics;
 import engine.graphics.AnimatedSprite;
-import engine.objects.Collider;
-import engine.objects.Collider.Collision;
+import engine.collider.Collider;
+import engine.collider.Collision;
 import mario.GameController;
 import mario.Mario;
 import mario.Player;

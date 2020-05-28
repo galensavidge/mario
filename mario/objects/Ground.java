@@ -1,7 +1,7 @@
 package mario.objects;
 
 import engine.World;
-import engine.objects.Collider;
+import engine.collider.Collider;
 import engine.objects.PhysicsObject;
 import engine.util.Vector2;
 import mario.Mario;
