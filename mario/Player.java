@@ -1,6 +1,7 @@
 package mario;
 
 import engine.*;
+import engine.collider.Intersection;
 import engine.graphics.AnimatedSprite;
 import engine.graphics.GameGraphics;
 import engine.collider.Collider;
@@ -122,12 +123,6 @@ public class Player extends PlatformingObject {
     @Override
     public void draw() {
         super.draw();
-        PhysicsObject raycast_obj = getObjectInDirection(new Vector2(0, 10));
-        if(raycast_obj != null) {
-            raycast_obj.collider.draw_self = true;
-            raycast_obj.collider.draw();
-            raycast_obj.collider.draw_self = false;
-        }
         //collider.draw_self = true;
         /*for(Collider c : collider.getCollidersInNeighboringZones()) {
             c.draw_self = true;
@@ -142,18 +137,18 @@ public class Player extends PlatformingObject {
     private abstract class PlayerState extends State {
 
         @Override
-        protected void handlePhysicsCollisionEvent(Collision collision, GroundType c_ground_type) {
-            super.handlePhysicsCollisionEvent(collision, c_ground_type);
+        protected void handlePhysicsCollisionEvent(Intersection i, GroundType c_ground_type) {
+            super.handlePhysicsCollisionEvent(i, c_ground_type);
         }
 
         @Override
-        protected void handleCollisionEvent(Collision c) {
-            switch(c.collided_with.getTypeGroup()) {
+        protected void handleCollisionEvent(Intersection i) {
+            switch(i.collided_with.getTypeGroup()) {
                 case Types.pickup_type_group:
-                    ((Pickup)c.collided_with).collect();
+                    ((Pickup)i.collided_with).collect();
                     break;
                 case Types.enemy_type_group:
-                    ((Enemy)c.collided_with).bounceEvent(Player.this);
+                    ((Enemy)i.collided_with).bounceEvent(Player.this);
                 default:
                     //System.out.println("Collided with "+object.getType());
                     break;
@@ -190,26 +185,26 @@ public class Player extends PlatformingObject {
                                            double max_fall_speed, double walk_accel, double run_accel,
                                            double max_walk_speed, double max_run_speed) {
             // Ground check
-            Collision ground = snapToGround();
-            GroundType ground_type = checkGroundType(ground.normal_reject);
+            Intersection ground = snapToGround();
+            GroundType ground_type = checkGroundType(ground);
 
             if(ground_type != GroundType.NONE) {
                 // Left/right input and running check
-                Vector2 new_lv = applyLateralMovement(local_velocity, ground.normal_reject, walk_accel, run_accel,
+                Vector2 new_lv = applyLateralMovement(local_velocity, ground.getReject(), walk_accel, run_accel,
                         max_walk_speed, max_run_speed);
 
                 // Stick to slope corners
                 if(new_lv.x <= 0) {
-                    new_lv = ground.normal_reject.LHNormal().normalize().multiply(new_lv.abs());
+                    new_lv = ground.getNormal().LHNormal().normalize().multiply(new_lv.abs());
                 }
                 else {
-                    new_lv = ground.normal_reject.RHNormal().normalize().multiply(new_lv.abs());
+                    new_lv = ground.getNormal().RHNormal().normalize().multiply(new_lv.abs());
                 }
 
                 // Gravity
                 if(new_lv.abs() < max_fall_speed) {
                     Vector2 gravity_vector = new Vector2(0, gravity*Game.stepTimeSeconds());
-                    Vector2 with_gravity = new_lv.sum(gravity_vector.normalComponent(ground.normal_reject));
+                    Vector2 with_gravity = new_lv.sum(gravity_vector.normalComponent(ground.getNormal()));
                     if(with_gravity.abs() > max_fall_speed) {
                         new_lv = new_lv.normalize().multiply(max_fall_speed);
                     }
@@ -300,12 +295,12 @@ public class Player extends PlatformingObject {
             useDefaultCollider();
 
             // Snap down to be touching ground
-            Collision ground = snapToGround();
+            Intersection ground = snapToGround();
 
             // Conserve horizontal velocity and change its direction to be parallel with the ground
-            if(ground.collision_found) {
+            if(ground != null) {
                 velocity.y = 0;
-                velocity = ground.normal_reject.RHNormal().normalize().multiply(velocity.x);
+                velocity = ground.getReject().RHNormal().normalize().multiply(velocity.x);
                 local_velocity = velocity.difference(ground.collided_with.velocity);
             }
             else {
@@ -314,10 +309,10 @@ public class Player extends PlatformingObject {
         }
 
         @Override
-        protected void handlePhysicsCollisionEvent(Collision collision, GroundType c_ground_type) {
+        protected void handlePhysicsCollisionEvent(Intersection i, GroundType c_ground_type) {
             if(c_ground_type == GroundType.NONE) {
-                super.handlePhysicsCollisionEvent(collision, c_ground_type);
-                local_velocity = inelasticCollision(local_velocity, collision);
+                super.handlePhysicsCollisionEvent(i, c_ground_type);
+                local_velocity = inelasticCollision(local_velocity, i);
             }
         }
 
@@ -485,25 +480,23 @@ public class Player extends PlatformingObject {
         }
 
         @Override
-        public void handlePhysicsCollisionEvent(Collision collision, GroundType c_ground_type) {
+        public void handlePhysicsCollisionEvent(Intersection i, GroundType c_ground_type) {
             if(c_ground_type != GroundType.NONE) {
-                if(!slideAroundCorners(collision)) {
-                    if(!InputManager.getDown(InputManager.K_DOWN)) {
-                        setNextState(new WalkState());
+                if(!InputManager.getDown(InputManager.K_DOWN)) {
+                    setNextState(new WalkState());
+                }
+                else {
+                    super.handlePhysicsCollisionEvent(i, c_ground_type);
+                    if(c_ground_type == GroundType.FLAT) {
+                        setNextState(new DuckState());
                     }
                     else {
-                        super.handlePhysicsCollisionEvent(collision, c_ground_type);
-                        if(c_ground_type == GroundType.FLAT) {
-                            setNextState(new DuckState());
-                        }
-                        else {
-                            setNextState(new SlideState());
-                        }
+                        setNextState(new SlideState());
                     }
                 }
             }
             else {
-                super.handlePhysicsCollisionEvent(collision, c_ground_type);
+                super.handlePhysicsCollisionEvent(i, c_ground_type);
             }
         }
 
@@ -536,8 +529,8 @@ public class Player extends PlatformingObject {
         @Override
         public void enter() {
             useDuckCollider();
-            Collision ground = snapToGround();
-            if(ground.collision_found) {
+            Intersection ground = snapToGround();
+            if(ground != null) {
                 local_velocity = velocity.difference(ground.collided_with.velocity);
             }
             else {
@@ -546,10 +539,10 @@ public class Player extends PlatformingObject {
         }
 
         @Override
-        protected void handlePhysicsCollisionEvent(Collision collision, GroundType c_ground_type) {
+        protected void handlePhysicsCollisionEvent(Intersection i, GroundType c_ground_type) {
             if(c_ground_type == GroundType.NONE) {
-                super.handlePhysicsCollisionEvent(collision, c_ground_type);
-                local_velocity = inelasticCollision(local_velocity, collision);
+                super.handlePhysicsCollisionEvent(i, c_ground_type);
+                local_velocity = inelasticCollision(local_velocity, i);
             }
         }
 

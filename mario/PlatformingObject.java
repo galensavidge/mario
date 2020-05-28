@@ -1,11 +1,13 @@
 package mario;
 
 import engine.Game;
+import engine.collider.Intersection;
 import engine.graphics.GameGraphics;
 import engine.collider.Collider;
 import engine.collider.Collision;
 import engine.objects.PhysicsObject;
 import engine.util.Vector2;
+import mario.objects.Ground;
 import mario.objects.Types;
 
 import java.awt.*;
@@ -65,9 +67,9 @@ public abstract class PlatformingObject extends PhysicsObject {
      * state will be switched to {@link #next_state} as set by {@link #setNextState}. At this point, {@link #exit} will
      * be called for the last state and {@link #enter} will be called for the new state. 2. The current state's {@link
      * #update} is called. 3. Physics updates. The parent's {@link #position} is updated based on {@link #velocity} and
-     * the state's {@link #handlePhysicsCollisionEvent} is called for each object collided with while moving. 4. The current
-     * ground type {@link #ground_found} is updated based on the collisions encountered. 5. The current state's {@link
-     * #draw} is called.
+     * the state's {@link #handlePhysicsCollisionEvent} is called for each object collided with while moving. 4. The
+     * current ground type {@link #ground_found} is updated based on the collisions encountered. 5. The current state's
+     * {@link #draw} is called.
      */
     protected abstract class State {
         public State next_state = null;
@@ -129,22 +131,16 @@ public abstract class PlatformingObject extends PhysicsObject {
         /**
          * Called when this object attempts to move into, and is rejected by, the {@link Collider} of another object.
          *
-         * @param collision     A detailed {@link Collision} object.
          * @param c_ground_type The {@link GroundType} of the object encountered.
          */
-        protected void handlePhysicsCollisionEvent(Collision collision, GroundType c_ground_type) {
-            // Check for sliding around corners
-            if(slideAroundCorners(collision)) {
-                velocity = inelasticCollision(velocity, collision);
-            }
+        protected void handlePhysicsCollisionEvent(Intersection i, GroundType c_ground_type) {
+            velocity = inelasticCollision(velocity, i);
         }
 
         /**
          * Called when this object's {@link Collider} detects that it is intersecting another {@link Collider}.
-         *
-         * @param c A non-detailed {@link Collision} object.
          */
-        protected void handleCollisionEvent(Collision c) {}
+        protected void handleCollisionEvent(Intersection i) {}
     }
 
     public String getState() {
@@ -190,24 +186,23 @@ public abstract class PlatformingObject extends PhysicsObject {
      * Finds the net velocity after an inelastic collision described by {@code c}. No friction is calculated.
      *
      * @param v The current velocity vector.
-     * @param c The {@link Collision} object describing the collision.
+     * @param i The {@link Intersection} object describing the collision.
      * @return A new velocity vector.
      */
-    protected Vector2 inelasticCollision(Vector2 v, Collision c) {
-
-        Vector2 v_parallel_to_collision = v.difference(v.projection(c.normal_reject));
-        Vector2 object_v_normal_to_collision = c.collided_with.velocity.projection(c.normal_reject);
+    protected Vector2 inelasticCollision(Vector2 v, Intersection i) {
+        Vector2 v_parallel_to_collision = v.difference(v.projection(i.getReject()));
+        Vector2 object_v_normal_to_collision = i.collided_with.velocity.projection(i.getNormal());
         return v_parallel_to_collision.sum(object_v_normal_to_collision);
     }
 
-    protected boolean slideAroundCorners(Collision collision) {
+    protected boolean slideAroundCorners(Intersection i) {
         Vector2 delta_p = velocity.multiply(Game.stepTimeSeconds());
-        Vector2 parallel_axis = collision.normal_reject.RHNormal().normalize().multiply(2*Mario.getPixelSize());
+        Vector2 parallel_axis = i.getNormal().RHNormal().multiply(2*Mario.getPixelSize());
         Vector2[] position_checks = {position.sum(parallel_axis), position.sum(parallel_axis.multiply(-1))};
         Vector2 old_position = position.copy();
         for(Vector2 p : position_checks) {
             position = p;
-            if(!sweepForCollision(delta_p).collision_found) {
+            if(sweepForCollision(delta_p) != null) {
                 return true;
             }
         }
@@ -215,6 +210,7 @@ public abstract class PlatformingObject extends PhysicsObject {
         position = old_position;
         return false;
     }
+
 
     /* Ground checks */
 
@@ -224,20 +220,23 @@ public abstract class PlatformingObject extends PhysicsObject {
      *
      * @return A detailed {@link Collision} object.
      */
-    protected Collision snapToGround() {
-        Collision collision = sweepForCollision(down);
+    protected Intersection snapToGround() {
+        Intersection i = sweepForCollision(down);
+
         // Check that down is ground
-        if(checkGroundType(collision.normal_reject) != GroundType.NONE) {
+        if(checkGroundType(i) != GroundType.NONE) {
             // Snap to ground
-            position = position.sum(collision.to_contact);
+            position = position.sum(i.getToContact());
         }
-        return collision;
+        return i;
     }
 
-    /**
-     * @param normal The normal vector of a surface, e.g. the {@code normal_reject} from a detailed {@link Collision}.
-     */
-    protected GroundType checkGroundType(Vector2 normal) {
+    protected GroundType checkGroundType(Intersection i) {
+        if(i == null) {
+            return GroundType.NONE;
+        }
+
+        Vector2 normal = i.getNormal();
         if(normal == null) {
             return GroundType.NONE;
         }
@@ -266,31 +265,27 @@ public abstract class PlatformingObject extends PhysicsObject {
     /* Template overridden methods */
 
     @Override
-    public void update() {
+    public void prePhysicsUpdate() {
         // Switch states
         state = state.switchToNextState();
 
         // Run state update code
         state.update();
 
-        // Integrate velocity
-        Vector2 delta_position = velocity.multiply(Game.stepTimeSeconds());
-
         // Move, colliding with objects
         ground_found = GroundType.NONE;
-        moveAndCollide(delta_position);
     }
 
     @Override
-    protected boolean collidesWith(Collision c) {
-        if(c.collided_with.solid) {
+    protected boolean collidesWith(Intersection i) {
+        if(i.collided_with.solid) {
             return true;
         }
 
         // Semisolid collision check
-        else if(c.collided_with.hasTag(Types.semisolid_tag)) {
-            return position.y + height - Mario.getGridScale()/2.0 - Collider.edge_separation < c.collided_with.position.y
-                    && c.normal_reject.x == 0;
+        else if(i.collided_with.hasTag(Types.semisolid_tag)) {
+            return position.y + height - Mario.getGridScale()/2.0 - Collider.edge_separation < i.collided_with.position.y
+                    && i.getReject().x == 0;
         }
         else {
             return false;
@@ -298,12 +293,12 @@ public abstract class PlatformingObject extends PhysicsObject {
     }
 
     @Override
-    public void physicsCollisionEvent(Collision c) {
+    public void physicsCollisionEvent(Intersection i) {
         // Get ground type of this collision
-        GroundType c_ground_type = checkGroundType(c.normal_reject);
+        GroundType c_ground_type = checkGroundType(i);
 
         // Update velocity or do other things based on state behavior
-        state.handlePhysicsCollisionEvent(c, c_ground_type);
+        state.handlePhysicsCollisionEvent(i, c_ground_type);
 
         // Record ground type in global variable
         if(c_ground_type == GroundType.FLAT ||
@@ -313,8 +308,8 @@ public abstract class PlatformingObject extends PhysicsObject {
     }
 
     @Override
-    public void collisionEvent(Collision c) {
-        state.handleCollisionEvent(c);
+    public void collisionEvent(Intersection i) {
+        state.handleCollisionEvent(i);
     }
 
     @Override

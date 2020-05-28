@@ -1,9 +1,10 @@
 package engine.objects;
 
+import engine.Game;
 import engine.collider.Collider;
 import engine.collider.Collision;
+import engine.collider.Intersection;
 import engine.graphics.GameGraphics;
-import engine.util.Line;
 import engine.util.Vector2;
 
 import java.util.ArrayList;
@@ -13,7 +14,7 @@ import java.util.HashMap;
  * The parent class for all objects that inhabit physical space in the game world.
  *
  * @author Galen Savidge
- * @version 5/19/2020
+ * @version 5/27/2020
  */
 public abstract class PhysicsObject extends GameObject {
 
@@ -76,6 +77,7 @@ public abstract class PhysicsObject extends GameObject {
         }
     }
 
+
     /* Accessor functions */
 
     /**
@@ -124,8 +126,8 @@ public abstract class PhysicsObject extends GameObject {
      *
      * @return True to collide with this object, false to pass through.
      */
-    protected boolean collidesWith(Collision c) {
-        return c.collided_with.solid;
+    protected boolean collidesWith(Intersection i) {
+        return i.collided_with.solid;
     }
 
     /**
@@ -140,8 +142,8 @@ public abstract class PhysicsObject extends GameObject {
      * @param delta_position The change in position this step.
      * @return A list of {@link Collision} objects corresponding to the surfaces collided with.
      */
-    protected ArrayList<Collision> moveAndCollide(Vector2 delta_position) {
-        ArrayList<Collision> collisions = new ArrayList<>();
+    protected ArrayList<Intersection> moveAndCollide(Vector2 delta_position) {
+        ArrayList<Intersection> collisions = new ArrayList<>();
         if(delta_position.equals(Vector2.zero())) {
             return new ArrayList<>();
         }
@@ -153,13 +155,13 @@ public abstract class PhysicsObject extends GameObject {
             // Determine the new position to check
             new_position = position.sum(delta_position);
 
-            // Get a normal vector from the closest surface of the objects collided with
-            Collision collision = sweepForCollision(delta_position);
+            // Get the closest surface of the objects collided with
+            Intersection closest = sweepForCollision(delta_position);
 
-            if(collision.collision_found) {
+            if(closest != null) {
                 // Remove the portion of the attempted motion that is parallel to the normal vector
-                delta_position = delta_position.sum(collision.normal_reject);
-                collisions.add(collision);
+                delta_position = delta_position.sum(closest.getReject());
+                collisions.add(closest);
             }
             else {
                 break;
@@ -171,13 +173,11 @@ public abstract class PhysicsObject extends GameObject {
         collider.setPosition(position);
 
         // Send collision events
-        for(Collision c : collisions) {
-            physicsCollisionEvent(c);
-            collisionEvent(c);
-            Collision other_c = c.copy();
-            other_c.collided_with = this;
-            c.collided_with.physicsCollisionEvent(other_c);
-            c.collided_with.collisionEvent(other_c);
+        for(Intersection i : collisions) {
+            this.physicsCollision(i);
+            Intersection other_i = new Intersection(this, i.point, i.edge, i.ray);
+            other_i.reversed = !i.reversed;
+            i.collided_with.physicsCollision(other_i);
         }
 
         return collisions;
@@ -187,124 +187,72 @@ public abstract class PhysicsObject extends GameObject {
      * Returns the {@link Collision} first encountered when moving from {@code position} to {@code position +
      * delta_position}.
      *
-     * @param check_all If true, will check all colliders in the game world. If false, ignores collisions based on
-     *                  {@link #collidesWith}. Defaults to false.
      * @return A {@link Collision} if a collision was found, otherwise null.
      */
-    protected Collision sweepForCollision(Vector2 delta_position, boolean check_all) {
-        // Do a fast collision check at the final position to narrow down the list of collider to check
-        collider.setPosition(position.sum(delta_position));
-        ArrayList<Collision> collisions_here = collider.getCollisions();
-        collider.setPosition(position);
+    protected Intersection sweepForCollision(Vector2 delta_position) {
+        Collision c = collider.sweep(this.position, delta_position);
 
-        // Make a list of the objects that should be collided with rather than passed through
-        ArrayList<Collider> other_colliders = new ArrayList<>();
-        for(Collision c : collisions_here) {
-            if(c.collision_found) {
-                other_colliders.add(c.collided_with.collider);
-            }
-        }
+        if(c.collision_found) {
+            while(c.numIntersections() > 0) {
+                // Find details for the closest collision encountered when travelling along delta_position
+                Intersection closest = c.popClosestIntersection();
 
-        while(other_colliders.size() > 0) {
-            // Find details for the closest collision encountered when travelling along delta_position
-            Collision c = collider.getCollisionDetails(delta_position, other_colliders);
-
-            // Done if: no collision was found, check all is true, or this object collides with the object at c
-            if(!c.collision_found || check_all || collidesWith(c)) {
-                return c;
-            }
-
-            // If not done this object does not collide with the object at c; remove it and try again
-            other_colliders.remove(c.collided_with.collider);
-        }
-
-        return new Collision();
-    }
-
-    /**
-     * Returns the {@link Collision} first encountered when moving from {@code position} to {@code position +
-     * delta_position}.
-     *
-     * @return A {@link Collision} if a collision was found, otherwise null.
-     */
-    protected Collision sweepForCollision(Vector2 delta_position) {
-        return sweepForCollision(delta_position, false);
-    }
-
-    /**
-     * Returns the closest object in a given direction.
-     *
-     * @param direction A vector representing the direction to check.
-     * @return The closest object touching or intersecting with this object in the given direction.
-     */
-    protected PhysicsObject getObjectInDirection(Vector2 direction) {
-        ArrayList<Collider> colliders = collider.getCollidersInNeighboringZones();
-
-        // Check what is collided with when moving in the given direction
-        collider.setPosition(position.sum(direction));
-        ArrayList<Collision> collisions = collider.getCollisions(colliders);
-        collider.setPosition(position);
-
-        if(collisions.size() == 0) {
-            return null;
-        }
-        else if(collisions.size() == 1) {
-            return collisions.get(0).collided_with; // If only one object is collided with, return that
-        }
-        else {
-            // Raycast from the center of the collider
-            Line ray = new Line(collider.getCenter(), collider.getCenter().sum(direction), true, false);
-            try {
-                // Position at the edge of collider on the raycast line
-                ArrayList<Vector2> start_positions = Collider.lineIntersectsCollider(ray, collider);
-
-                // Find the intersection farthest from the center
-                double longest_dist_from_center = 0;
-                Vector2 farthest_position = null;
-                for(Vector2 start_position : start_positions) {
-                    double dist_from_center = start_position.difference(collider.getCenter()).abs();
-                    if(dist_from_center > longest_dist_from_center) {
-                        longest_dist_from_center = dist_from_center;
-                        farthest_position = start_position;
-                    }
+                // Done if: no collision was found, check all is true, or this object collides with the object at c
+                if(collidesWith(closest)) {
+                    return closest;
                 }
-
-                if(farthest_position != null) {
-                    return Collider.rayCast(farthest_position, direction, colliders).collided_with;
-                }
-                return null;
-            }
-            catch(ArrayIndexOutOfBoundsException e) {
-                return null;
             }
         }
+        return null;
     }
 
 
-    /* Events */
+    /* Overridable event handlers */
 
     /**
      * Override this method to respond to collisions with other objects. Events are generated when collision rejection
      * occurs when using {@link #moveAndCollide}.
-     *
-     * @param c A collision event with details populated (e.g. {@code c.isDetailed()} returns {@code true}).
      */
-    public void physicsCollisionEvent(Collision c) {}
+    public void physicsCollisionEvent(Intersection i) {}
 
     /**
      * Override this method to respond to collider intersections with other objects. Events are generated if {@code
      * collider.active_check} is {@code true} and this object intersects other objects, or when another object with
      * active checking enabled intersects this object, and after {@link #physicsCollisionEvent} is called.
-     *
-     * @param c A collision event that may or may not be detailed (e.g. {@code c.isDetailed()} may return {@code
-     * false}).
      */
-    public void collisionEvent(Collision c) {}
+    public void collisionEvent(Intersection i) {}
 
     /**
      * Called after the world is finished loading and all object have been instantiated.
      */
     public void worldLoadedEvent() {}
+
+    /**
+     * Called each update before this object's physics is updated.
+     */
+    public void prePhysicsUpdate() {}
+
+    /**
+     * Called each update after this object's physics is updated.
+     */
+    public void postPhysicsUpdate() {}
+
+
+    /* Events */
+
+    private void physicsCollision(Intersection i) {
+        physicsCollisionEvent(i);
+        collisionEvent(i);
+    }
+
+    @Override
+    public void update() {
+        prePhysicsUpdate();
+        if(!velocity.equals(Vector2.zero())) {
+            moveAndCollide(velocity.multiply(Game.stepTimeSeconds()));
+        }
+        postPhysicsUpdate();
+    }
 
     @Override
     public void deleteEvent() {

@@ -1,5 +1,6 @@
 package mario.enemies;
 
+import engine.collider.Intersection;
 import engine.graphics.GameGraphics;
 import engine.graphics.AnimatedSprite;
 import engine.collider.Collider;
@@ -88,14 +89,14 @@ public class Galoomba extends Enemy {
 
         @Override
         public void update() {
-            Collision ground = snapToGround();
-            if(ground.collision_found) {
+            Intersection ground = snapToGround();
+            if(ground != null) {
                 if(reverse_direction) {
                     reverse_direction = false;
                     speed = -speed;
                 }
 
-                velocity = ground.normal_reject.RHNormal().normalize().multiply(speed);
+                velocity = ground.getNormal().RHNormal().normalize().multiply(speed);
                 velocity = velocity.sum(ground.collided_with.velocity);
 
                 if(speed > 0) {
@@ -113,8 +114,8 @@ public class Galoomba extends Enemy {
         }
 
         @Override
-        protected void handlePhysicsCollisionEvent(Collision collision, GroundType c_ground_type) {
-            super.handlePhysicsCollisionEvent(collision, c_ground_type);
+        protected void handlePhysicsCollisionEvent(Intersection i, GroundType c_ground_type) {
+            super.handlePhysicsCollisionEvent(i, c_ground_type);
             if(c_ground_type == GroundType.NONE) {
                 reverse_direction = true;
             }
@@ -160,8 +161,8 @@ public class Galoomba extends Enemy {
         }
 
         @Override
-        protected void handlePhysicsCollisionEvent(Collision collision, GroundType c_ground_type) {
-            super.handlePhysicsCollisionEvent(collision, c_ground_type);
+        protected void handlePhysicsCollisionEvent(Intersection i, GroundType c_ground_type) {
+            super.handlePhysicsCollisionEvent(i, c_ground_type);
             if(c_ground_type != GroundType.NONE) {
                 setNextState(new WalkState());
             }
@@ -184,8 +185,8 @@ public class Galoomba extends Enemy {
 
         @Override
         public void update() {
-            Collision ground = snapToGround();
-            if(ground.collision_found) {
+            Intersection ground = snapToGround();
+            if(ground != null) {
                 velocity = ground.collided_with.velocity;
             }
             else {

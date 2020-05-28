@@ -263,14 +263,13 @@ public class Collider extends GameObject {
      * @param reversed True to reverse
      */
     public void rayCheck(Collision collision, Line ray, boolean reversed) {
-        ArrayList<Intersection> intersections = new ArrayList<>();
-
         ArrayList<Line> edges = this.getEdges();
         for(Line edge : edges) {
             Vector2 intersection_point = ray.intersection(edge);
             if(intersection_point != null) {
                 Intersection i = new Intersection(this.object, intersection_point, edge, ray);
                 i.reversed = reversed;
+                collision.collision_found = true;
                 collision.addIntersection(i);
             }
         }
@@ -302,6 +301,10 @@ public class Collider extends GameObject {
         Collision c = new Collision();
 
         for(Collider other : nearby) {
+            if(other == this) {
+                continue;
+            }
+
             // Check this against other
             for(Vector2 vertex : this.getVertices()) {
                 Line ray = new Line(vertex, vertex.sum(delta_position));

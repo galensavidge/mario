@@ -30,25 +30,18 @@ public class Collision {
         this.intersections = new ArrayList<>();
     }
 
-    /**
-     * @return A copy of this {@link Collision} with new copies of its contained data structures.
-     */
-    public Collision copy() {
-        Collision c = new Collision();
-        c.collision_found = collision_found;
-        c.intersections = new ArrayList<>();
-        for(Intersection i : intersections) {
-            c.intersections.add(i.copy());
-        }
-        return c;
-    }
-
     public void addIntersection(Intersection new_intersection) {
         int i = 0;
-        while(new_intersection.distance < intersections.get(i).distance) {
-            i++;
+        for(;i < intersections.size();i++) {
+            if(new_intersection.distance < intersections.get(i).distance) {
+                break;
+            }
         }
         intersections.add(i, new_intersection);
+    }
+
+    public int numIntersections() {
+        return intersections.size();
     }
 
     public Iterator<Intersection> getIterator() {

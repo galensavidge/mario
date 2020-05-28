@@ -50,6 +50,10 @@ public class Intersection {
      */
     public boolean reversed;
 
+    private Vector2 normal = null;
+    private Vector2 reject = null;
+    private Vector2 to_contact = null;
+
     public Intersection copy() {
         return new Intersection(this.collided_with, this.point, this.edge, this.ray);
     }
@@ -59,11 +63,14 @@ public class Intersection {
      * Collider}, though generally it points outside.
      */
     public Vector2 getNormal() {
-        if(reversed)
-            return edge.RHNormal().multiply(-1);
-        else {
-            return edge.RHNormal();
+        if(normal == null) {
+            if(reversed)
+                normal = edge.RHNormal().multiply(-1);
+            else {
+                normal = edge.RHNormal();
+            }
         }
+        return normal;
     }
 
     /**
@@ -71,11 +78,14 @@ public class Intersection {
      * object. Parallel to the direction of the sweep or ray-cast.
      */
     public Vector2 getToContact() {
-        double to_contact_distance = point.difference(ray.p1).abs() - Collider.reject_separation;
-        if(reversed) {
-            to_contact_distance *= -1;
+        if(to_contact == null) {
+            double to_contact_distance = point.difference(ray.p1).abs() - Collider.reject_separation;
+            if(reversed) {
+                to_contact_distance *= -1;
+            }
+            to_contact = ray.vector().normalize().multiply(to_contact_distance);
         }
-        return ray.vector().normalize().multiply(to_contact_distance);
+        return to_contact;
     }
 
     /**
@@ -84,10 +94,13 @@ public class Intersection {
      */
     public Vector2 getReject() {
         Vector2 normal = getNormal();
-        double reject_distance = point.difference(ray.p2).projection(normal).abs() + Collider.reject_separation;
-        if(reversed) {
-            reject_distance *= -1;
+        if(reject == null) {
+            double reject_distance = point.difference(ray.p2).projection(normal).abs() + Collider.reject_separation;
+            if(reversed) {
+                reject_distance *= -1;
+            }
+            reject = normal.multiply(reject_distance);
         }
-        return normal.multiply(reject_distance);
+        return reject;
     }
 }
