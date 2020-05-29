@@ -175,8 +175,7 @@ public abstract class PhysicsObject extends GameObject {
         // Send collision events
         for(Intersection i : collisions) {
             this.physicsCollision(i);
-            Intersection other_i = new Intersection(this, i.point, i.edge, i.ray);
-            other_i.reversed = !i.reversed;
+            Intersection other_i = new Intersection(this, i.point, i.edge, i.ray, true);
             i.collided_with.physicsCollision(other_i);
         }
 

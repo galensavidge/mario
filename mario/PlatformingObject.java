@@ -284,8 +284,8 @@ public abstract class PlatformingObject extends PhysicsObject {
 
         // Semisolid collision check
         else if(i.collided_with.hasTag(Types.semisolid_tag)) {
-            return position.y + height - Mario.getGridScale()/2.0 - Collider.edge_separation < i.collided_with.position.y
-                    && i.getReject().x == 0;
+            return position.y + height - Collider.edge_separation < i.collided_with.position.y
+                    && i.getNormal().x == 0;
         }
         else {
             return false;

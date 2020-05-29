@@ -10,15 +10,6 @@ import engine.util.Vector2;
  */
 public class Intersection {
 
-    public Intersection(PhysicsObject collided_with, Vector2 point, Line edge, Line ray) {
-        this.collided_with = collided_with;
-        this.point = point.copy();
-        this.edge = edge;
-        this.ray = ray;
-        this.distance = point.difference(ray.p1).abs();
-        this.reversed = false;
-    }
-
     /**
      * The object to which the other {@link Collider} belongs.
      */
@@ -44,18 +35,33 @@ public class Intersection {
      */
     public final double distance;
 
-    /**
-     * If true, reverses to-contact and reject vectors. Useful when collision checking against self rather than against
-     * another object.
-     */
-    public boolean reversed;
-
     private Vector2 normal = null;
     private Vector2 reject = null;
     private Vector2 to_contact = null;
 
+    public final boolean reversed;
+
+    public Intersection(PhysicsObject collided_with, Vector2 point, Line edge, Line ray, boolean reverse) {
+        this.collided_with = collided_with;
+        this.point = point.copy();
+        if(reverse) {
+            this.edge = edge.reverse();
+        }
+        else {
+            this.edge = edge;
+        }
+        this.ray = ray;
+        this.distance = point.difference(ray.p1).abs();
+
+        this.reversed = reverse;
+    }
+
     public Intersection copy() {
-        return new Intersection(this.collided_with, this.point, this.edge, this.ray);
+        return new Intersection(collided_with, point, edge, ray, false);
+    }
+
+    public Intersection reverse() {
+        return new Intersection(collided_with, point, edge, ray, true);
     }
 
     /**
@@ -64,11 +70,7 @@ public class Intersection {
      */
     public Vector2 getNormal() {
         if(normal == null) {
-            if(reversed)
-                normal = edge.RHNormal().multiply(-1);
-            else {
-                normal = edge.RHNormal();
-            }
+            normal = edge.RHNormal();
         }
         return normal;
     }
@@ -96,9 +98,6 @@ public class Intersection {
         Vector2 normal = getNormal();
         if(reject == null) {
             double reject_distance = point.difference(ray.p2).projection(normal).abs() + Collider.reject_separation;
-            if(reversed) {
-                reject_distance *= -1;
-            }
             reject = normal.multiply(reject_distance);
         }
         return reject;

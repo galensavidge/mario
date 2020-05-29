@@ -1,6 +1,7 @@
 package mario;
 
 import engine.*;
+import engine.collider.ColliderGrid;
 import engine.collider.Intersection;
 import engine.graphics.AnimatedSprite;
 import engine.graphics.GameGraphics;
@@ -124,11 +125,11 @@ public class Player extends PlatformingObject {
     public void draw() {
         super.draw();
         //collider.draw_self = true;
-        /*for(Collider c : collider.getCollidersInNeighboringZones()) {
+        for(Collider c : ColliderGrid.inNeighboringZones(this.position)) {
             c.draw_self = true;
             c.draw();
             c.draw_self = false;
-        }*/
+        }
     }
 
 
@@ -162,8 +163,8 @@ public class Player extends PlatformingObject {
                 collider = default_collider;
                 default_collider.enable();
                 duck_collider.disable();
-                position.y += duck_collider_height_difference;
-                moveAndCollide(new Vector2(0, -duck_collider_height_difference));
+                //position.y += duck_collider_height_difference;
+                //moveAndCollide(new Vector2(0, -duck_collider_height_difference));
             }
         }
 
@@ -190,7 +191,7 @@ public class Player extends PlatformingObject {
 
             if(ground_type != GroundType.NONE) {
                 // Left/right input and running check
-                Vector2 new_lv = applyLateralMovement(local_velocity, ground.getReject(), walk_accel, run_accel,
+                Vector2 new_lv = applyLateralMovement(local_velocity, ground.getNormal(), walk_accel, run_accel,
                         max_walk_speed, max_run_speed);
 
                 // Stick to slope corners
@@ -300,7 +301,7 @@ public class Player extends PlatformingObject {
             // Conserve horizontal velocity and change its direction to be parallel with the ground
             if(ground != null) {
                 velocity.y = 0;
-                velocity = ground.getReject().RHNormal().normalize().multiply(velocity.x);
+                velocity = ground.getNormal().RHNormal().multiply(velocity.x);
                 local_velocity = velocity.difference(ground.collided_with.velocity);
             }
             else {
