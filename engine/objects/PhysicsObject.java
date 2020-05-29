@@ -219,7 +219,7 @@ public abstract class PhysicsObject extends GameObject {
      * collider.active_check} is {@code true} and this object intersects other objects, or when another object with
      * active checking enabled intersects this object, and after {@link #physicsCollisionEvent} is called.
      */
-    public void collisionEvent(Intersection i) {}
+    public void collisionEvent(PhysicsObject other) {}
 
     /**
      * Called after the world is finished loading and all object have been instantiated.
@@ -241,7 +241,7 @@ public abstract class PhysicsObject extends GameObject {
 
     private void physicsCollision(Intersection i) {
         physicsCollisionEvent(i);
-        collisionEvent(i);
+        collisionEvent(i.collided_with);
     }
 
     @Override
@@ -249,6 +249,9 @@ public abstract class PhysicsObject extends GameObject {
         prePhysicsUpdate();
         if(!velocity.equals(Vector2.zero())) {
             moveAndCollide(velocity.multiply(Game.stepTimeSeconds()));
+        }
+        for(PhysicsObject o : collider.check(position)) {
+            this.collisionEvent(o);
         }
         postPhysicsUpdate();
     }

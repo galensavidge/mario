@@ -143,13 +143,13 @@ public class Player extends PlatformingObject {
         }
 
         @Override
-        protected void handleCollisionEvent(Intersection i) {
-            switch(i.collided_with.getTypeGroup()) {
+        protected void handleCollisionEvent(PhysicsObject other) {
+            switch(other.getTypeGroup()) {
                 case Types.pickup_type_group:
-                    ((Pickup)i.collided_with).collect();
+                    ((Pickup)other).collect();
                     break;
                 case Types.enemy_type_group:
-                    ((Enemy)i.collided_with).bounceEvent(Player.this);
+                    ((Enemy)other).bounceEvent(Player.this);
                 default:
                     //System.out.println("Collided with "+object.getType());
                     break;

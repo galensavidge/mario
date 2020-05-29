@@ -140,7 +140,7 @@ public abstract class PlatformingObject extends PhysicsObject {
         /**
          * Called when this object's {@link Collider} detects that it is intersecting another {@link Collider}.
          */
-        protected void handleCollisionEvent(Intersection i) {}
+        protected void handleCollisionEvent(PhysicsObject other) {}
     }
 
     public String getState() {
@@ -308,8 +308,8 @@ public abstract class PlatformingObject extends PhysicsObject {
     }
 
     @Override
-    public void collisionEvent(Intersection i) {
-        state.handleCollisionEvent(i);
+    public void collisionEvent(PhysicsObject other) {
+        state.handleCollisionEvent(other);
     }
 
     @Override

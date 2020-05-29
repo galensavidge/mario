@@ -84,8 +84,8 @@ public class Line {
 
     /**
      * Finds the point of intersection between this {@code Line} and {@code l}. Returns {@code null} if no intersection
-     * exists -- this could be either because the lines are parallel or because the intersection point is not within
-     * both line segments and {@code segment_only} is {@code true}.
+     * exists -- this could be either because the lines are parallel or because the intersection point is not on both
+     * line segments.
      */
     public Vector2 intersection(Line l) {
         double det = (this.A*l.B - l.A*this.B);

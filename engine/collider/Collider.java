@@ -256,6 +256,32 @@ public class Collider extends GameObject {
 
     /* Collision checking */
 
+    public ArrayList<PhysicsObject> check(Vector2 position) {
+        ArrayList<PhysicsObject> objects = new ArrayList<>();
+        if(!enabled) {
+            return objects;
+        }
+
+        ArrayList<Collider> colliders = ColliderGrid.inNeighboringZones(position);
+
+        for(Line edge : this.getEdges()) {
+            for(Collider other : colliders) {
+                boolean intersects = false;
+                for(Line other_edge : other.getEdges()) {
+                    if(edge.intersection(other_edge) != null) {
+                        intersects = true;
+                        break;
+                    }
+                }
+                if(intersects) {
+                    objects.add(other.object);
+                }
+            }
+        }
+        return objects;
+    }
+
+
     /**
      * Ray-casts from a given {@code position} vector along the {@code direction} vector and checks for intersections
      * with this {@link Collider}'s edges. Adds intersections to the passed {@link Collision} instance.
@@ -297,11 +323,15 @@ public class Collider extends GameObject {
      * @return A {@link Collision} containing all of the intersections encountered during the sweep.
      */
     public Collision sweep(Vector2 position, Vector2 delta_position) {
+        Collision c = new Collision();
+        if(!enabled) {
+            return c;
+        }
+
         setPosition(position);
         Vector2 reverse_delta_position = delta_position.multiply(-1);
 
         ArrayList<Collider> nearby = ColliderGrid.inNeighboringZones(this.position);
-        Collision c = new Collision();
 
         for(Collider other : nearby) {
             if(other == this) {
