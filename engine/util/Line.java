@@ -66,7 +66,7 @@ public class Line {
      * @return A line segment equal to {@code this} but pointing in the opposite direction.
      */
     public Line reverse() {
-        return new Line(this.p2, this.p1);
+        return new Line(this.p2, this.p1, this.p2_endpoint, this.p1_endpoint);
     }
 
     public double length() {

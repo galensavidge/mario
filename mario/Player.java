@@ -55,10 +55,10 @@ public class Player extends PlatformingObject {
     private static final Vector2 short_down = new Vector2(0, 2*Collider.reject_separation);
 
     private final Collider default_collider = Collider.newBox(this, Mario.getPixelSize(), Mario.getPixelSize()*8,
-            Mario.getPixelSize()*14, Mario.getGridScale());
+            Mario.getPixelSize()*14, Mario.getPixelSize()*16);
     private final Collider duck_collider = Collider.newBox(this, Mario.getPixelSize(), Mario.getPixelSize()*12,
             Mario.getPixelSize()*14, Mario.getPixelSize()*12);
-    private static final double duck_collider_height_difference = Mario.getGridScale()*0.25;
+    private static final double duck_collider_height_difference = Mario.getPixelSize()*4;
 
     private static final String sprite_sub = "";
     private static final String[] walk_sprite_files = {Mario.sprite_path + sprite_sub + "mario-walk-1.png",
@@ -97,7 +97,6 @@ public class Player extends PlatformingObject {
         duck_collider.active_check = true;
         this.type = type_name;
         this.type_group = type_name;
-        this.height = (int)(Mario.getGridScale()*1.5);
         this.direction_facing = Direction.RIGHT;
         this.state = new WalkState();
         this.state.enter();
@@ -125,7 +124,7 @@ public class Player extends PlatformingObject {
     public void draw() {
         super.draw();
         //collider.draw_self = true;
-        for(Collider c : ColliderGrid.inNeighboringZones(this.position)) {
+        for(Collider c : ColliderGrid.inNeighboringZones(this.getPosition())) {
             c.draw_self = true;
             c.draw();
             c.draw_self = false;
@@ -163,8 +162,8 @@ public class Player extends PlatformingObject {
                 collider = default_collider;
                 default_collider.enable();
                 duck_collider.disable();
-                //position.y += duck_collider_height_difference;
-                //moveAndCollide(new Vector2(0, -duck_collider_height_difference));
+                addPosition(0, duck_collider_height_difference);
+                addPosition(escapeSolids(new Vector2(0, -duck_collider_height_difference*2)));
             }
         }
 
@@ -177,7 +176,7 @@ public class Player extends PlatformingObject {
         }
 
         protected void checkPitDeath() {
-            if(position.y - Mario.getGridScale() > World.getHeight()) {
+            if(getPosition().y - Mario.getGridScale() > World.getHeight()) {
                 die();
             }
         }

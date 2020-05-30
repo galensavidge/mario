@@ -81,7 +81,7 @@ public class Intersection {
      */
     public Vector2 getToContact() {
         if(to_contact == null) {
-            double to_contact_distance = point.difference(ray.p1).abs() - Collider.reject_separation;
+            double to_contact_distance = distance - Collider.reject_separation;
             if(reversed) {
                 to_contact_distance *= -1;
             }
@@ -95,10 +95,9 @@ public class Intersection {
      * the objects no longer collide. Normal to the first surface collided with.
      */
     public Vector2 getReject() {
-        Vector2 normal = getNormal();
         if(reject == null) {
-            double reject_distance = point.difference(ray.p2).projection(normal).abs() + Collider.reject_separation;
-            reject = normal.multiply(reject_distance);
+            double reject_distance = point.difference(ray.p2).projection(getNormal()).abs() + Collider.reject_separation;
+            reject = getNormal().multiply(reject_distance);
         }
         return reject;
     }

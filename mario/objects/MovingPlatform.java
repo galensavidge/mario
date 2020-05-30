@@ -1,6 +1,7 @@
 package mario.objects;
 
 import engine.Game;
+import engine.collider.Intersection;
 import engine.graphics.GameGraphics;
 import engine.collider.Collider;
 import engine.objects.PhysicsObject;
@@ -63,48 +64,53 @@ public class MovingPlatform extends PhysicsObject {
         this.size = Math.max(2, this.size);
         double distance_px = move_distance*Mario.getGridScale() - size*Mario.getGridScale();
         if(moves_left) {
-            this.left_position = position.x - distance_px;
-            this.right_position = position.x;
+            this.left_position = getPosition().x - distance_px;
+            this.right_position = getPosition().x;
             this.velocity.x = -speed;
         }
         else {
-            this.left_position = position.x;
-            this.right_position = position.x + distance_px;
+            this.left_position = getPosition().x;
+            this.right_position = getPosition().x + distance_px;
             this.velocity.x = speed;
         }
         collider = Collider.newBox(this, 0, 0, size*Mario.getGridScale(), Mario.getGridScale()*11.0/16.0);
     }
 
     @Override
-    public void update() {
-        double t = Game.stepTimeSeconds();
-        if(position.x == right_position) {
+    public void prePhysicsUpdate() {
+        if(getPosition().x == right_position) {
             velocity.x = -speed;
         }
-        else if(position.x == left_position) {
+        else if(getPosition().x == left_position) {
             velocity.x = speed;
         }
-        position.x += velocity.x*t;
-        if(position.x > right_position) {
-            velocity.x = (right_position - position.x)/t;
-            position.x = right_position;
+
+        double t = Game.stepTimeSeconds();
+        if(getPosition().x > right_position) {
+            velocity.x = (right_position - getPosition().x)/t;
+            setPosition(right_position, getPosition().y);
         }
-        else if(position.x < left_position) {
-            velocity.x = (left_position - position.x)/t;
-            position.x = left_position;
+        else if(getPosition().x < left_position) {
+            velocity.x = (left_position - getPosition().x)/t;
+            setPosition(left_position, getPosition().y);
         }
 
-        collider.setPosition(position);
+        collider.setPosition(getPosition());
+    }
+
+    @Override
+    protected boolean collidesWith(Intersection i) {
+        return false;
     }
 
     @Override
     public void draw() {
-        GameGraphics.drawImage((int)position.x, (int)position.y, false, left_sprite);
-        GameGraphics.drawImage((int)(position.x + (size - 1)*Mario.getGridScale()), (int)position.y,
+        GameGraphics.drawImage((int)pixelPosition().x, (int)pixelPosition().y, false, left_sprite);
+        GameGraphics.drawImage((int)(pixelPosition().x + (size - 1)*Mario.getGridScale()), (int)pixelPosition().y,
                 false, right_sprite);
 
         for(int i = 1;i < size - 1;i++) {
-            GameGraphics.drawImage((int)(position.x + i*Mario.getGridScale()), (int)position.y,
+            GameGraphics.drawImage((int)(pixelPosition().x + i*Mario.getGridScale()), (int)pixelPosition().y,
                     false, center_sprite);
         }
     }

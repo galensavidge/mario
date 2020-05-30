@@ -14,7 +14,7 @@ import java.util.HashMap;
  * The parent class for all objects that inhabit physical space in the game world.
  *
  * @author Galen Savidge
- * @version 5/27/2020
+ * @version 5/29/2020
  */
 public abstract class PhysicsObject extends GameObject {
 
@@ -27,21 +27,21 @@ public abstract class PhysicsObject extends GameObject {
     // Variables used for physics calculations
     public boolean solid = false;
     public Collider collider;
-    public Vector2 position;
+    private Vector2 position;
     public Vector2 velocity;
 
 
-    /* Constructors */
+    /* Constructors/destructors */
 
     public PhysicsObject(int priority, int layer, double x, double y) {
         super(priority, layer);
-        position = new Vector2(x, y);
+        setPosition(new Vector2(x, y));
         velocity = Vector2.zero();
     }
 
     public PhysicsObject(int priority, int layer, HashMap<String, Object> args) {
         super(priority, layer);
-        position = Vector2.zero();
+        setPosition(Vector2.zero());
         velocity = Vector2.zero();
         parseArgs(args);
     }
@@ -58,7 +58,7 @@ public abstract class PhysicsObject extends GameObject {
             Object visible = args.get("visible");
             if(visible != null) this.visible = (boolean)visible;
             Object position = args.get("position");
-            if(position != null) this.position = ((Vector2)position).copy();
+            if(position != null) setPosition(((Vector2)position).copy());
             Object solid = args.get("solid");
             if(solid != null) this.solid = (boolean)solid;
         }
@@ -94,8 +94,36 @@ public abstract class PhysicsObject extends GameObject {
         return type_group;
     }
 
+    /**
+     * @param tag A tag name.
+     * @return True iff {@code this} has {@code tag} in its list of tags.
+     */
     public boolean hasTag(String tag) {
         return this.tags.contains(tag);
+    }
+
+    public Vector2 getPosition() {
+        return position.copy();
+    }
+
+    public void setPosition(Vector2 position) {
+        this.position = position.copy();
+
+        if(collider != null) {
+            collider.setPosition(position);
+        }
+    }
+
+    public void setPosition(double x, double y) {
+        position = new Vector2(x, y);
+    }
+
+    public void addPosition(Vector2 delta_position) {
+        position = position.sum(delta_position);
+    }
+
+    public void addPosition(double x, double y) {
+        position = position.sum(new Vector2(x, y));
     }
 
     /**
@@ -131,58 +159,6 @@ public abstract class PhysicsObject extends GameObject {
     }
 
     /**
-     * Handles collision with other objects. Moves the {@link PhysicsObject} as far as possible in the desired direction
-     * without intersecting an object and returns the collisions that it encountered. Note: calling this function with a
-     * {@code delta_position} of {@code <0, 0>} will always return an empty list. Pushing should be handled in the
-     * pushing object's movement code.
-     * <p>
-     * Override {@link #collidesWith} to change which objects are passed through and which are not. Defaults to
-     * colliding with only objects marked solid.
-     *
-     * @param delta_position The change in position this step.
-     * @return A list of {@link Collision} objects corresponding to the surfaces collided with.
-     */
-    protected ArrayList<Intersection> moveAndCollide(Vector2 delta_position) {
-        ArrayList<Intersection> collisions = new ArrayList<>();
-        if(delta_position.equals(Vector2.zero())) {
-            return new ArrayList<>();
-        }
-
-        Vector2 new_position = position;
-
-        // Loop until a position is found with no collisions or we hit too many iterations
-        for(int i = 0;i < 100;i++) {
-            // Determine the new position to check
-            new_position = position.sum(delta_position);
-
-            // Get the closest surface of the objects collided with
-            Intersection closest = sweepForCollision(delta_position);
-
-            if(closest != null) {
-                // Remove the portion of the attempted motion that is parallel to the normal vector
-                delta_position = delta_position.sum(closest.getReject());
-                collisions.add(closest);
-            }
-            else {
-                break;
-            }
-        }
-
-        // Update object position
-        position = new_position;
-        collider.setPosition(position);
-
-        // Send collision events
-        for(Intersection i : collisions) {
-            this.physicsCollision(i);
-            Intersection other_i = new Intersection(this, i.point, i.edge, i.ray, true);
-            i.collided_with.physicsCollision(other_i);
-        }
-
-        return collisions;
-    }
-
-    /**
      * Returns the {@link Collision} first encountered when moving from {@code position} to {@code position +
      * delta_position}.
      *
@@ -205,6 +181,69 @@ public abstract class PhysicsObject extends GameObject {
         return null;
     }
 
+    /**
+     * Handles collision with other objects. Moves the {@link PhysicsObject} as far as possible in the desired direction
+     * without intersecting an object and returns the collisions that it encountered. Note: calling this function with a
+     * {@code delta_position} of {@code <0, 0>} will always return an empty list. Pushing should be handled in the
+     * pushing object's movement code.
+     * <p>
+     * Override {@link #collidesWith} to change which objects are passed through and which are not. Defaults to
+     * colliding with only objects marked solid.
+     *
+     * @param delta_position The change in position this step.
+     * @return A list of {@link Collision} objects corresponding to the surfaces collided with.
+     */
+    protected ArrayList<Intersection> moveAndCollide(Vector2 delta_position) {
+        ArrayList<Intersection> collisions = new ArrayList<>();
+        if(delta_position.equals(Vector2.zero())) {
+            return new ArrayList<>();
+        }
+
+        // Loop until a position is found with no collisions or we hit too many iterations
+        for(int i = 0;i < 100;i++) {
+            // Get the closest surface of the objects collided with
+            Intersection closest = sweepForCollision(delta_position);
+
+            if(closest == null) {
+                addPosition(delta_position);
+                break;
+            }
+
+            // Remove the portion of the attempted motion that is parallel to the normal vector
+            delta_position = delta_position.sum(closest.getReject());
+
+            // Send collision events
+            this.physicsCollision(closest);
+            Intersection other_i = new Intersection(this, closest.point, closest.edge, closest.ray, true);
+            closest.collided_with.physicsCollision(other_i);
+        }
+
+        return collisions;
+    }
+
+    protected Vector2 escapeSolids(Vector2 direction) {
+        if(collider.check(position).size() != 0) {
+            Vector2 axis = direction.normalize();
+            Vector2 escape;
+            Collision c = collider.sweep(position, direction);
+
+            if(c.collision_found) {
+                while(c.numIntersections() > 0) {
+                    // Get the closest collision encountered when travelling along direction
+                    Intersection closest = c.popClosestIntersection();
+
+                    escape = axis.multiply(closest.distance + Collider.reject_separation);
+
+                    // Done if no collision was found
+                    if(collider.check(position.sum(escape)).size() == 0) {
+                        return escape;
+                    }
+                }
+            }
+        }
+
+        return Vector2.zero();
+    }
 
     /* Overridable event handlers */
 
@@ -249,6 +288,7 @@ public abstract class PhysicsObject extends GameObject {
         prePhysicsUpdate();
         if(!velocity.equals(Vector2.zero())) {
             moveAndCollide(velocity.multiply(Game.stepTimeSeconds()));
+            collider.setPosition(position);
         }
         for(PhysicsObject o : collider.check(position)) {
             this.collisionEvent(o);

@@ -57,7 +57,7 @@ public class Coin extends Pickup {
     @Override
     public void draw() {
         if(isOnScreen(Mario.getGridScale(), Mario.getGridScale(), 0)) {
-            GameGraphics.drawImage((int)position.x, (int)position.y, false, sprite.getCurrentFrame());
+            GameGraphics.drawImage((int)pixelPosition().x, (int)pixelPosition().y, false, sprite.getCurrentFrame());
         }
     }
 }

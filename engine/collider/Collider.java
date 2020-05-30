@@ -19,8 +19,8 @@ import java.util.Collections;
  */
 public class Collider extends GameObject {
 
-    public static final double edge_separation = 10*Misc.delta;
-    public static final double reject_separation = 2*Misc.delta;
+    public static final double edge_separation = 50*Misc.delta;
+    public static final double reject_separation = 10*Misc.delta;
 
 
     /* Collider instance variables */
@@ -85,7 +85,7 @@ public class Collider extends GameObject {
         }
 
         // Set position and add to colliders array
-        this.setPosition(object.position);
+        this.setPosition(object.getPosition());
     }
 
     /**
@@ -206,6 +206,32 @@ public class Collider extends GameObject {
     }
 
     /**
+     * @return The x-distance from the origin to the rightmost vertex.
+     */
+    public double getWidth() {
+        double right = Double.MIN_VALUE;
+        for(Vector2 vertex : local_vertices) {
+            if(vertex.x > right) {
+                right = vertex.x;
+            }
+        }
+        return right;
+    }
+
+    /**
+     * @return The y-distance from the origin to the lowest vertex.
+     */
+    public double getHeight() {
+        double bottom = Double.MIN_VALUE;
+        for(Vector2 vertex : local_vertices) {
+            if(vertex.y > bottom) {
+                bottom = vertex.y;
+            }
+        }
+        return bottom;
+    }
+
+    /**
      * @return True iff this {@link Collider} is enabled.
      * @see #disable()
      */
@@ -256,6 +282,12 @@ public class Collider extends GameObject {
 
     /* Collision checking */
 
+    /**
+     * Checks for collisions at {@code position}.
+     *
+     * @param position Coordinates in world space.
+     * @return A list of {@code PhysicsObject} instances collided with.
+     */
     public ArrayList<PhysicsObject> check(Vector2 position) {
         ArrayList<PhysicsObject> objects = new ArrayList<>();
         if(!enabled) {
@@ -263,18 +295,21 @@ public class Collider extends GameObject {
         }
 
         ArrayList<Collider> colliders = ColliderGrid.inNeighboringZones(position);
+        setPosition(position);
 
         for(Line edge : this.getEdges()) {
             for(Collider other : colliders) {
-                boolean intersects = false;
-                for(Line other_edge : other.getEdges()) {
-                    if(edge.intersection(other_edge) != null) {
-                        intersects = true;
-                        break;
+                if(other != this) {
+                    boolean intersects = false;
+                    for(Line other_edge : other.getEdges()) {
+                        if(edge.intersection(other_edge) != null) {
+                            intersects = true;
+                            break;
+                        }
                     }
-                }
-                if(intersects) {
-                    objects.add(other.object);
+                    if(intersects) {
+                        objects.add(other.object);
+                    }
                 }
             }
         }

@@ -29,7 +29,6 @@ public abstract class PlatformingObject extends PhysicsObject {
     /* Instance variables */
     protected State state;
     protected GroundType ground_found;
-    protected double height;
     protected Direction direction_facing = Direction.LEFT;
 
 
@@ -57,7 +56,7 @@ public abstract class PlatformingObject extends PhysicsObject {
 
     /* Accessors */
     public double getHeight() {
-        return height;
+        return collider.getHeight();
     }
 
     /* State machine template */
@@ -66,7 +65,7 @@ public abstract class PlatformingObject extends PhysicsObject {
      * States made from this base class will have their functions executed in the following order every frame: 1. The
      * state will be switched to {@link #next_state} as set by {@link #setNextState}. At this point, {@link #exit} will
      * be called for the last state and {@link #enter} will be called for the new state. 2. The current state's {@link
-     * #update} is called. 3. Physics updates. The parent's {@link #position} is updated based on {@link #velocity} and
+     * #update} is called. 3. Physics updates. The parent's position is updated based on {@link #velocity} and
      * the state's {@link #handlePhysicsCollisionEvent} is called for each object collided with while moving. 4. The
      * current ground type {@link #ground_found} is updated based on the collisions encountered. 5. The current state's
      * {@link #draw} is called.
@@ -183,14 +182,14 @@ public abstract class PlatformingObject extends PhysicsObject {
     }
 
     /**
-     * Finds the net velocity after an inelastic collision described by {@code c}. No friction is calculated.
+     * Finds the net velocity after an inelastic collision described by {@code i}. No friction is calculated.
      *
      * @param v The current velocity vector.
      * @param i The {@link Intersection} object describing the collision.
      * @return A new velocity vector.
      */
     protected Vector2 inelasticCollision(Vector2 v, Intersection i) {
-        Vector2 v_parallel_to_collision = v.difference(v.projection(i.getReject()));
+        Vector2 v_parallel_to_collision = v.normalComponent(i.getNormal());
         Vector2 object_v_normal_to_collision = i.collided_with.velocity.projection(i.getNormal());
         return v_parallel_to_collision.sum(object_v_normal_to_collision);
     }
@@ -198,16 +197,16 @@ public abstract class PlatformingObject extends PhysicsObject {
     protected boolean slideAroundCorners(Intersection i) {
         Vector2 delta_p = velocity.multiply(Game.stepTimeSeconds());
         Vector2 parallel_axis = i.getNormal().RHNormal().multiply(2*Mario.getPixelSize());
-        Vector2[] position_checks = {position.sum(parallel_axis), position.sum(parallel_axis.multiply(-1))};
-        Vector2 old_position = position.copy();
+        Vector2[] position_checks = {getPosition().sum(parallel_axis), getPosition().sum(parallel_axis.multiply(-1))};
+        Vector2 old_position = getPosition();
         for(Vector2 p : position_checks) {
-            position = p;
+            setPosition(p);
             if(sweepForCollision(delta_p) != null) {
                 return true;
             }
         }
 
-        position = old_position;
+        setPosition(old_position);
         return false;
     }
 
@@ -226,7 +225,7 @@ public abstract class PlatformingObject extends PhysicsObject {
         // Check that down is ground
         if(checkGroundType(i) != GroundType.NONE) {
             // Snap to ground
-            position = position.sum(i.getToContact());
+            addPosition(i.getToContact());
         }
         return i;
     }
@@ -257,7 +256,7 @@ public abstract class PlatformingObject extends PhysicsObject {
     /* Misc */
 
     protected void drawSprite(Image image) {
-        GameGraphics.drawImage((int)position.x, (int)position.y, false, false,
+        GameGraphics.drawImage((int)pixelPosition().x, (int)pixelPosition().y, false, false,
                 direction_facing == Direction.RIGHT, 0, 0, image);
     }
 
@@ -272,7 +271,6 @@ public abstract class PlatformingObject extends PhysicsObject {
         // Run state update code
         state.update();
 
-        // Move, colliding with objects
         ground_found = GroundType.NONE;
     }
 
@@ -284,8 +282,7 @@ public abstract class PlatformingObject extends PhysicsObject {
 
         // Semisolid collision check
         else if(i.collided_with.hasTag(Types.semisolid_tag)) {
-            return position.y + height - Collider.edge_separation < i.collided_with.position.y
-                    && i.getNormal().x == 0;
+            return getPosition().y + collider.getHeight() < i.collided_with.getPosition().y && i.getNormal().y < 0;
         }
         else {
             return false;

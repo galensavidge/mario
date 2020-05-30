@@ -85,7 +85,7 @@ public class Enemy extends PlatformingObject {
             velocity = applyGravity(velocity, gravity, max_fall_speed);
             rotation += spin_speed*Game.stepTimeSeconds();
 
-            if(position.y > World.getHeight()) {
+            if(getPosition().y > World.getHeight()) {
                 Enemy.this.delete();
             }
         }

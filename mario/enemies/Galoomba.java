@@ -4,7 +4,6 @@ import engine.collider.Intersection;
 import engine.graphics.GameGraphics;
 import engine.graphics.AnimatedSprite;
 import engine.collider.Collider;
-import engine.collider.Collision;
 import mario.GameController;
 import mario.Mario;
 import mario.Player;
@@ -45,11 +44,10 @@ public class Galoomba extends Enemy {
         this.type = Galoomba.type_name;
 
         this.collider = Collider.newPolygon(this, 8, 0, 0, Mario.getPixelSize()*8, 0);
-        this.height = Mario.getGridScale();
 
         Player player = GameController.getPlayer();
         if(player != null) {
-            if(player.position.x > position.x) {
+            if(player.getPosition().x > getPosition().x) {
                 direction_facing = Direction.RIGHT;
             }
             else {
@@ -124,9 +122,9 @@ public class Galoomba extends Enemy {
         @Override
         void handleBounceEvent(Player player) {
             if(player.getState().equals("Slide")) {
-                state.setNextState(new DieState(player.position.x > position.x ? Direction.LEFT : Direction.RIGHT));
+                state.setNextState(new DieState(player.getPosition().x > getPosition().x ? Direction.LEFT : Direction.RIGHT));
             }
-            else if(player.position.y + player.getHeight() < Galoomba.this.position.y + Galoomba.this.height/2.0) {
+            else if(player.getPosition().y + player.getHeight() < Galoomba.this.getPosition().y + getHeight()/2.0) {
                 player.bounce();
                 Galoomba.this.stun();
             }
@@ -201,7 +199,7 @@ public class Galoomba extends Enemy {
 
         @Override
         public void draw() {
-            GameGraphics.drawImage((int)position.x, (int)position.y, false, false,
+            GameGraphics.drawImage((int)pixelPosition().x, (int)pixelPosition().y, false, false,
                     direction_facing == Direction.RIGHT, Math.PI, 0, walk_sprite.getCurrentFrame());
         }
     }
@@ -214,7 +212,7 @@ public class Galoomba extends Enemy {
 
         @Override
         public void draw() {
-            GameGraphics.drawImage((int)position.x, (int)position.y, false, false,
+            GameGraphics.drawImage((int)pixelPosition().x, (int)pixelPosition().y, false, false,
                     direction_facing == Direction.RIGHT, rotation, 0, walk_sprite.getCurrentFrame());
         }
     }

@@ -7,7 +7,7 @@ import java.util.Iterator;
  * This class holds information about collision events. It is instantiated by certain {@code Collider} methods.
  *
  * @author Galen Savidge
- * @version 5/27/2020
+ * @version 5/29/2020
  */
 public class Collision {
     /**
@@ -18,7 +18,7 @@ public class Collision {
     /**
      * The list of intersection points founds at this collision. Sorted from closest to farthest.
      */
-    private ArrayList<Intersection> intersections;
+    private final ArrayList<Intersection> intersections;
 
 
     /**

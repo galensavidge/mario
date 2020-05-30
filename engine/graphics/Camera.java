@@ -45,7 +45,7 @@ public class Camera extends GameObject {
     @Override
     public void update() {
         if(anchor != null) {
-            setPosition(anchor.position);
+            setPosition(anchor.getPosition());
         }
     }
 }

@@ -29,7 +29,7 @@ public class HardBlock extends Block {
 
     public void draw() {
         if(isOnScreen(Mario.getGridScale(), Mario.getGridScale(), 0)) {
-            GameGraphics.drawImage((int)Math.round(position.x), (int)Math.round(position.y), false, sprite);
+            GameGraphics.drawImage((int)pixelPosition().x, (int)pixelPosition().y, false, sprite);
         }
     }
 }
