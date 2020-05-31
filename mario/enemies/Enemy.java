@@ -62,6 +62,7 @@ public class Enemy extends PlatformingObject {
 
         public DieState(Direction direction) {
             this.direction = direction;
+            collider.disable();
         }
 
         @Override

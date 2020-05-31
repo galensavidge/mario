@@ -54,8 +54,8 @@ public class ColliderGrid {
      */
     public static void add(Collider c) {
         for(Vector2 p : c.zone_check_points) {
-            int x = (int)((p.x + c.position.x)/zone_size);
-            int y = (int)((p.y + c.position.y)/zone_size);
+            int x = (int)((p.x + c.getPosition().x)/zone_size);
+            int y = (int)((p.y + c.getPosition().y)/zone_size);
             int zone_x = Math.min(Math.max(0, x), colliders.length - 1);
             int zone_y = Math.min(Math.max(0, y), colliders[0].length - 1);
             if(!colliders[zone_x][zone_y].contains(c)) {
@@ -71,8 +71,8 @@ public class ColliderGrid {
      */
     public static void remove(Collider c) {
         for(Vector2 p : c.zone_check_points) {
-            int x = (int)((p.x + c.position.x)/zone_size);
-            int y = (int)((p.y + c.position.y)/zone_size);
+            int x = (int)((p.x + c.getPosition().x)/zone_size);
+            int y = (int)((p.y + c.getPosition().y)/zone_size);
             int zone_x = Math.min(Math.max(0, x), colliders.length - 1);
             int zone_y = Math.min(Math.max(0, y), colliders[0].length - 1);
             colliders[zone_x][zone_y].remove(c);

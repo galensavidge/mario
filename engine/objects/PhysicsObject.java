@@ -221,28 +221,30 @@ public abstract class PhysicsObject extends GameObject {
         return collisions;
     }
 
-    protected Vector2 escapeSolids(Vector2 direction) {
-        if(collider.check(position).size() != 0) {
-            Vector2 axis = direction.normalize();
-            Vector2 escape;
-            Collision c = collider.sweep(position, direction);
+    protected boolean escapeSolids(Vector2 direction) {
+        if(collider.check(position, o -> o.solid).size() == 0) {
+            return true;
+        }
 
-            if(c.collision_found) {
-                while(c.numIntersections() > 0) {
-                    // Get the closest collision encountered when travelling along direction
-                    Intersection closest = c.popClosestIntersection();
+        Vector2 axis = direction.normalize();
+        Collision collision = collider.sweep(position, direction);
 
-                    escape = axis.multiply(closest.distance + Collider.reject_separation);
+        if(collision.collision_found) {
+            while(collision.numIntersections() > 0) {
+                // Get the closest collision encountered when travelling along direction
+                Intersection closest = collision.popClosestIntersection();
 
-                    // Done if no collision was found
-                    if(collider.check(position.sum(escape)).size() == 0) {
-                        return escape;
-                    }
+                Vector2 escape = axis.multiply(closest.distance + Collider.reject_separation);
+
+                // Done if no collision was found
+                if(collider.check(position.sum(escape), o -> o.solid).size() == 0) {
+                    addPosition(escape);
+                    return true;
                 }
             }
         }
 
-        return Vector2.zero();
+        return false;
     }
 
     /* Overridable event handlers */

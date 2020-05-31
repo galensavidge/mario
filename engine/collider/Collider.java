@@ -9,6 +9,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.function.Predicate;
 
 /**
  * A class used to check for collisions between physics objects. All colliders are represented as a polygon made from n
@@ -25,9 +26,9 @@ public class Collider extends GameObject {
 
     /* Collider instance variables */
 
-    protected PhysicsObject object; // The object this collider is attached to
-    protected Vector2 position; // The coordinates of the top left corner of this collider in the game world
-    protected Vector2 center; // Center point of the collider in local space; initially set to the mean of the vertices
+    private PhysicsObject object; // The object this collider is attached to
+    private Vector2 position; // The coordinates of the top left corner of this collider in the game world
+    private Vector2 center; // Center point of the collider in local space; initially set to the mean of the vertices
     private final ArrayList<Vector2> local_vertices = new ArrayList<>(); // Vertices in local space
     final ArrayList<Vector2> zone_check_points = new ArrayList<>(); // Points used to check which zone this is in
     private boolean enabled = true; // If false, does not check for or return collisions with other Colliders
@@ -174,6 +175,13 @@ public class Collider extends GameObject {
     /* Accessors */
 
     /**
+     * @return The {@link PhysicsObject} this {@link Collider} is attached to.
+     */
+    public PhysicsObject getObject() {
+        return object;
+    }
+
+    /**
      * @return The position of the top left corner of the {@link Collider}'s bounding box in world space.
      */
     public Vector2 getPosition() {
@@ -286,9 +294,10 @@ public class Collider extends GameObject {
      * Checks for collisions at {@code position}.
      *
      * @param position Coordinates in world space.
+     * @param filter   A condition defining which objects to check.
      * @return A list of {@code PhysicsObject} instances collided with.
      */
-    public ArrayList<PhysicsObject> check(Vector2 position) {
+    public ArrayList<PhysicsObject> check(Vector2 position, Predicate<PhysicsObject> filter) {
         ArrayList<PhysicsObject> objects = new ArrayList<>();
         if(!enabled) {
             return objects;
@@ -299,7 +308,7 @@ public class Collider extends GameObject {
 
         for(Line edge : this.getEdges()) {
             for(Collider other : colliders) {
-                if(other != this) {
+                if(other != this && filter.test(other.object)) {
                     boolean intersects = false;
                     for(Line other_edge : other.getEdges()) {
                         if(edge.intersection(other_edge) != null) {
@@ -316,12 +325,23 @@ public class Collider extends GameObject {
         return objects;
     }
 
+    /**
+     * Checks for collisions at {@code position}.
+     *
+     * @param position Coordinates in world space.
+     * @return A list of {@code PhysicsObject} instances collided with.
+     */
+    public ArrayList<PhysicsObject> check(Vector2 position) {
+        return check(position, o -> true);
+    }
+
 
     /**
      * Ray-casts from a given {@code position} vector along the {@code direction} vector and checks for intersections
      * with this {@link Collider}'s edges. Adds intersections to the passed {@link Collision} instance.
      *
-     * @param reversed True to reverse
+     * @param reversed True to reverse normals, to-contact, and reject vectors for any returned {@link Intersection}
+     *                 objects.
      */
     public void rayCheck(PhysicsObject calling_obj, Collision collision, Line ray, boolean reversed) {
         ArrayList<Line> edges = this.getEdges();
@@ -339,15 +359,24 @@ public class Collider extends GameObject {
         }
     }
 
-    public static Collision rayCast(Line ray) {
+    /**
+     * Ray-casts along a given line and returns all intersections found.
+     *
+     * @param ray    A line, ray, or line segment. Treats {@code ray.p1} as the origin of the ray-cast.
+     * @param filter A condition defining which objects to check.
+     * @return A {@link Collision} object containing all {@link Intersection}s found.
+     */
+    public static Collision rayCast(Line ray, Predicate<PhysicsObject> filter) {
         ArrayList<Collider> colliders = ColliderGrid.all();
 
-        Collision c = new Collision();
+        Collision collision = new Collision();
         for(Collider collider : colliders) {
-            collider.rayCheck(null, c, ray, false);
+            if(filter.test(collider.object)) {
+                collider.rayCheck(null, collision, ray, false);
+            }
         }
 
-        return c;
+        return collision;
     }
 
     /**
@@ -355,9 +384,10 @@ public class Collider extends GameObject {
      *
      * @param position       The starting position for the sweep.
      * @param delta_position Change in position to sweep across.
+     * @param filter         A condition defining which objects to check.
      * @return A {@link Collision} containing all of the intersections encountered during the sweep.
      */
-    public Collision sweep(Vector2 position, Vector2 delta_position) {
+    public Collision sweep(Vector2 position, Vector2 delta_position, Predicate<PhysicsObject> filter) {
         Collision c = new Collision();
         if(!enabled) {
             return c;
@@ -369,7 +399,7 @@ public class Collider extends GameObject {
         ArrayList<Collider> nearby = ColliderGrid.inNeighboringZones(this.position);
 
         for(Collider other : nearby) {
-            if(other == this) {
+            if(other == this || !filter.test(other.object)) {
                 continue;
             }
 
@@ -386,6 +416,17 @@ public class Collider extends GameObject {
             }
         }
         return c;
+    }
+
+    /**
+     * Sweeps for collisions with other {@link Collider} objects. Checks against objects near {@code position}.
+     *
+     * @param position       The starting position for the sweep.
+     * @param delta_position Change in position to sweep across.
+     * @return A {@link Collision} containing all of the intersections encountered during the sweep.
+     */
+    public Collision sweep(Vector2 position, Vector2 delta_position) {
+        return sweep(position, delta_position, o -> true);
     }
 
 

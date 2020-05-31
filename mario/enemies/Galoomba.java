@@ -1,9 +1,11 @@
 package mario.enemies;
 
+import engine.collider.Collision;
 import engine.collider.Intersection;
 import engine.graphics.GameGraphics;
 import engine.graphics.AnimatedSprite;
 import engine.collider.Collider;
+import engine.util.Vector2;
 import mario.GameController;
 import mario.Mario;
 import mario.Player;
@@ -20,8 +22,8 @@ public class Galoomba extends Enemy {
 
     public static final String type_name = "Galoomba";
 
-    private static final double gravity = 1200;
-    private static final double fall_speed = 900;
+    private static final double gravity = 2000;
+    private static final double fall_speed = 1200;
     private static final double walk_speed = 160;
 
     private static final int stun_time = 10*Mario.fps;
@@ -43,7 +45,11 @@ public class Galoomba extends Enemy {
     private void init() {
         this.type = Galoomba.type_name;
 
-        this.collider = Collider.newPolygon(this, 8, 0, 0, Mario.getPixelSize()*8, 0);
+        double px = Mario.getPixelSize(), es = Collider.edge_separation;
+        Vector2[] vertices = {new Vector2(6*px + es, px + es), new Vector2(10*px - es, px + es),
+                              new Vector2(15*px - es, 5*px), new Vector2(15*px - es, 16*px - es),
+                              new Vector2(px + es, 16*px - es), new Vector2(px + es, 5*px)};
+        this.collider = new Collider(this, vertices);
 
         Player player = GameController.getPlayer();
         if(player != null) {
