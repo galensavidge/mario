@@ -46,7 +46,7 @@ public class Player extends PlatformingObject {
     private static final double jump_speed = -700;
     private static final int high_jump_time = (int)(Mario.fps*0.4);
     private static final int low_jump_time = Mario.fps/4;
-    private static final double duck_jump_xspeed = 100;
+    private static final double duck_jump_xspeed = 75;
 
     private static final double die_pause_time = 1; // In seconds
     private static final double die_jump_speed = -600;
@@ -581,11 +581,13 @@ public class Player extends PlatformingObject {
 
             // Jump
             if(InputManager.getPressed(InputManager.K_JUMP)) {
-                if(InputManager.getDown(InputManager.K_RIGHT)) {
-                    velocity.x += duck_jump_xspeed;
-                }
-                else if(InputManager.getDown(InputManager.K_LEFT)) {
-                    velocity.x -= duck_jump_xspeed;
+                if(Math.abs(local_velocity.x) < duck_jump_xspeed) {
+                    if(InputManager.getDown(InputManager.K_RIGHT)) {
+                        velocity.x += duck_jump_xspeed;
+                    }
+                    else if(InputManager.getDown(InputManager.K_LEFT)) {
+                        velocity.x -= duck_jump_xspeed;
+                    }
                 }
                 if(ground_found == GroundType.FLAT) {
                     setNextState(new JumpState(jumpTime(local_velocity.abs()), false, true));
