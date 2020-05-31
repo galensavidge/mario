@@ -14,7 +14,7 @@ import java.util.HashMap;
  * The parent class for all objects that inhabit physical space in the game world.
  *
  * @author Galen Savidge
- * @version 5/29/2020
+ * @version 5/30/2020
  */
 public abstract class PhysicsObject extends GameObject {
 
@@ -22,7 +22,7 @@ public abstract class PhysicsObject extends GameObject {
     protected String type;
     protected String type_group;
 
-    protected ArrayList<String> tags = new ArrayList<>();
+    protected final ArrayList<String> tags = new ArrayList<>();
 
     // Variables used for physics calculations
     public boolean solid = false;
@@ -159,10 +159,9 @@ public abstract class PhysicsObject extends GameObject {
     }
 
     /**
-     * Returns the {@link Collision} first encountered when moving from {@code position} to {@code position +
-     * delta_position}.
+     * Returns the collision first encountered when moving from {@code position} to {@code position + delta_position}.
      *
-     * @return A {@link Collision} if a collision was found, otherwise null.
+     * @return A {@link Intersection} if a collision was found, otherwise null.
      */
     protected Intersection sweepForCollision(Vector2 delta_position) {
         Collision c = collider.sweep(this.position, delta_position);
@@ -191,7 +190,7 @@ public abstract class PhysicsObject extends GameObject {
      * colliding with only objects marked solid.
      *
      * @param delta_position The change in position this step.
-     * @return A list of {@link Collision} objects corresponding to the surfaces collided with.
+     * @return A list of {@link Intersection} objects corresponding to the surfaces collided with.
      */
     protected ArrayList<Intersection> moveAndCollide(Vector2 delta_position) {
         ArrayList<Intersection> collisions = new ArrayList<>();
@@ -221,6 +220,14 @@ public abstract class PhysicsObject extends GameObject {
         return collisions;
     }
 
+    /**
+     * Moves the minimum distance in the passed direction to no longer intersect solid objects. Does not move the object
+     * if no collision-free position can be found.
+     *
+     * @param direction A vector defining the direction and maximum distance to move.
+     * @return {@code true} if a valid new position was found, {@code false} if no valid position was found along {@code
+     * direction}.
+     */
     protected boolean escapeSolids(Vector2 direction) {
         if(collider.check(position, o -> o.solid).size() == 0) {
             return true;
@@ -246,6 +253,7 @@ public abstract class PhysicsObject extends GameObject {
 
         return false;
     }
+
 
     /* Overridable event handlers */
 

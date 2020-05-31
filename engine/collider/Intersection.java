@@ -35,11 +35,16 @@ public class Intersection {
      */
     public final double distance;
 
+    /**
+     * When true: the directions of normal, reject, and to_contact are reversed.
+     */
+    public final boolean reversed;
+
+    // Private variables to cache results of more complex calculations
     private Vector2 normal = null;
     private Vector2 reject = null;
     private Vector2 to_contact = null;
 
-    public final boolean reversed;
 
     public Intersection(PhysicsObject collided_with, Vector2 point, Line edge, Line ray, boolean reverse) {
         this.collided_with = collided_with;
@@ -54,14 +59,6 @@ public class Intersection {
         this.distance = point.difference(ray.p1).abs();
 
         this.reversed = reverse;
-    }
-
-    public Intersection copy() {
-        return new Intersection(collided_with, point, edge, ray, false);
-    }
-
-    public Intersection reverse() {
-        return new Intersection(collided_with, point, edge, ray, true);
     }
 
     /**

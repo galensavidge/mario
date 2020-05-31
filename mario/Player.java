@@ -175,13 +175,11 @@ public class Player extends PlatformingObject {
 
         protected boolean standUp() {
             useDefaultCollider();
-            addPosition(0, duck_collider_height_difference);
-            if(escapeSolids(new Vector2(0, -duck_collider_height_difference))) {
+            if(escapeSolids(new Vector2(0, duck_collider_height_difference))) {
                 return true;
             }
             else {
                 useDuckCollider();
-                addPosition(0, -duck_collider_height_difference);
                 return false;
             }
         }
