@@ -18,7 +18,7 @@ import java.util.function.Predicate;
  * @author Galen Savidge
  * @version 6/1/2020
  */
-public class Collider extends GameObject {
+public class Collider {
 
     public static final double edge_separation = 50*Misc.delta;
     public static final double reject_separation = 10*Misc.delta;
@@ -54,8 +54,6 @@ public class Collider extends GameObject {
      * @param local_vertices A list of vertices where each adjacent pair forms one edge of the polygon.
      */
     public Collider(PhysicsObject object, Vector2[] local_vertices) {
-        super(object.getPriority(), object.getLayer());
-        this.suspend_tier = object.getSuspendTier();
         this.object = object;
 
         // Calculate center
@@ -157,11 +155,8 @@ public class Collider extends GameObject {
      * Removes this collider from the global colliders list and removes its reference to the attached PhysicsObject.
      */
     public void delete() {
-        if(!this.isDeleted()) {
-            super.delete();
-            ColliderGrid.remove(this);
-            this.object = null;
-        }
+        ColliderGrid.remove(this);
+        this.object = null;
     }
 
     /**
@@ -452,7 +447,6 @@ public class Collider extends GameObject {
     /**
      * Draws the edges and center of the collider.
      */
-    @Override
     public void draw() {
         if(enabled && draw_self) {
             GameGraphics.drawPoint((int)this.getCenter().x, (int)this.getCenter().y, false, Color.black);
