@@ -1,6 +1,5 @@
 package mario.enemies;
 
-import engine.collider.Collision;
 import engine.collider.Intersection;
 import engine.graphics.GameGraphics;
 import engine.graphics.AnimatedSprite;
@@ -75,6 +74,10 @@ public class Galoomba extends Enemy {
         double speed;
         boolean reverse_direction = false;
 
+        public WalkState() {
+            stick_to_ground = true;
+        }
+
         @Override
         public String getState() {
             return name;
@@ -82,7 +85,7 @@ public class Galoomba extends Enemy {
 
         @Override
         public void enter() {
-            walk_sprite.setFrameTime(20);
+            walk_sprite.setFrameTime(Mario.fps/3);
             if(direction_facing == Direction.LEFT) {
                 speed = -walk_speed;
             }
@@ -93,15 +96,14 @@ public class Galoomba extends Enemy {
 
         @Override
         public void update() {
-            Intersection ground = snapToGround();
-            if(ground != null) {
+            if(ground_found.type != GroundType.NONE) {
                 if(reverse_direction) {
                     reverse_direction = false;
                     speed = -speed;
                 }
 
-                velocity = ground.getNormal().RHNormal().normalize().multiply(speed);
-                velocity = velocity.sum(ground.collided_with.velocity);
+                velocity = ground_found.intersection.getNormal().RHNormal().normalize().multiply(speed);
+                velocity = velocity.sum(ground_found.velocity);
 
                 if(speed > 0) {
                     direction_facing = Direction.RIGHT;
@@ -118,9 +120,9 @@ public class Galoomba extends Enemy {
         }
 
         @Override
-        protected void handlePhysicsCollisionEvent(Intersection i, GroundType c_ground_type) {
-            super.handlePhysicsCollisionEvent(i, c_ground_type);
-            if(c_ground_type == GroundType.NONE) {
+        protected void handlePhysicsCollisionEvent(Ground g) {
+            super.handlePhysicsCollisionEvent(g);
+            if(g.type == GroundType.NONE) {
                 reverse_direction = true;
             }
         }
@@ -165,9 +167,9 @@ public class Galoomba extends Enemy {
         }
 
         @Override
-        protected void handlePhysicsCollisionEvent(Intersection i, GroundType c_ground_type) {
-            super.handlePhysicsCollisionEvent(i, c_ground_type);
-            if(c_ground_type != GroundType.NONE) {
+        protected void handlePhysicsCollisionEvent(Ground g) {
+            super.handlePhysicsCollisionEvent(g);
+            if(g.type != GroundType.NONE) {
                 setNextState(new WalkState());
             }
         }

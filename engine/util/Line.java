@@ -8,7 +8,7 @@ import java.awt.*;
  * A class to represent line segments. The line segment is defined as pointing from {@code p1} to {@code p2}.
  *
  * @author Galen Savidge
- * @version 5/17/2020
+ * @version 6/1/2020
  */
 public class Line {
     public final Vector2 p1, p2;
@@ -88,13 +88,10 @@ public class Line {
      * line segments.
      */
     public Vector2 intersection(Line l) {
-        double det = (this.A*l.B - l.A*this.B);
-        if(det == 0) {
+        Vector2 p = poi(l);
+        if(p == null) {
             return null;
         }
-
-        // Point of intersection
-        Vector2 p = new Vector2((l.B*this.C - this.B*l.C)/det, (this.A*l.C - l.A*this.C)/det);
 
         // Check that the intersection lies on both lines
         if(betweenBounds(p1.x, p2.x, p.x, p1_endpoint, p2_endpoint)
@@ -104,6 +101,35 @@ public class Line {
             return p;
         }
         return null;
+    }
+
+    /**
+     * Finds the shortest vector from the axis defined by this {@link Line} to {@code point}. The returned {@link
+     * Vector2} will always be normal to {@code this}.
+     */
+    public Vector2 dropNormal(Vector2 point) {
+        Line normal_through_point = new Line(point, point.sum(this.vector().RHNormal()), false, false);
+        Vector2 i = poi(normal_through_point);
+        if(i == null) {
+            return null; // I'm not sure if this can happen
+        }
+        else {
+            return i.difference(point);
+        }
+    }
+
+
+    /* Helper functions */
+
+    /**
+     * Fins the point of intersection of two lines. Returns {@code null} iff the lines are parallel.
+     */
+    private Vector2 poi(Line l) {
+        double det = (this.A*l.B - l.A*this.B);
+        if(det == 0) {
+            return null;
+        }
+        return new Vector2((l.B*this.C - this.B*l.C)/det, (this.A*l.C - l.A*this.C)/det);
     }
 
     /**
@@ -128,6 +154,9 @@ public class Line {
 
         return a_check && b_check;
     }
+
+
+    /* Misc */
 
     public void draw() {
         GameGraphics.drawLine((int)p1.x, (int)p1.y, (int)p2.x, (int)p2.y, false, Color.green);

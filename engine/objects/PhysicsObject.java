@@ -5,16 +5,18 @@ import engine.collider.Collider;
 import engine.collider.Collision;
 import engine.collider.Intersection;
 import engine.graphics.GameGraphics;
+import engine.util.Line;
 import engine.util.Vector2;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 
 /**
  * The parent class for all objects that inhabit physical space in the game world.
  *
  * @author Galen Savidge
- * @version 5/30/2020
+ * @version 6/1/2020
  */
 public abstract class PhysicsObject extends GameObject {
 
@@ -115,15 +117,15 @@ public abstract class PhysicsObject extends GameObject {
     }
 
     public void setPosition(double x, double y) {
-        position = new Vector2(x, y);
+        setPosition(new Vector2(x, y));
     }
 
     public void addPosition(Vector2 delta_position) {
-        position = position.sum(delta_position);
+        setPosition(position.sum(delta_position));
     }
 
     public void addPosition(double x, double y) {
-        position = position.sum(new Vector2(x, y));
+        setPosition(position.sum(new Vector2(x, y)));
     }
 
     /**
@@ -150,7 +152,8 @@ public abstract class PhysicsObject extends GameObject {
     /* Physics functions */
 
     /**
-     * Used to determine which objects to collide with and which to pass through.
+     * Used to determine which objects to collide with and which to pass through. Override this function to change
+     * collision behavior.
      *
      * @return True to collide with this object, false to pass through.
      */
@@ -164,20 +167,7 @@ public abstract class PhysicsObject extends GameObject {
      * @return A {@link Intersection} if a collision was found, otherwise null.
      */
     protected Intersection sweepForCollision(Vector2 delta_position) {
-        Collision c = collider.sweep(this.position, delta_position);
-
-        if(c.collision_found) {
-            while(c.numIntersections() > 0) {
-                // Find details for the closest collision encountered when travelling along delta_position
-                Intersection closest = c.popClosestIntersection();
-
-                // Done if: no collision was found, check all is true, or this object collides with the object at c
-                if(collidesWith(closest)) {
-                    return closest;
-                }
-            }
-        }
-        return null;
+        return collider.sweep(this.position, delta_position, this::collidesWith).popClosestIntersection();
     }
 
     /**
@@ -211,10 +201,10 @@ public abstract class PhysicsObject extends GameObject {
             // Remove the portion of the attempted motion that is parallel to the normal vector
             delta_position = delta_position.sum(closest.getReject());
 
-            // Send collision events
+            // Send a physics collision event to this object and a collision event to the other object
             this.physicsCollision(closest);
-            Intersection other_i = new Intersection(this, closest.point, closest.edge, closest.ray, true);
-            closest.collided_with.physicsCollision(other_i);
+            //Intersection other_i = new Intersection(this, closest.point, closest.edge, closest.ray, true);
+            closest.collided_with.collisionEvent(this);
         }
 
         return collisions;
@@ -252,6 +242,40 @@ public abstract class PhysicsObject extends GameObject {
         }
 
         return false;
+    }
+
+    /**
+     * Gets the object that touches this object in the direction closest to the passed direction, calculated based on
+     * the {@code center} of this object's {@link Collider}.
+     *
+     * @param direction A vector of any magnitude defining the direction to check.
+     * @return An {@link Intersection} if an object is found touching this object within 90 degrees of the passed
+     * direction, otherwise {@code null}.
+     */
+    protected Intersection checkDirection(Vector2 direction) {
+        direction = direction.normalize().multiply(2*Collider.reject_separation);
+
+        Collision collision = collider.sweep(position, direction, this::collidesWith);
+
+        if(collision.numIntersections() > 1) {
+
+            // Get closest intersection to center axis of the object
+            double shortest_distance = Double.MAX_VALUE;
+            Intersection closest = null;
+            Line axis = new Line(collider.getCenter(), collider.getCenter().sum(direction), false, false);
+            for(Iterator<Intersection> intersections = collision.getIterator();intersections.hasNext();) {
+                Intersection i = intersections.next();
+                double distance_to_axis = axis.dropNormal(i.point).abs();
+                if(distance_to_axis < shortest_distance) {
+                    shortest_distance = distance_to_axis;
+                    closest = i;
+                }
+            }
+            return closest;
+        }
+        else {
+            return collision.popClosestIntersection();
+        }
     }
 
 

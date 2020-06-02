@@ -30,11 +30,6 @@ public class Ground extends PhysicsObject {
     }
 
     @Override
-    public void update() {
-
-    }
-
-    @Override
     public void draw() {
         collider.draw_self = true;
         collider.draw();

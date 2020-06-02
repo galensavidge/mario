@@ -16,7 +16,7 @@ import java.util.function.Predicate;
  * points connected by n lines.
  *
  * @author Galen Savidge
- * @version 5/27/2020
+ * @version 6/1/2020
  */
 public class Collider extends GameObject {
 
@@ -28,7 +28,7 @@ public class Collider extends GameObject {
 
     private PhysicsObject object; // The object this collider is attached to
     private Vector2 position; // The coordinates of the top left corner of this collider in the game world
-    private Vector2 center; // Center point of the collider in local space; initially set to the mean of the vertices
+    private Vector2 center; // The center of the collider's bounding box; can also be manually set
     private final ArrayList<Vector2> local_vertices = new ArrayList<>(); // Vertices in local space
     final ArrayList<Vector2> zone_check_points = new ArrayList<>(); // Points used to check which zone this is in
     private boolean enabled = true; // If false, does not check for or return collisions with other Colliders
@@ -58,21 +58,37 @@ public class Collider extends GameObject {
         this.suspend_tier = object.getSuspendTier();
         this.object = object;
 
-        // Add vertices in clockwise order
-        this.local_vertices.addAll(Arrays.asList(local_vertices));
+        // Calculate center
+        double max_x = Double.MIN_VALUE, min_x = Double.MAX_VALUE, max_y = Double.MIN_VALUE, min_y = Double.MAX_VALUE;
+        for(Vector2 v : local_vertices) {
+            if(v.x > max_x) {
+                max_x = v.x;
+            }
+            if(v.x < min_x) {
+                min_x = v.x;
+            }
+            if(v.y > max_y) {
+                max_y = v.y;
+            }
+            if(v.y < min_y) {
+                min_y = v.y;
+            }
+        }
+        this.center = new Vector2((max_x + min_x)/2.0, (max_y + min_y)/2.0);
+
+        // Subtract edge separation from each vertex
+        for(Vector2 vertex : local_vertices) {
+            vertex.x += vertex.x > center.x ? -edge_separation : edge_separation;
+            this.local_vertices.add(vertex);
+        }
+
+        // Make sure vertices are in clockwise order
         if(polygonIsCCW(local_vertices)) {
             Collections.reverse(this.local_vertices);
         }
 
-        // Calculate center
-        this.center = Vector2.zero();
-        for(Vector2 v : this.local_vertices) {
-            this.center = this.center.sum(v);
-        }
-        this.center = this.center.multiply(1.0/this.local_vertices.size());
-
         // Get zone check points list
-        this.zone_check_points.add(this.center);
+        this.zone_check_points.add(this.center.copy());
         this.position = Vector2.zero();
         int zone_size = ColliderGrid.getZoneSize();
         for(Line l : this.getEdges(false)) {
@@ -342,8 +358,10 @@ public class Collider extends GameObject {
      *
      * @param reversed True to reverse normals, to-contact, and reject vectors for any returned {@link Intersection}
      *                 objects.
+     * @param filter   A condition defining which intersections to return.
      */
-    public void rayCheck(PhysicsObject calling_obj, Collision collision, Line ray, boolean reversed) {
+    public void rayCheck(PhysicsObject calling_obj, Collision collision, Line ray, boolean reversed,
+                         Predicate<Intersection> filter) {
         ArrayList<Line> edges = this.getEdges();
         for(Line edge : edges) {
             Vector2 intersection_point = ray.intersection(edge);
@@ -353,8 +371,9 @@ public class Collider extends GameObject {
                     collided_with = calling_obj;
                 }
                 Intersection i = new Intersection(collided_with, intersection_point, edge, ray, reversed);
-                collision.collision_found = true;
-                collision.addIntersection(i);
+                if(filter.test(i)) {
+                    collision.addIntersection(i);
+                }
             }
         }
     }
@@ -363,17 +382,15 @@ public class Collider extends GameObject {
      * Ray-casts along a given line and returns all intersections found.
      *
      * @param ray    A line, ray, or line segment. Treats {@code ray.p1} as the origin of the ray-cast.
-     * @param filter A condition defining which objects to check.
+     * @param filter A condition defining which intersections to return.
      * @return A {@link Collision} object containing all {@link Intersection}s found.
      */
-    public static Collision rayCast(Line ray, Predicate<PhysicsObject> filter) {
+    public static Collision rayCast(Line ray, Predicate<Intersection> filter) {
         ArrayList<Collider> colliders = ColliderGrid.all();
 
         Collision collision = new Collision();
         for(Collider collider : colliders) {
-            if(filter.test(collider.object)) {
-                collider.rayCheck(null, collision, ray, false);
-            }
+            collider.rayCheck(null, collision, ray, false, filter);
         }
 
         return collision;
@@ -384,10 +401,10 @@ public class Collider extends GameObject {
      *
      * @param position       The starting position for the sweep.
      * @param delta_position Change in position to sweep across.
-     * @param filter         A condition defining which objects to check.
+     * @param filter         A condition defining which intersections to return.
      * @return A {@link Collision} containing all of the intersections encountered during the sweep.
      */
-    public Collision sweep(Vector2 position, Vector2 delta_position, Predicate<PhysicsObject> filter) {
+    public Collision sweep(Vector2 position, Vector2 delta_position, Predicate<Intersection> filter) {
         Collision c = new Collision();
         if(!enabled) {
             return c;
@@ -399,20 +416,20 @@ public class Collider extends GameObject {
         ArrayList<Collider> nearby = ColliderGrid.inNeighboringZones(this.position);
 
         for(Collider other : nearby) {
-            if(other == this || !filter.test(other.object)) {
+            if(other == this) {
                 continue;
             }
 
             // Check this against other
             for(Vector2 vertex : this.getVertices()) {
                 Line ray = new Line(vertex, vertex.sum(delta_position));
-                other.rayCheck(this.object, c, ray, false);
+                other.rayCheck(this.object, c, ray, false, filter);
             }
 
             // Check other against this
             for(Vector2 vertex : other.getVertices()) {
                 Line ray = new Line(vertex, vertex.sum(reverse_delta_position));
-                this.rayCheck(other.object, c, ray, true);
+                this.rayCheck(other.object, c, ray, true, filter);
             }
         }
         return c;
@@ -426,7 +443,7 @@ public class Collider extends GameObject {
      * @return A {@link Collision} containing all of the intersections encountered during the sweep.
      */
     public Collision sweep(Vector2 position, Vector2 delta_position) {
-        return sweep(position, delta_position, o -> true);
+        return sweep(position, delta_position, i -> true);
     }
 
 

@@ -7,7 +7,6 @@ import engine.collider.Collider;
 import engine.collider.Collision;
 import engine.objects.PhysicsObject;
 import engine.util.Vector2;
-import mario.objects.Ground;
 import mario.objects.Types;
 
 import java.awt.*;
@@ -28,17 +27,32 @@ public abstract class PlatformingObject extends PhysicsObject {
 
     /* Instance variables */
     protected State state;
-    protected GroundType ground_found;
+
+
+    /**
+     * Contains information on the object that this is standing on (if applicable) this frame and last frame.
+     */
+    protected Ground ground_found = new Ground(null), last_ground = new Ground(null);
+
+    /**
+     * The direction that the object is facing (left or right). Used for drawing, not automatically updated.
+     */
     protected Direction direction_facing = Direction.LEFT;
 
 
-    /* Constructors */
+    /* Constructors and destructors */
     public PlatformingObject(int priority, int layer, double x, double y) {
         super(priority, layer, x, y);
     }
 
     public PlatformingObject(int priority, int layer, HashMap<String, Object> args) {
         super(priority, layer, args);
+    }
+
+    @Override
+    public void delete() {
+        state.exit();
+        super.delete();
     }
 
 
@@ -54,10 +68,90 @@ public abstract class PlatformingObject extends PhysicsObject {
         SLOPE
     }
 
+    /**
+     * A class to hold some data about the object this PlatformingObject is standing on.
+     */
+    protected static class Ground {
+        /**
+         * The {@link Intersection} with the ground.
+         */
+        public final Intersection intersection;
+
+        /**
+         * The {@link GroundType} of the collision and object collided with.
+         */
+        public final GroundType type;
+
+        /**
+         * The velocity of the surface that this PlatformingObject is standing on.
+         */
+        public final Vector2 velocity;
+
+        /**
+         * Records the passed {@link Intersection} object and determines both the {@link GroundType} and surface
+         * velocity of the surface collided with.
+         */
+        public Ground(Intersection intersection) {
+            this.intersection = intersection;
+            type = checkGroundType(this.intersection);
+            if(this.intersection != null) {
+                velocity = this.intersection.collided_with.velocity.copy();
+            }
+            else {
+                velocity = Vector2.zero();
+            }
+        }
+
+        /**
+         * Gets the {@link GroundType} for the surface collided with in {@link Intersection} {@code i}.
+         */
+        private static GroundType checkGroundType(Intersection i) {
+            if(i == null) {
+                return GroundType.NONE;
+            }
+
+            Vector2 normal = i.getNormal();
+            if(normal == null) {
+                return GroundType.NONE;
+            }
+
+            // Check if normal is pointing up and slope is less than about 46 degrees
+            if(normal.x == 0 && normal.y < 0) {
+                return GroundType.FLAT;
+            }
+            else if(normal.y < 0 && Math.abs(normal.y/normal.x) >= 0.95) {
+                return GroundType.SLOPE;
+            }
+            else {
+                return GroundType.NONE;
+            }
+        }
+
+        /**
+         * @return True iff {@code this} and {@code other} are valid ground on surfaces of the same object.
+         */
+        public boolean sameObject(Ground other) {
+            try {
+                return this.intersection.collided_with == other.intersection.collided_with
+                        && this.type != GroundType.NONE && other.type != GroundType.NONE;
+            }
+            catch(NullPointerException e) {
+                return false;
+            }
+        }
+    }
+
+
     /* Accessors */
+
     public double getHeight() {
         return collider.getHeight();
     }
+
+    public String getState() {
+        return state.getState();
+    }
+
 
     /* State machine template */
 
@@ -65,13 +159,18 @@ public abstract class PlatformingObject extends PhysicsObject {
      * States made from this base class will have their functions executed in the following order every frame: 1. The
      * state will be switched to {@link #next_state} as set by {@link #setNextState}. At this point, {@link #exit} will
      * be called for the last state and {@link #enter} will be called for the new state. 2. The current state's {@link
-     * #update} is called. 3. Physics updates. The parent's position is updated based on {@link #velocity} and
-     * the state's {@link #handlePhysicsCollisionEvent} is called for each object collided with while moving. 4. The
-     * current ground type {@link #ground_found} is updated based on the collisions encountered. 5. The current state's
-     * {@link #draw} is called.
+     * #update} is called. 3. Physics updates. The parent's position is updated based on {@link #velocity} and the
+     * state's {@link #handlePhysicsCollisionEvent} is called for each object collided with while moving. 4. The current
+     * ground type {@link #ground_found} is updated based on the collisions encountered. 5. The current state's {@link
+     * #draw} is called.
      */
     protected abstract class State {
         public State next_state = null;
+
+        /**
+         * Set to {@code true} to snap to ground before making ground checks each step.
+         */
+        public boolean stick_to_ground = false;
 
         /**
          * @return An identifier string that can be used for state checks.
@@ -129,21 +228,15 @@ public abstract class PlatformingObject extends PhysicsObject {
 
         /**
          * Called when this object attempts to move into, and is rejected by, the {@link Collider} of another object.
-         *
-         * @param c_ground_type The {@link GroundType} of the object encountered.
          */
-        protected void handlePhysicsCollisionEvent(Intersection i, GroundType c_ground_type) {
-            velocity = inelasticCollision(velocity, i);
+        protected void handlePhysicsCollisionEvent(Ground g) {
+            velocity = inelasticCollision(velocity, g.intersection);
         }
 
         /**
          * Called when this object's {@link Collider} detects that it is intersecting another {@link Collider}.
          */
         protected void handleCollisionEvent(PhysicsObject other) {}
-    }
-
-    public String getState() {
-        return state.getState();
     }
 
 
@@ -210,9 +303,6 @@ public abstract class PlatformingObject extends PhysicsObject {
         return false;
     }
 
-
-    /* Ground checks */
-
     /**
      * Checks up to 1/2 grid square down for ground. If it is found, moves this object straight down to the point of
      * contact with the ground.
@@ -220,58 +310,46 @@ public abstract class PlatformingObject extends PhysicsObject {
      * @return A detailed {@link Collision} object.
      */
     protected Intersection snapToGround() {
-        Intersection i = sweepForCollision(down);
+        Ground g = new Ground(sweepForCollision(down));
 
         // Check that down is ground
-        if(checkGroundType(i) != GroundType.NONE) {
+        if(g.type != GroundType.NONE) {
             // Snap to ground
-            addPosition(i.getToContact());
+            addPosition(g.intersection.getToContact());
         }
-        return i;
-    }
-
-    protected GroundType checkGroundType(Intersection i) {
-        if(i == null) {
-            return GroundType.NONE;
-        }
-
-        Vector2 normal = i.getNormal();
-        if(normal == null) {
-            return GroundType.NONE;
-        }
-
-        // Check if normal is pointing up and slope is less than about 46 degrees
-        if(normal.x == 0 && normal.y < 0) {
-            return GroundType.FLAT;
-        }
-        else if(normal.y < 0 && Math.abs(normal.y/normal.x) >= 0.95) {
-            return GroundType.SLOPE;
-        }
-        else {
-            return GroundType.NONE;
-        }
+        return g.intersection;
     }
 
 
     /* Misc */
 
+    /**
+     * Draws a sprite at the object's current position. Flips the sprite horizontally if the object is facing right.
+     */
     protected void drawSprite(Image image) {
         GameGraphics.drawImage((int)pixelPosition().x, (int)pixelPosition().y, false, false,
                 direction_facing == Direction.RIGHT, 0, 0, image);
     }
 
 
-    /* Template overridden methods */
+    /* Events */
 
     @Override
-    public void prePhysicsUpdate() {
+    public void postPhysicsUpdate() {
+        // Stick to ground
+        if(state.stick_to_ground) {
+            snapToGround();
+        }
+
+        // Check for ground
+        last_ground = ground_found;
+        ground_found = new Ground(checkDirection(down));
+
         // Switch states
         state = state.switchToNextState();
 
         // Run state update code
         state.update();
-
-        ground_found = GroundType.NONE;
     }
 
     @Override
@@ -292,15 +370,15 @@ public abstract class PlatformingObject extends PhysicsObject {
     @Override
     public void physicsCollisionEvent(Intersection i) {
         // Get ground type of this collision
-        GroundType c_ground_type = checkGroundType(i);
+        Ground g = new Ground(i);
 
         // Update velocity or do other things based on state behavior
-        state.handlePhysicsCollisionEvent(i, c_ground_type);
+        state.handlePhysicsCollisionEvent(g);
 
         // Record ground type in global variable
-        if(c_ground_type == GroundType.FLAT ||
-                (c_ground_type == GroundType.SLOPE && ground_found != GroundType.FLAT)) {
-            ground_found = c_ground_type;
+        if(g.type == GroundType.FLAT ||
+                (g.type == GroundType.SLOPE && ground_found.type != GroundType.FLAT)) {
+            ground_found = new Ground(i);
         }
     }
 
@@ -312,11 +390,5 @@ public abstract class PlatformingObject extends PhysicsObject {
     @Override
     public void draw() {
         state.draw();
-    }
-
-    @Override
-    public void delete() {
-        state.exit();
-        super.delete();
     }
 }

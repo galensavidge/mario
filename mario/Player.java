@@ -1,12 +1,10 @@
 package mario;
 
 import engine.*;
-import engine.collider.ColliderGrid;
 import engine.collider.Intersection;
 import engine.graphics.AnimatedSprite;
 import engine.graphics.GameGraphics;
 import engine.collider.Collider;
-import engine.collider.Collision;
 import engine.objects.PhysicsObject;
 import engine.util.Vector2;
 import mario.enemies.Enemy;
@@ -25,7 +23,6 @@ import java.util.HashMap;
 public class Player extends PlatformingObject {
 
     /* Class constants */
-
     public static final String type_name = "Player";
 
     private static final double max_fall_speed = 900;
@@ -53,14 +50,16 @@ public class Player extends PlatformingObject {
     private static final double die_gravity = 1000;
     private static final double die_max_fall_speed = 600;
 
-    private static final Vector2 short_down = new Vector2(0, 2*Collider.reject_separation);
 
+    /* Colliders */
     private final Collider default_collider = Collider.newBox(this, Mario.getPixelSize(), Mario.getPixelSize()*8,
             Mario.getPixelSize()*14, Mario.getPixelSize()*16);
     private final Collider duck_collider = Collider.newBox(this, Mario.getPixelSize(), Mario.getPixelSize()*12,
             Mario.getPixelSize()*14, Mario.getPixelSize()*12);
     private static final double duck_collider_height_difference = Mario.getPixelSize()*4;
 
+
+    /* Sprites */
     private static final String sprite_sub = "";
     private static final String[] walk_sprite_files = {Mario.sprite_path + sprite_sub + "mario-walk-1.png",
             Mario.sprite_path + sprite_sub + "mario-walk-2.png"};
@@ -106,14 +105,23 @@ public class Player extends PlatformingObject {
 
     /* Public methods */
 
+    /**
+     * Causes the player to bounce off of an enemy or other object.
+     */
     public void bounce() {
         state.setNextState(new Player.JumpState(high_jump_time, false, false));
     }
 
+    /**
+     * Damages the player.
+     */
     public void damage() {
         die();
     }
 
+    /**
+     * Kills the player.
+     */
     public void die() {
         state.setNextState(new DieState());
     }
@@ -124,22 +132,17 @@ public class Player extends PlatformingObject {
     @Override
     public void draw() {
         super.draw();
-        for(Collider c : ColliderGrid.inNeighboringZones(this.getPosition())) {
+        /*for(Collider c : ColliderGrid.inNeighboringZones(this.getPosition())) {
             c.draw_self = true;
             c.draw();
             c.draw_self = false;
-        }
+        }*/
     }
 
 
     /* State machine */
 
     private abstract class PlayerState extends State {
-
-        @Override
-        protected void handlePhysicsCollisionEvent(Intersection i, GroundType c_ground_type) {
-            super.handlePhysicsCollisionEvent(i, c_ground_type);
-        }
 
         @Override
         protected void handleCollisionEvent(PhysicsObject other) {
@@ -192,30 +195,33 @@ public class Player extends PlatformingObject {
 
         protected Vector2 groundPhysics(double friction, double gravity, double max_fall_speed, double walk_accel,
                                         double run_accel, double max_walk_speed, double max_run_speed) {
-            // Ground check
-            Intersection ground = snapToGround();
-            ground_found = checkGroundType(ground);
             Vector2 local_velocity = velocity.copy();
 
-            if(ground_found != GroundType.NONE) {
-                local_velocity = velocity.difference(ground.collided_with.velocity);
+            if(ground_found.type != GroundType.NONE) {
+                if(last_ground.sameObject(ground_found)) {
+                    local_velocity = velocity.difference(last_ground.velocity);
+                }
+                else {
+                    local_velocity = velocity.difference(ground_found.velocity);
+                }
 
                 // Left/right input and running check
-                local_velocity = applyLateralMovement(local_velocity, ground.getNormal(), walk_accel, run_accel,
+                local_velocity = applyLateralMovement(local_velocity, ground_found.intersection.getNormal(), walk_accel, run_accel,
                         max_walk_speed, max_run_speed);
 
                 // Stick to slope corners
                 if(local_velocity.x <= 0) {
-                    local_velocity = ground.getNormal().LHNormal().normalize().multiply(local_velocity.abs());
+                    local_velocity = ground_found.intersection.getNormal().LHNormal().normalize().multiply(local_velocity.abs());
                 }
                 else {
-                    local_velocity = ground.getNormal().RHNormal().normalize().multiply(local_velocity.abs());
+                    local_velocity = ground_found.intersection.getNormal().RHNormal().normalize().multiply(local_velocity.abs());
                 }
 
                 // Gravity
                 if(local_velocity.abs() < max_fall_speed) {
                     Vector2 gravity_vector = new Vector2(0, gravity*Game.stepTimeSeconds());
-                    Vector2 with_gravity = local_velocity.sum(gravity_vector.normalComponent(ground.getNormal()));
+                    Vector2 with_gravity =
+                            local_velocity.sum(gravity_vector.normalComponent(ground_found.intersection.getNormal()));
                     if(with_gravity.abs() > max_fall_speed) {
                         local_velocity = local_velocity.normalize().multiply(max_fall_speed);
                     }
@@ -228,14 +234,14 @@ public class Player extends PlatformingObject {
                 local_velocity = applyFriction(local_velocity, friction);
 
                 // Set global velocity
-                velocity = local_velocity.sum(ground.collided_with.velocity);
+                velocity = local_velocity.sum(ground_found.velocity);
             }
             return local_velocity;
         }
 
         protected Vector2 applyLateralMovement(Vector2 v, Vector2 ground_normal, double no_sprint_accel,
-                                               double with_sprint_accel,
-                                               double no_sprint_max_speed, double with_sprint_max_speed) {
+                                               double with_sprint_accel, double no_sprint_max_speed,
+                                               double with_sprint_max_speed) {
             if(ground_normal == null) {
                 ground_normal = up;
             }
@@ -292,6 +298,10 @@ public class Player extends PlatformingObject {
         boolean running;
         AnimatedSprite s = walk_sprite;
 
+        public WalkState() {
+            stick_to_ground = true;
+        }
+
         @Override
         public String getState() {
             return name;
@@ -312,9 +322,9 @@ public class Player extends PlatformingObject {
         }
 
         @Override
-        protected void handlePhysicsCollisionEvent(Intersection i, GroundType c_ground_type) {
-            if(c_ground_type == GroundType.NONE) {
-                super.handlePhysicsCollisionEvent(i, c_ground_type);
+        protected void handlePhysicsCollisionEvent(Ground g) {
+            if(g.type == GroundType.NONE) {
+                super.handlePhysicsCollisionEvent(g);
             }
         }
 
@@ -324,7 +334,7 @@ public class Player extends PlatformingObject {
             Vector2 local_velocity = groundPhysics(friction, walk_gravity, max_run_speed, walk_accel, run_accel,
                     max_walk_speed, max_run_speed);
 
-            if(ground_found == GroundType.NONE) {
+            if(ground_found.type == GroundType.NONE) {
                 setNextState(new FallState(running, false));
                 velocity = applyGravity(velocity, fall_gravity, max_fall_speed);
             }
@@ -350,10 +360,10 @@ public class Player extends PlatformingObject {
 
             // Slide
             if(InputManager.getDown(InputManager.K_DOWN)) {
-                if(ground_found == GroundType.FLAT) {
+                if(ground_found.type == GroundType.FLAT) {
                     setNextState(new DuckState());
                 }
-                else if(ground_found == GroundType.SLOPE) {
+                else if(ground_found.type == GroundType.SLOPE) {
                     setNextState(new SlideState());
                 }
             }
@@ -381,6 +391,15 @@ public class Player extends PlatformingObject {
             }
             else {
                 drawSprite(s.getCurrentFrame());
+            }
+
+            try {
+                Collider c = ground_found.intersection.collided_with.collider;
+                c.draw_self = true;
+                c.draw();
+                c.draw_self = false;
+            }
+            catch(NullPointerException ignored) {
             }
         }
     }
@@ -484,14 +503,14 @@ public class Player extends PlatformingObject {
         }
 
         @Override
-        public void handlePhysicsCollisionEvent(Intersection i, GroundType c_ground_type) {
-            if(c_ground_type != GroundType.NONE) {
+        public void handlePhysicsCollisionEvent(Ground g) {
+            if(g.type != GroundType.NONE) {
                 if(!crouching) {
                     setNextState(new WalkState());
                 }
                 else {
-                    super.handlePhysicsCollisionEvent(i, c_ground_type);
-                    if(c_ground_type == GroundType.FLAT) {
+                    super.handlePhysicsCollisionEvent(g);
+                    if(g.type == GroundType.FLAT) {
                         setNextState(new DuckState());
                     }
                     else {
@@ -500,7 +519,7 @@ public class Player extends PlatformingObject {
                 }
             }
             else {
-                super.handlePhysicsCollisionEvent(i, c_ground_type);
+                super.handlePhysicsCollisionEvent(g);
             }
         }
 
@@ -524,6 +543,10 @@ public class Player extends PlatformingObject {
     private class DuckState extends PlayerState {
         public String name = "Duck";
 
+        public DuckState() {
+            stick_to_ground = true;
+        }
+
         @Override
         public String getState() {
             return name;
@@ -535,9 +558,9 @@ public class Player extends PlatformingObject {
         }
 
         @Override
-        protected void handlePhysicsCollisionEvent(Intersection i, GroundType c_ground_type) {
-            if(c_ground_type == GroundType.NONE) {
-                super.handlePhysicsCollisionEvent(i, c_ground_type);
+        protected void handlePhysicsCollisionEvent(Ground g) {
+            if(g.type == GroundType.NONE) {
+                super.handlePhysicsCollisionEvent(g);
             }
         }
 
@@ -545,7 +568,7 @@ public class Player extends PlatformingObject {
             Vector2 local_velocity = groundPhysics(slide_friction, slide_gravity, max_slide_speed, 0,
                     0, max_slide_speed, max_slide_speed);
 
-            if(ground_found == GroundType.NONE) {
+            if(ground_found.type == GroundType.NONE) {
                 setNextState(new FallState(false, true));
             }
 
@@ -563,14 +586,14 @@ public class Player extends PlatformingObject {
                 direction_facing = Direction.RIGHT;
             }
 
-            if(ground_found == GroundType.SLOPE) {
+            if(ground_found.type == GroundType.SLOPE) {
                 setNextState(new SlideState());
             }
 
             // Stand up
             if(!InputManager.getDown(InputManager.K_DOWN)) {
                 if(standUp()) {
-                    if(ground_found != GroundType.NONE) {
+                    if(ground_found.type != GroundType.NONE) {
                         setNextState(new WalkState());
                     }
                     else {
@@ -589,10 +612,10 @@ public class Player extends PlatformingObject {
                         velocity.x -= duck_jump_xspeed;
                     }
                 }
-                if(ground_found == GroundType.FLAT) {
+                if(ground_found.type == GroundType.FLAT) {
                     setNextState(new JumpState(jumpTime(local_velocity.abs()), false, true));
                 }
-                else if(ground_found == GroundType.SLOPE) {
+                else if(ground_found.type == GroundType.SLOPE) {
                     if(standUp()) {
                         setNextState(new JumpState(jumpTime(local_velocity.abs()), false, false));
                     }
@@ -621,14 +644,14 @@ public class Player extends PlatformingObject {
             slidePhysics();
 
             // Switch to duck when stopped
-            if(InputManager.getDown(InputManager.K_DOWN) && velocity.x == 0 && ground_found == GroundType.FLAT) {
+            if(InputManager.getDown(InputManager.K_DOWN) && velocity.x == 0 && ground_found.type == GroundType.FLAT) {
                 setNextState(new DuckState());
             }
 
             // Stand up
             if(!InputManager.getDown(InputManager.K_DOWN)) {
                 if(standUp()) {
-                    if(ground_found != GroundType.NONE) {
+                    if(ground_found.type != GroundType.NONE) {
                         setNextState(new WalkState());
                     }
                     else {
@@ -638,7 +661,7 @@ public class Player extends PlatformingObject {
             }
 
             // Jump
-            if(InputManager.getPressed(InputManager.K_JUMP) && ground_found != GroundType.NONE) {
+            if(InputManager.getPressed(InputManager.K_JUMP) && ground_found.type != GroundType.NONE) {
                 if(standUp()) {
                     setNextState(new JumpState(jumpTime(velocity.x), false, false));
                 }

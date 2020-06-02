@@ -5,8 +5,14 @@ import engine.util.Line;
 import engine.util.Vector2;
 
 /**
+ * Defines a collision point on an edge of a {@link Collider} object. Intersection objects are returned as results of
+ * sweeps and ray-casts from Collider methods and can be used to find details about collision events.
+ *
  * @author Galen Savidge
- * @version 5/27/2020
+ * @version 6/1/2020
+ * @see #getNormal
+ * @see #getReject
+ * @see #getToContact
  */
 public class Intersection {
 
@@ -46,6 +52,15 @@ public class Intersection {
     private Vector2 to_contact = null;
 
 
+    /**
+     * @param collided_with The {@link PhysicsObject} collided with in this collision.
+     * @param point         The point of intersection.
+     * @param edge          The edge of the {@link Collider} collided with.
+     * @param ray           The line, ray, or line segment that was used to calculate the intersection point on {@code
+     *                      edge}.
+     * @param reverse       True to reverse the returned vectors from {@link #getNormal}, {@link #getReject}, and {@link
+     *                      #getToContact}.
+     */
     public Intersection(PhysicsObject collided_with, Vector2 point, Line edge, Line ray, boolean reverse) {
         this.collided_with = collided_with;
         this.point = point.copy();
@@ -93,7 +108,8 @@ public class Intersection {
      */
     public Vector2 getReject() {
         if(reject == null) {
-            double reject_distance = point.difference(ray.p2).projection(getNormal()).abs() + Collider.reject_separation;
+            double reject_distance =
+                    point.difference(ray.p2).projection(getNormal()).abs() + Collider.reject_separation;
             reject = getNormal().multiply(reject_distance);
         }
         return reject;

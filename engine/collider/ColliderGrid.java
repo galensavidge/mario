@@ -7,12 +7,12 @@ import java.util.ArrayList;
 
 /**
  * @author Galen Savidge
- * @version 5/27/2020
+ * @version 6/1/2020
  */
 public class ColliderGrid {
 
-    private static final int zone_size_in_grid = 2; // Zone size in grid squares
-    private static int zone_size; // Zone size in pixels
+    private static final int zone_size_in_grid = 2; // Zone size in world grid squares
+    private static int zone_size; // Zone size in world pixels
     private static ArrayList<Collider>[][] colliders; // A list of all colliders that exist as a 2D array of zones
 
     /**
@@ -48,7 +48,7 @@ public class ColliderGrid {
     /* Collider zone functions */
 
     /**
-     * Adds {@code c} to the array used by the {@link Collider} class to find nearby {@code Colliders}.
+     * Adds {@code c} to the collider grid.
      *
      * @see #inZone
      */
@@ -65,7 +65,7 @@ public class ColliderGrid {
     }
 
     /**
-     * Removes {@code c} from the array used by the {@link Collider} class to find nearby {@code Colliders}.
+     * Removes {@code c} from the collider grid.
      *
      * @see #inZone
      */
@@ -84,16 +84,16 @@ public class ColliderGrid {
      */
     public static ArrayList<Collider> all() {
         ArrayList<Collider> all = new ArrayList<>();
-        for(int i = 0;i <= colliders.length;i++) {
-            for(int j = 0;j <= colliders[0].length;j++) {
-                all.addAll(colliders[i][j]);
+        for(ArrayList<Collider>[] collider : colliders) {
+            for(ArrayList<Collider> colliderArrayList : collider) {
+                all.addAll(colliderArrayList);
             }
         }
         return all;
     }
 
     /**
-     * @return The colliders in zone {@code (x, y)} in the 2D array of zones.
+     * @return The colliders in zone {@code (x, y)} of the collider grid.
      */
     public static ArrayList<Collider> inZone(int x, int y) {
         if(x >= 0 && x < colliders.length && y >= 0 && y < colliders[0].length) {
@@ -105,10 +105,13 @@ public class ColliderGrid {
     }
 
     /**
-     * @param distance Number of zones away in every direction (including diagonals) to check.
-     * @return A list of nearby {@link Collider} objects. Objects returned lie in the same zone as or neighboring zones
-     * to this {@link Collider}, where zone size is defined by {@link ColliderGrid}{@code .init()}. This object is
-     * excluded.
+     * Returns a list of {@link Collider} objects near {@code position}. Objects returned lie in the same zone as or
+     * neighboring zones to {@code position}.
+     *
+     * @param distance The number of zones away in every direction (including diagonals) to check. The zones checked
+     *                 form a square with {@code 2*distance + 1} grid squares on each side, e.g. with {@code distance =
+     *                 1} the area checked will be a 3x3 area of grid squares with {@code position} in its center
+     *                 square.
      */
     public static ArrayList<Collider> inNeighboringZones(Vector2 position, int distance) {
 
@@ -129,8 +132,8 @@ public class ColliderGrid {
     }
 
     /**
-     * @return A list of nearby {@link Collider} objects. Objects returned lie in the same zone as or neighboring zones
-     * to this {@link Collider}, where zone size is defined by {@link ColliderGrid}{@code .init()}.
+     * Returns a list of {@link Collider} objects near {@code position}. Checks a 3x3 area of grid squares with {@code
+     * position} in its center square.
      */
     public static ArrayList<Collider> inNeighboringZones(Vector2 position) {
         return inNeighboringZones(position, 1);
