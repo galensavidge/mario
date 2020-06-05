@@ -13,9 +13,11 @@ import java.util.HashMap;
  * The parent class for enemies and moving obstacles.
  *
  * @author Galen Savidge
- * @version 5/14/2020
+ * @version 6/4/2020
  */
 public class Enemy extends PlatformingObject {
+
+    public static final String dieStateName = "Die";
 
     public Enemy(double x, double y) {
         super(Mario.enemy_priority, Mario.enemy_layer, x, y);
@@ -36,8 +38,17 @@ public class Enemy extends PlatformingObject {
         ((EnemyState)this.state).handleBounceEvent(player);
     }
 
+    /**
+     * A state template for enemy classes. All enemy states must extend this class.
+     */
     protected abstract class EnemyState extends State {
 
+        /**
+         * Called when a bounce event occurs in the parent object. Override this method to set behavior for bounce
+         * events.
+         *
+         * @see #bounceEvent
+         */
         void handleBounceEvent(Player player) {
 
         }
@@ -49,8 +60,6 @@ public class Enemy extends PlatformingObject {
      * overridden.
      */
     protected abstract class DieState extends EnemyState {
-        protected String name = "Die";
-
         protected static final double hop_yspeed = -400;
         protected static final double hop_xspeed = 200;
         protected static final double gravity = 1500;
@@ -67,7 +76,7 @@ public class Enemy extends PlatformingObject {
 
         @Override
         public String getState() {
-            return name;
+            return dieStateName;
         }
 
         @Override

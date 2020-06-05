@@ -16,7 +16,7 @@ import java.util.HashMap;
  * Base class for objects that use platforming physics.
  *
  * @author Galen Savidge
- * @version 5/19/2020
+ * @version 6/4/2020
  */
 public abstract class PlatformingObject extends PhysicsObject {
 
@@ -144,10 +144,16 @@ public abstract class PlatformingObject extends PhysicsObject {
 
     /* Accessors */
 
+    /**
+     * @return The height of this object's collider's bounding box.
+     */
     public double getHeight() {
         return collider.getHeight();
     }
 
+    /**
+     * @return The current state's name.
+     */
     public String getState() {
         return state.getState();
     }
@@ -156,13 +162,22 @@ public abstract class PlatformingObject extends PhysicsObject {
     /* State machine template */
 
     /**
-     * States made from this base class will have their functions executed in the following order every frame: 1. The
-     * state will be switched to {@link #next_state} as set by {@link #setNextState}. At this point, {@link #exit} will
-     * be called for the last state and {@link #enter} will be called for the new state. 2. The current state's {@link
-     * #update} is called. 3. Physics updates. The parent's position is updated based on {@link #velocity} and the
-     * state's {@link #handlePhysicsCollisionEvent} is called for each object collided with while moving. 4. The current
-     * ground type {@link #ground_found} is updated based on the collisions encountered. 5. The current state's {@link
-     * #draw} is called.
+     * States made from this base class will have their functions executed in the following order every frame:
+     * <p>
+     * 1. If necessary, the current state is updated to the state set by {@link #setNextState}. At this point, the last
+     * state's {@link #exit} is called, followed by the next state's {@link #enter}.
+     * <p>
+     * 2. The parent's position is updated based on {@link #velocity} and the state's {@link
+     * #handlePhysicsCollisionEvent} is called for each object collided with while moving. The state's {@link
+     * #handleCollisionEvent} is called for each object intersected with at the new position.
+     * <p>
+     * 3. The object attempts to snap to ground if {@code state.stick_to_ground == true}.
+     * <p>
+     * 4. {@link #ground_found} and {@link #last_ground} are updated.
+     * <p>
+     * 5. The current state's {@link #update} is called.
+     * <p>
+     * 6. The current state's {@link #draw} is called.
      */
     protected abstract class State {
         public State next_state = null;
@@ -335,6 +350,12 @@ public abstract class PlatformingObject extends PhysicsObject {
     /* Events */
 
     @Override
+    public void prePhysicsUpdate() {
+        // Switch states
+        state = state.switchToNextState();
+    }
+
+    @Override
     public void postPhysicsUpdate() {
         // Stick to ground
         if(state.stick_to_ground) {
@@ -344,9 +365,6 @@ public abstract class PlatformingObject extends PhysicsObject {
         // Check for ground
         last_ground = ground_found;
         ground_found = new Ground(checkDirection(down));
-
-        // Switch states
-        state = state.switchToNextState();
 
         // Run state update code
         state.update();

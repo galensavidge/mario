@@ -15,22 +15,36 @@ import java.util.HashMap;
  * A Galoomba, the Goomba equivalent from SMW.
  *
  * @author Galen Savidge
- * @version 5/16/2020
+ * @version 6/4/2020
  */
 public class Galoomba extends Enemy {
 
     public static final String type_name = "Galoomba";
 
+
+    /* State names */
+    public static final String walkStateName = "Walk";
+    public static final String fallStateName = "Fall";
+    public static final String stunStateName = "Stun";
+
+
+    /* Physics constants */
     private static final double gravity = 2000;
     private static final double fall_speed = 1200;
     private static final double walk_speed = 160;
 
+
+    /* Class constants */
     private static final int stun_time = 10*Mario.fps;
 
+
+    /* Sprites */
     private static final String[] walk_sprite_files = {Mario.sprite_path + "galoomba-walk-1.png",
             Mario.sprite_path + "galoomba-walk-2.png"};
     private final AnimatedSprite walk_sprite = new AnimatedSprite(walk_sprite_files);
 
+
+    /* Constructors */
     public Galoomba(double x, double y) {
         super(x, y);
         init();
@@ -46,8 +60,8 @@ public class Galoomba extends Enemy {
 
         double px = Mario.getPixelSize(), es = Collider.edge_separation;
         Vector2[] vertices = {new Vector2(6*px + es, px + es), new Vector2(10*px - es, px + es),
-                              new Vector2(15*px - es, 5*px), new Vector2(15*px - es, 16*px - es),
-                              new Vector2(px + es, 16*px - es), new Vector2(px + es, 5*px)};
+                new Vector2(15*px - es, 5*px), new Vector2(15*px - es, 16*px - es),
+                new Vector2(px + es, 16*px - es), new Vector2(px + es, 5*px)};
         this.collider = new Collider(this, vertices);
 
         Player player = GameController.getPlayer();
@@ -64,10 +78,22 @@ public class Galoomba extends Enemy {
         this.state.enter();
     }
 
+
+    /* Public methods */
+
     public void stun() {
         state.setNextState(new StunState());
     }
 
+
+    /* Event handlers */
+    @Override
+    public void worldLoadedEvent() {
+        // Check if we spawned on a muncher
+    }
+
+
+    /* State machine */
 
     private class WalkState extends EnemyState {
         public String name = "Walk";
@@ -129,10 +155,13 @@ public class Galoomba extends Enemy {
 
         @Override
         void handleBounceEvent(Player player) {
-            if(player.getState().equals("Slide")) {
-                state.setNextState(new DieState(player.getPosition().x > getPosition().x ? Direction.LEFT : Direction.RIGHT));
+            String ps = player.getState();
+            if(ps.equals(Player.slideStateName)) {
+                state.setNextState(new DieState(player.getPosition().x > getPosition().x ? Direction.LEFT :
+                        Direction.RIGHT));
             }
-            else if(player.getPosition().y + player.getHeight() < Galoomba.this.getPosition().y + getHeight()/2.0) {
+            else if((ps.equals(Player.fallStateName) || ps.equals(Player.jumpStateName))
+                    && player.getPosition().y + player.getHeight() < Galoomba.this.getPosition().y + getHeight()/2.0) {
                 player.bounce();
                 Galoomba.this.stun();
             }

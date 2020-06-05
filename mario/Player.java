@@ -18,13 +18,23 @@ import java.util.HashMap;
  * The physical object that the player controls.
  *
  * @author Galen Savidge
- * @version 6/1/2020
+ * @version 6/4/2020
  */
 public class Player extends PlatformingObject {
 
-    /* Class constants */
     public static final String type_name = "Player";
 
+
+    /* State names */
+    public static final String walkStateName = "Walk";
+    public static final String jumpStateName = "Jump";
+    public static final String fallStateName = "Fall";
+    public static final String duckStateName = "Duck";
+    public static final String slideStateName = "Slide";
+    public static final String dieStateName = "Die";
+
+
+    /* Physics constants */
     private static final double max_fall_speed = 900;
     private static final double fall_gravity = 2700;
     private static final double walk_gravity = 400;
@@ -293,7 +303,6 @@ public class Player extends PlatformingObject {
 
     private class WalkState extends PlayerState {
 
-        public String name = "Walk";
         boolean skidding;
         boolean running;
         AnimatedSprite s = walk_sprite;
@@ -304,7 +313,7 @@ public class Player extends PlatformingObject {
 
         @Override
         public String getState() {
-            return name;
+            return walkStateName;
         }
 
         @Override
@@ -406,10 +415,8 @@ public class Player extends PlatformingObject {
 
     private class JumpState extends PlayerState {
 
-        public String name = "Jump";
         protected int timer;
-        boolean running;
-        boolean crouching;
+        boolean running, crouching;
 
         public JumpState(int timer, boolean running, boolean crouching) {
             this.timer = timer;
@@ -419,7 +426,7 @@ public class Player extends PlatformingObject {
 
         @Override
         public String getState() {
-            return name;
+            return jumpStateName;
         }
 
         @Override
@@ -465,7 +472,7 @@ public class Player extends PlatformingObject {
     }
 
     private class FallState extends PlayerState {
-        public String name = "Fall";
+
         boolean running, crouching;
 
         public FallState(boolean running, boolean crouching) {
@@ -475,7 +482,7 @@ public class Player extends PlatformingObject {
 
         @Override
         public String getState() {
-            return name;
+            return fallStateName;
         }
 
         @Override
@@ -541,7 +548,6 @@ public class Player extends PlatformingObject {
     }
 
     private class DuckState extends PlayerState {
-        public String name = "Duck";
 
         public DuckState() {
             stick_to_ground = true;
@@ -549,7 +555,7 @@ public class Player extends PlatformingObject {
 
         @Override
         public String getState() {
-            return name;
+            return duckStateName;
         }
 
         @Override
@@ -632,11 +638,10 @@ public class Player extends PlatformingObject {
     }
 
     private class SlideState extends DuckState {
-        public String name = "Slide";
 
         @Override
         public String getState() {
-            return name;
+            return slideStateName;
         }
 
         @Override
@@ -677,13 +682,12 @@ public class Player extends PlatformingObject {
     }
 
     private class DieState extends State {
-        public String name = "Die";
 
         private int timer;
 
         @Override
         public String getState() {
-            return name;
+            return dieStateName;
         }
 
         @Override
