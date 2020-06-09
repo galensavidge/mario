@@ -1,13 +1,11 @@
 package engine.collider;
 
 import engine.graphics.GameGraphics;
-import engine.objects.GameObject;
 import engine.objects.PhysicsObject;
 import engine.util.*;
 
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.function.Predicate;
 

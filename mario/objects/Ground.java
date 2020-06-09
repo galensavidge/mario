@@ -26,7 +26,12 @@ public class Ground extends PhysicsObject {
     private void init() {
         this.type = Ground.type_name;
         this.type_group = Types.block_type_group;
-        this.visible = false;
+        this.tags.add(Types.ground_tag);
+        this.visible = true;
+    }
+
+    public Vector2 getSurfaceVelocity() {
+        return velocity.copy();
     }
 
     @Override

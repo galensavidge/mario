@@ -7,6 +7,7 @@ import engine.collider.Collider;
 import engine.collider.Collision;
 import engine.objects.PhysicsObject;
 import engine.util.Vector2;
+import mario.objects.Ground;
 import mario.objects.Types;
 
 import java.awt.*;
@@ -32,7 +33,7 @@ public abstract class PlatformingObject extends PhysicsObject {
     /**
      * Contains information on the object that this is standing on (if applicable) this frame and last frame.
      */
-    protected Ground ground_found = new Ground(null), last_ground = new Ground(null);
+    protected GroundCollision ground_found = new GroundCollision(null), last_ground = new GroundCollision(null);
 
     /**
      * The direction that the object is facing (left or right). Used for drawing, not automatically updated.
@@ -71,7 +72,7 @@ public abstract class PlatformingObject extends PhysicsObject {
     /**
      * A class to hold some data about the object this PlatformingObject is standing on.
      */
-    protected static class Ground {
+    protected static class GroundCollision {
         /**
          * The {@link Intersection} with the ground.
          */
@@ -91,11 +92,16 @@ public abstract class PlatformingObject extends PhysicsObject {
          * Records the passed {@link Intersection} object and determines both the {@link GroundType} and surface
          * velocity of the surface collided with.
          */
-        public Ground(Intersection intersection) {
+        public GroundCollision(Intersection intersection) {
             this.intersection = intersection;
             type = checkGroundType(this.intersection);
             if(this.intersection != null) {
-                velocity = this.intersection.collided_with.velocity.copy();
+                if(this.intersection.collided_with.hasTag(Types.ground_tag)) {
+                    velocity = ((Ground)this.intersection.collided_with).getSurfaceVelocity();
+                }
+                else {
+                    velocity = this.intersection.collided_with.velocity.copy();
+                }
             }
             else {
                 velocity = Vector2.zero();
@@ -130,7 +136,7 @@ public abstract class PlatformingObject extends PhysicsObject {
         /**
          * @return True iff {@code this} and {@code other} are valid ground on surfaces of the same object.
          */
-        public boolean sameObject(Ground other) {
+        public boolean sameObject(GroundCollision other) {
             try {
                 return this.intersection.collided_with == other.intersection.collided_with
                         && this.type != GroundType.NONE && other.type != GroundType.NONE;
@@ -244,7 +250,7 @@ public abstract class PlatformingObject extends PhysicsObject {
         /**
          * Called when this object attempts to move into, and is rejected by, the {@link Collider} of another object.
          */
-        protected void handlePhysicsCollisionEvent(Ground g) {
+        protected void handlePhysicsCollisionEvent(GroundCollision g) {
             velocity = inelasticCollision(velocity, g.intersection);
         }
 
@@ -302,14 +308,18 @@ public abstract class PlatformingObject extends PhysicsObject {
         return v_parallel_to_collision.sum(object_v_normal_to_collision);
     }
 
-    protected boolean slideAroundCorners(Intersection i) {
-        Vector2 delta_p = velocity.multiply(Game.stepTimeSeconds());
-        Vector2 parallel_axis = i.getNormal().RHNormal().multiply(2*Mario.getPixelSize());
-        Vector2[] position_checks = {getPosition().sum(parallel_axis), getPosition().sum(parallel_axis.multiply(-1))};
+    protected boolean slideAroundCorners(Intersection i, double max_distance) {
+        Vector2 parallel_axis = i.getNormal().RHNormal();
+        Vector2[] directions = {parallel_axis.multiply(max_distance),
+                parallel_axis.multiply(-max_distance)};
+
+        // Move back into object
         Vector2 old_position = getPosition();
-        for(Vector2 p : position_checks) {
-            setPosition(p);
-            if(sweepForCollision(delta_p) != null) {
+        setPosition(getPosition().sum(i.getReject().multiply(-1)));
+
+        // Check for sliding in both directions
+        for(Vector2 d : directions) {
+            if(escapeSolids(d)) {
                 return true;
             }
         }
@@ -325,7 +335,7 @@ public abstract class PlatformingObject extends PhysicsObject {
      * @return A detailed {@link Collision} object.
      */
     protected Intersection snapToGround() {
-        Ground g = new Ground(sweepForCollision(down));
+        GroundCollision g = new GroundCollision(sweepForCollision(down));
 
         // Check that down is ground
         if(g.type != GroundType.NONE) {
@@ -364,7 +374,7 @@ public abstract class PlatformingObject extends PhysicsObject {
 
         // Check for ground
         last_ground = ground_found;
-        ground_found = new Ground(checkDirection(down));
+        ground_found = new GroundCollision(checkDirection(down));
 
         // Run state update code
         state.update();
@@ -388,7 +398,7 @@ public abstract class PlatformingObject extends PhysicsObject {
     @Override
     public void physicsCollisionEvent(Intersection i) {
         // Get ground type of this collision
-        Ground g = new Ground(i);
+        GroundCollision g = new GroundCollision(i);
 
         // Update velocity or do other things based on state behavior
         state.handlePhysicsCollisionEvent(g);
@@ -396,7 +406,7 @@ public abstract class PlatformingObject extends PhysicsObject {
         // Record ground type in global variable
         if(g.type == GroundType.FLAT ||
                 (g.type == GroundType.SLOPE && ground_found.type != GroundType.FLAT)) {
-            ground_found = new Ground(i);
+            ground_found = new GroundCollision(i);
         }
     }
 

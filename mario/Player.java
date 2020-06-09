@@ -18,7 +18,7 @@ import java.util.HashMap;
  * The physical object that the player controls.
  *
  * @author Galen Savidge
- * @version 6/4/2020
+ * @version 6/6/2020
  */
 public class Player extends PlatformingObject {
 
@@ -203,6 +203,16 @@ public class Player extends PlatformingObject {
             }
         }
 
+        /**
+         * Sets component of velocity parallel to ground to {@code velocity.x}. Sets the component of velocity normal
+         * to the ground to zero.
+         */
+        protected void conserveHorizontalVelocity() {
+            if(ground_found.type != GroundType.NONE) {
+                velocity = ground_found.intersection.getNormal().RHNormal().multiply(velocity.x);
+            }
+        }
+
         protected Vector2 groundPhysics(double friction, double gravity, double max_fall_speed, double walk_accel,
                                         double run_accel, double max_walk_speed, double max_run_speed) {
             Vector2 local_velocity = velocity.copy();
@@ -319,19 +329,11 @@ public class Player extends PlatformingObject {
         @Override
         public void enter() {
             useDefaultCollider();
-
-            // Snap down to be touching ground
-            Intersection ground = snapToGround();
-
-            // Conserve horizontal velocity and change its direction to be parallel with the ground
-            if(ground != null) {
-                velocity.y = 0;
-                velocity = ground.getNormal().RHNormal().multiply(velocity.x);
-            }
+            conserveHorizontalVelocity();
         }
 
         @Override
-        protected void handlePhysicsCollisionEvent(Ground g) {
+        protected void handlePhysicsCollisionEvent(GroundCollision g) {
             if(g.type == GroundType.NONE) {
                 super.handlePhysicsCollisionEvent(g);
             }
@@ -458,6 +460,16 @@ public class Player extends PlatformingObject {
         }
 
         @Override
+        protected void handlePhysicsCollisionEvent(GroundCollision g) {
+            if(g.intersection.getNormal().x == 0) {
+                if(slideAroundCorners(g.intersection, 4*Mario.getPixelSize())) {
+                    return;
+                }
+            }
+            super.handlePhysicsCollisionEvent(g);
+        }
+
+        @Override
         public void draw() {
             if(running) {
                 drawSprite(run_jump_sprite);
@@ -510,13 +522,12 @@ public class Player extends PlatformingObject {
         }
 
         @Override
-        public void handlePhysicsCollisionEvent(Ground g) {
+        public void handlePhysicsCollisionEvent(GroundCollision g) {
             if(g.type != GroundType.NONE) {
-                if(!crouching) {
+                if(!InputManager.getDown(InputManager.K_DOWN)) {
                     setNextState(new WalkState());
                 }
                 else {
-                    super.handlePhysicsCollisionEvent(g);
                     if(g.type == GroundType.FLAT) {
                         setNextState(new DuckState());
                     }
@@ -561,10 +572,11 @@ public class Player extends PlatformingObject {
         @Override
         public void enter() {
             useDuckCollider();
+            conserveHorizontalVelocity();
         }
 
         @Override
-        protected void handlePhysicsCollisionEvent(Ground g) {
+        protected void handlePhysicsCollisionEvent(GroundCollision g) {
             if(g.type == GroundType.NONE) {
                 super.handlePhysicsCollisionEvent(g);
             }

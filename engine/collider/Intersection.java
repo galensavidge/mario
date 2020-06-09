@@ -9,7 +9,7 @@ import engine.util.Vector2;
  * sweeps and ray-casts from Collider methods and can be used to find details about collision events.
  *
  * @author Galen Savidge
- * @version 6/1/2020
+ * @version 6/4/2020
  * @see #getNormal
  * @see #getReject
  * @see #getToContact
@@ -77,8 +77,8 @@ public class Intersection {
     }
 
     /**
-     * @return The normal of the edge intersected with. If {@code reversed == true} the normal points inside the {@code
-     * Collider}, though generally it points outside.
+     * @return The unit-magnitude normal of the edge intersected with. If {@code reversed == true} the normal points
+     * inside the {@code Collider}, though generally it points outside.
      */
     public Vector2 getNormal() {
         if(normal == null) {

@@ -13,12 +13,17 @@ import java.util.HashMap;
  * The parent class for enemies and moving obstacles.
  *
  * @author Galen Savidge
- * @version 6/4/2020
+ * @version 6/6/2020
  */
 public class Enemy extends PlatformingObject {
 
     public static final String dieStateName = "Die";
 
+    /* Physics constants */
+    protected static final double gravity = 2000;
+    protected static final double fall_speed = 1200;
+
+    /* Constructors */
     public Enemy(double x, double y) {
         super(Mario.enemy_priority, Mario.enemy_layer, x, y);
         this.type_group = Types.enemy_type_group;

@@ -14,4 +14,5 @@ public class Types {
     public static final String enemy_type_group = "Enemy";
 
     public static final String semisolid_tag = "Semisolid";
+    public static final String ground_tag = "Ground"; // Has surface velocity
 }
