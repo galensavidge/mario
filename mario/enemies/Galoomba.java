@@ -40,7 +40,7 @@ public class Galoomba extends Enemy {
     /* Sprites */
     private static final String[] walk_sprite_files = {Mario.sprite_path + "galoomba-walk-1.png",
             Mario.sprite_path + "galoomba-walk-2.png"};
-    private final AnimatedSprite walk_sprite = new AnimatedSprite(walk_sprite_files);
+    private final AnimatedSprite walk_sprite = new AnimatedSprite(walk_sprite_files, suspend_tier);
 
 
     /* Constructors */
@@ -139,8 +139,6 @@ public class Galoomba extends Enemy {
             else {
                 setNextState(new FallState());
             }
-
-            walk_sprite.incrementFrame();
         }
 
         @Override
@@ -189,7 +187,6 @@ public class Galoomba extends Enemy {
         @Override
         public void update() {
             velocity = applyGravity(velocity, gravity, fall_speed);
-            walk_sprite.incrementFrame();
         }
 
         @Override
@@ -223,7 +220,6 @@ public class Galoomba extends Enemy {
             else {
                 velocity = applyGravity(velocity, gravity, fall_speed);
             }
-            walk_sprite.incrementFrame();
             timer--;
             if(timer == 0) {
                 setNextState(new WalkState());

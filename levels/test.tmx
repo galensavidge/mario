@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.2" tiledversion="1.3.4" orientation="orthogonal" renderorder="right-down" width="100" height="14" tilewidth="16" tileheight="16" infinite="0" nextlayerid="9" nextobjectid="237">
+<map version="1.2" tiledversion="1.3.4" orientation="orthogonal" renderorder="right-down" width="100" height="14" tilewidth="16" tileheight="16" infinite="0" nextlayerid="9" nextobjectid="307">
  <editorsettings>
   <export target="test.json" format="json"/>
  </editorsettings>
@@ -25,15 +25,15 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-103,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,59,60,61,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-103,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,91,76,93,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-103,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,75,92,77,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-103,0,0,0,0,0,0,0,103,103,103,103,0,0,0,59,60,60,60,60,61,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,210,191,192,211,211,191,192,211,192,191,211,229,186,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-103,0,0,0,0,0,0,0,0,0,0,0,0,0,0,75,76,92,76,92,77,0,0,0,0,0,0,0,0,385,194,194,194,244,125,244,186,0,0,0,0,0,124,195,194,125,194,504,386,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,187,188,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-103,0,0,0,0,0,0,0,0,0,0,0,0,0,0,91,92,76,92,76,93,0,0,0,0,0,0,0,385,401,199,197,198,141,247,138,248,0,0,0,0,0,140,197,247,141,199,483,402,386,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,210,211,191,192,191,192,191,192,211,212,0,203,248,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-103,0,0,0,0,0,0,0,0,0,0,0,0,0,0,75,76,92,76,92,77,0,0,0,0,0,0,385,401,197,197,198,199,141,199,138,207,0,0,0,0,0,187,138,199,197,247,466,483,402,386,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,246,206,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-194,194,194,194,194,194,194,194,194,194,194,194,194,194,194,194,194,194,194,194,194,194,194,194,194,194,194,401,199,198,197,198,197,198,138,199,207,0,0,0,0,0,140,198,141,199,199,197,199,141,402,504,195,196,195,196,195,196,186,0,0,0,0,0,0,0,0,243,194,196,194,195,196,194,196,194,195,196,195,194,252,207,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,210,211,211,211,211,211,211,229,194,195,194,196,195,196,194,186,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+103,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,59,60,61,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,246,198,199,197,199,199,198,197,208,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+103,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,91,76,93,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,246,197,199,198,198,197,199,198,248,0,0,0,0,0,0,0,59,60,60,60,61,0,0,0,0,0,
+103,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,75,92,77,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,249,250,202,250,250,202,250,201,251,0,0,0,0,0,0,0,75,76,76,76,77,0,0,0,0,0,
+103,0,0,0,0,0,0,0,103,103,103,103,0,0,0,59,60,60,60,60,61,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,75,76,92,92,77,0,0,0,0,0,
+103,0,0,0,0,0,0,0,0,0,0,0,0,0,0,75,76,92,76,92,77,0,0,0,0,0,0,0,0,385,194,194,194,244,125,244,186,0,0,0,0,0,124,195,194,125,194,504,386,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,449,450,230,191,191,192,211,212,0,0,0,0,0,91,92,76,76,93,0,0,0,0,0,
+103,0,0,0,0,0,0,0,0,0,0,0,0,0,0,91,92,76,92,76,93,0,0,0,0,0,0,0,385,401,199,197,198,141,247,138,248,0,0,0,0,0,140,197,247,141,199,483,402,386,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,449,450,465,199,248,0,0,0,0,0,0,0,0,0,0,75,76,76,92,77,0,0,0,0,0,
+103,0,0,0,0,0,0,0,0,0,0,0,0,0,0,75,76,92,76,92,77,0,0,0,0,0,0,385,401,197,197,198,199,141,199,138,207,0,0,0,0,0,187,138,199,197,247,466,483,402,386,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,449,450,465,198,199,198,206,0,0,0,0,0,0,0,0,0,0,91,92,76,76,93,0,0,0,0,0,
+194,194,194,194,194,194,194,194,194,194,194,194,194,194,194,194,194,194,194,194,194,194,194,194,194,194,194,401,199,198,197,198,197,198,138,199,207,0,0,0,0,0,140,198,141,199,199,197,199,141,402,504,195,196,195,196,195,196,196,195,245,0,0,0,0,0,0,243,194,196,194,195,196,465,466,198,199,466,198,253,196,194,195,194,195,196,196,195,195,194,75,76,92,92,77,0,0,0,0,0
 </data>
  </layer>
  <objectgroup id="2" name="Ground">
@@ -62,13 +62,10 @@
    <polygon points="0,64 0,0 -80,0 -80,64"/>
   </object>
   <object id="107" template="GroundBlock.tx" x="816" y="208">
-   <polygon points="-16,0 128,0 128,16 -16,16"/>
+   <polygon points="-16,0 160,0 160,16 -16,16"/>
   </object>
   <object id="169" template="GroundBlock.tx" x="1072" y="208">
-   <polygon points="0,0 208,0 208,16 0,16"/>
-  </object>
-  <object id="170" template="GroundBlock.tx" x="1104" y="176">
-   <polygon points="0,0 160,0 160,16 0,16"/>
+   <polygon points="0,0 368,0 368,16 0,16"/>
   </object>
   <object id="177" template="GroundBlock.tx" x="272" y="96">
    <properties>
@@ -118,35 +115,87 @@
    </properties>
    <polygon points="0,0 16,0 16,16 0,16"/>
   </object>
-  <object id="206" template="HardBlock.tx" x="864" y="132"/>
-  <object id="209" template="GroundBlock.tx" x="1104" y="144">
-   <polygon points="0,0 208,0 208,16 0,16"/>
+  <object id="206" template="HardBlock.tx" x="864" y="128"/>
+  <object id="217" template="HardBlock.tx" x="880" y="128"/>
+  <object id="218" template="HardBlock.tx" x="896" y="128"/>
+  <object id="219" template="HardBlock.tx" x="912" y="128"/>
+  <object id="220" template="HardBlock.tx" x="912" y="144"/>
+  <object id="221" template="HardBlock.tx" x="912" y="144"/>
+  <object id="222" template="HardBlock.tx" x="896" y="144"/>
+  <object id="223" template="HardBlock.tx" x="880" y="144"/>
+  <object id="224" template="HardBlock.tx" x="880" y="160"/>
+  <object id="225" template="HardBlock.tx" x="896" y="160"/>
+  <object id="226" template="HardBlock.tx" x="912" y="160"/>
+  <object id="227" template="HardBlock.tx" x="912" y="176"/>
+  <object id="228" template="HardBlock.tx" x="896" y="176"/>
+  <object id="229" template="HardBlock.tx" x="880" y="176"/>
+  <object id="230" template="HardBlock.tx" x="880" y="176"/>
+  <object id="239" template="Spike.tx" x="864" y="160"/>
+  <object id="240" template="Spike.tx" x="864" y="176"/>
+  <object id="241" template="Spike.tx" x="864" y="144"/>
+  <object id="242" template="HardBlock.tx" x="880" y="96"/>
+  <object id="243" template="HardBlock.tx" x="896" y="96"/>
+  <object id="244" template="HardBlock.tx" x="864" y="16"/>
+  <object id="245" template="HardBlock.tx" x="864" y="32"/>
+  <object id="246" template="HardBlock.tx" x="864" y="48"/>
+  <object id="247" template="HardBlock.tx" x="864" y="64"/>
+  <object id="248" template="HardBlock.tx" x="864" y="80"/>
+  <object id="253" template="HardBlock.tx" x="928" y="112"/>
+  <object id="254" template="HardBlock.tx" x="928" y="96"/>
+  <object id="258" template="HardBlock.tx" x="928" y="80"/>
+  <object id="259" template="HardBlock.tx" x="928" y="64"/>
+  <object id="260" template="HardBlock.tx" x="912" y="64"/>
+  <object id="261" template="HardBlock.tx" x="896" y="64"/>
+  <object id="262" template="HardBlock.tx" x="880" y="32"/>
+  <object id="263" template="HardBlock.tx" x="896" y="16"/>
+  <object id="264" template="HardBlock.tx" x="880" y="16"/>
+  <object id="265" template="HardBlock.tx" x="896" y="16"/>
+  <object id="266" template="HardBlock.tx" x="896" y="32"/>
+  <object id="267" template="HardBlock.tx" x="912" y="32"/>
+  <object id="268" template="HardBlock.tx" x="912" y="16"/>
+  <object id="269" template="HardBlock.tx" x="928" y="16"/>
+  <object id="270" template="HardBlock.tx" x="928" y="32"/>
+  <object id="272" template="Spike.tx" x="864" y="196"/>
+  <object id="273" template="Spike.tx" x="880" y="196"/>
+  <object id="274" template="Spike.tx" x="896" y="196"/>
+  <object id="275" template="Spike.tx" x="912" y="196"/>
+  <object id="276" template="Spike.tx" x="928" y="196"/>
+  <object id="277" template="Spike.tx" x="928" y="128"/>
+  <object id="278" template="Spike.tx" x="928" y="144"/>
+  <object id="279" template="Spike.tx" x="928" y="160"/>
+  <object id="280" template="Spike.tx" x="928" y="176"/>
+  <object id="281" template="Spike.tx" x="1056" y="224"/>
+  <object id="282" template="Spike.tx" x="1040" y="224"/>
+  <object id="283" template="Spike.tx" x="1024" y="224"/>
+  <object id="284" template="Spike.tx" x="1008" y="224"/>
+  <object id="285" template="Spike.tx" x="992" y="224"/>
+  <object id="286" template="Spike.tx" x="976" y="224"/>
+  <object id="289" template="Spike.tx" x="1120" y="80"/>
+  <object id="290" template="Spike.tx" x="1120" y="64"/>
+  <object id="291" template="Spike.tx" x="1120" y="48"/>
+  <object id="292" template="Spike.tx" x="1184" y="16"/>
+  <object id="293" template="Spike.tx" x="1184" y="32"/>
+  <object id="294" template="Spike.tx" x="1184" y="48"/>
+  <object id="295" template="Spike.tx" x="1248" y="80"/>
+  <object id="296" template="Spike.tx" x="1248" y="64"/>
+  <object id="297" template="Spike.tx" x="1248" y="48"/>
+  <object id="298" template="Spike.tx" x="1312" y="16"/>
+  <object id="299" template="Spike.tx" x="1312" y="32"/>
+  <object id="300" template="Spike.tx" x="1312" y="48"/>
+  <object id="301" template="Spike.tx" x="1184" y="64"/>
+  <object id="302" template="Spike.tx" x="1312" y="64"/>
+  <object id="304" template="GroundBlock.tx" x="1280" y="160">
+   <polygon points="0,0 80,0 80,16 0,16"/>
   </object>
-  <object id="210" template="GroundBlock.tx" x="1280" y="160">
-   <polygon points="0,0 32,0 32,48 0,48"/>
+  <object id="305" template="GroundBlock.tx" x="1331" y="178">
+   <properties>
+    <property name="semisolid" type="bool" value="true"/>
+   </properties>
+   <polygon points="109,-66 189,-66 189,-34 109,-34"/>
   </object>
-  <object id="212" template="HardBlock.tx" x="864" y="148"/>
-  <object id="213" template="HardBlock.tx" x="864" y="164"/>
-  <object id="214" template="HardBlock.tx" x="864" y="180"/>
-  <object id="215" template="HardBlock.tx" x="864" y="180"/>
-  <object id="216" template="HardBlock.tx" x="864" y="196"/>
-  <object id="217" template="HardBlock.tx" x="880" y="132"/>
-  <object id="218" template="HardBlock.tx" x="896" y="132"/>
-  <object id="219" template="HardBlock.tx" x="912" y="132"/>
-  <object id="220" template="HardBlock.tx" x="912" y="148"/>
-  <object id="221" template="HardBlock.tx" x="912" y="148"/>
-  <object id="222" template="HardBlock.tx" x="896" y="148"/>
-  <object id="223" template="HardBlock.tx" x="880" y="148"/>
-  <object id="224" template="HardBlock.tx" x="880" y="164"/>
-  <object id="225" template="HardBlock.tx" x="896" y="164"/>
-  <object id="226" template="HardBlock.tx" x="912" y="164"/>
-  <object id="227" template="HardBlock.tx" x="912" y="180"/>
-  <object id="228" template="HardBlock.tx" x="896" y="180"/>
-  <object id="229" template="HardBlock.tx" x="880" y="180"/>
-  <object id="230" template="HardBlock.tx" x="880" y="180"/>
-  <object id="231" template="HardBlock.tx" x="880" y="196"/>
-  <object id="232" template="HardBlock.tx" x="896" y="196"/>
-  <object id="233" template="HardBlock.tx" x="912" y="196"/>
+  <object id="306" template="GroundBlock.tx" x="1072" y="80">
+   <polygon points="0,0 256,0 256,64 112,64 112,16 0,16"/>
+  </object>
  </objectgroup>
  <objectgroup id="7" name="Slopes" offsetx="8" offsety="0">
   <object id="127" template="GroundBlock.tx" x="432" y="160">
@@ -154,6 +203,9 @@
   </object>
   <object id="128" template="GroundBlock.tx" x="744" y="160" rotation="0">
    <polygon points="56,48 0,48 0,0 8,0"/>
+  </object>
+  <object id="303" template="GroundBlock.tx" x="1184" y="192">
+   <polygon points="80,-32 88,-32 88,16 -16,16"/>
   </object>
  </objectgroup>
  <objectgroup id="3" name="Enemies/Gizmos">
@@ -165,10 +217,10 @@
   <object id="142" template="Coin.tx" x="640" y="112"/>
   <object id="143" template="Coin.tx" x="656" y="128"/>
   <object id="144" template="Coin.tx" x="672" y="144"/>
-  <object id="236" template="MovingPlatform.tx" x="1312" y="160">
+  <object id="236" template="MovingPlatform.tx" x="944" y="96">
    <properties>
-    <property name="move distance" type="int" value="10"/>
-    <property name="size" type="int" value="4"/>
+    <property name="move distance" type="int" value="8"/>
+    <property name="size" type="int" value="3"/>
    </properties>
   </object>
  </objectgroup>

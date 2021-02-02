@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.2" tiledversion="1.3.4" name="mm2-smw" tilewidth="16" tileheight="24" tilecount="6" columns="100">
+<tileset version="1.2" tiledversion="1.3.4" name="mm2-smw" tilewidth="16" tileheight="24" tilecount="7" columns="100">
  <grid orientation="orthogonal" width="16" height="16"/>
  <tile id="1">
   <image width="16" height="16" source="../sprites/hardblock.png"/>
@@ -18,5 +18,8 @@
  </tile>
  <tile id="6">
   <image width="16" height="16" source="../sprites/movingplatform-2.png"/>
+ </tile>
+ <tile id="7">
+  <image width="16" height="16" source="../sprites/spike-1.png"/>
  </tile>
 </tileset>
